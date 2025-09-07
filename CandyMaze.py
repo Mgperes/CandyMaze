@@ -8,10 +8,12 @@ class Start:
         self.y = 0
         self.width = 250
         self.height = 180
+
+
     def update_conect(self):
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
-            self.start = False
-            
+            return False
+        return True
 
     def desenhastart(self):
         pyxel.cls(0)
@@ -70,12 +72,13 @@ class CandyMazeGame:
         pyxel.init(250, 180, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q)
 
         self.start = True
+        self.start_screen = Start()
         self.personagem = Personagem(56, 72)
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
-        pyxel.images[1].load(0, 0, "personagem56x72(14x18_cada)")
+        pyxel.images[1].load(0, 0, "personagem.png")
+        pyxel.images[2].load(0, 0, "FASE1.png")
 
-    
         pyxel.run(self.update, self.draw)
 
 
@@ -84,24 +87,34 @@ class CandyMazeGame:
 
 
     def update(self):
-        pass
+        if self.start:
+            # Aguarda Enter ou Espaço para começar
+            if not self.start_screen.update_conect():
+                self.start = False
+            return
+       
+
+        # ------------------- se clicar em ESC volta pra tela inicial -------------------#
+        if pyxel.btnp(pyxel.KEY_ESCAPE):
+            self.start = True
+            return
 
     # ------------------- Movimento do personagem -------------------#
-        #dx = 0
-        #dy = 0
+        dx = 0
+        dy = 0
 
-        #if pyxel.btn(pyxel.KEY_UP):
-         #   dy -= 4
-        #if pyxel.btn(pyxel.KEY_DOWN):
-         #   dy += 4
-        #if pyxel.btn(pyxel.KEY_LEFT):
-         #   dx -= 4
-        #if pyxel.btn(pyxel.KEY_RIGHT):
-         #   dx += 4
+        if pyxel.btn(pyxel.KEY_UP):
+            dy -= 4
+        if pyxel.btn(pyxel.KEY_DOWN):
+            dy += 4
+        if pyxel.btn(pyxel.KEY_LEFT):
+            dx -= 4
+        if pyxel.btn(pyxel.KEY_RIGHT):
+            dx += 4
 
 
-        #if dx != 0 or dy != 0:
-         #   self.personagem.move(dx, dy)
+        if dx != 0 or dy != 0:
+            self.personagem.move(dx, dy)
 
           #  for parede in self.paredes:
            #     if self.colisao(self.personagem, parede):
@@ -110,13 +123,10 @@ class CandyMazeGame:
               #      break
 
     def draw(self):
-
-        if self.start == True:
-            Start().desenhastart()
-            Start().update_conect()
+        if self.start:
+            self.start_screen.desenhastart()
         else:
-            pyxel.cls(0)
-            pyxel.blt(0, 0, 0, 0, 0, 250, 180)
+            pyxel.cls(8)
             self.personagem.desenhapersonagem()
 
 CandyMazeGame()
