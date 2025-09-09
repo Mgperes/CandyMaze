@@ -58,6 +58,7 @@ class Personagem:
         self.y += dy
 
     def parada(self):
+
         self.x_mem = 0 
         self.y_mem = 0
 
