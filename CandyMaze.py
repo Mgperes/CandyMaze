@@ -126,7 +126,7 @@ class CandyMazeGame:
         if self.start:
             self.start_screen.desenhastart()
         else:
-            pyxel.cls(8)
+            pyxel.cls(14)
             self.personagem.desenhapersonagem()
 
 CandyMazeGame()
