@@ -57,7 +57,9 @@ class Personagem:
         self.x += dx
         self.y += dy
 
-
+    def parada(self):
+        self.x_mem=0
+        self.y_mem=0
 #----------------- colisão --------------------#
     def colisao(self):
 
@@ -144,6 +146,8 @@ class CandyMazeGame:
 
         if dx != 0 or dy != 0:
             self.personagem.move(dx, dy)
+        else:
+            self.personagem.parada()
 
           #  for parede in self.paredes:
            #     if self.colisao(self.personagem, parede):
