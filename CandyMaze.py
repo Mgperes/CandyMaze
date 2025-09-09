@@ -22,8 +22,6 @@ class Start:
         pyxel.text(80, 119, "(Enter ou Espaço) Start", 7)
 
 
-
-
 #----------------- Personagem -------------------#
 class Personagem:
     def __init__(self, x, y):
@@ -59,6 +57,23 @@ class Personagem:
         self.x += dx
         self.y += dy
 
+
+#----------------- colisão --------------------#
+    def colisao(self):
+
+        self.largura_parede = 250
+        self.altura_parede = 180
+
+        Esquerda_personagem = self.x
+        Direita_personagem = self.x + self.largura_parede
+        Cima_personagem = self.y
+        Baixo_personagem = self.y + self.altura_parede
+
+        if (self.x + self.largura > Esquerda_personagem and self.x < Direita_personagem and
+            self.y + self.altura > Cima_personagem and self.y < Baixo_personagem):
+            return True
+        return False
+
 #----------------- Desenha o personagem -------------------#
     def desenhapersonagem(self):
 
@@ -74,6 +89,7 @@ class CandyMazeGame:
         self.start = True
         self.start_screen = Start()
         self.personagem = Personagem(56, 72)
+        self.colisao = False
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
         pyxel.images[1].load(0, 0, "personagem.png")
@@ -98,6 +114,19 @@ class CandyMazeGame:
         if pyxel.btnp(pyxel.KEY_ESCAPE):
             self.start = True
             return
+
+        #---------------------- Personagem não sumir da tela ----------------------#
+        if self.colisao == True:
+            self.x = self.x - dx
+            self.y = self.y - dy
+        if self.personagem.x < 0:
+            self.personagem.x = 0
+        if self.personagem.x + self.personagem.largura > 250:
+            self.personagem.x = 250 - self.personagem.largura
+        if self.personagem.y < 0:
+            self.personagem.y = 0
+        if self.personagem.y + self.personagem.altura > 180:
+            self.personagem.y = 180 - self.personagem.altura
 
     # ------------------- Movimento do personagem -------------------#
         dx = 0
@@ -126,7 +155,7 @@ class CandyMazeGame:
         if self.start:
             self.start_screen.desenhastart()
         else:
-            pyxel.cls(8)
+            pyxel.cls(14)
             self.personagem.desenhapersonagem()
 
 CandyMazeGame()
