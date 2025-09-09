@@ -96,7 +96,7 @@ class CandyMazeGame:
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
         pyxel.images[1].load(0, 0, "personagem.png")
-        pyxel.images[2].load(0, 0, "FASE1.png")
+        pyxel.images[2].load(0, 0, "PYXEL_RESOURCE_FILE.pyxres")
 
         pyxel.run(self.update, self.draw)
 
@@ -161,6 +161,7 @@ class CandyMazeGame:
             self.start_screen.desenhastart()
         else:
             pyxel.cls(14)
+            pyxel.blt(0, 0, 2, 0, 0, 250, 180)
             self.personagem.desenhapersonagem()
 
 CandyMazeGame()
