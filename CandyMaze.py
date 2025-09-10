@@ -62,6 +62,7 @@ class Fase1:
         self.personagem = Personagem(56, 72)
         self.x = 0
         self.y = 0
+        self.colisao = False
 
     def update_fase1(self):
         
@@ -190,55 +191,19 @@ class CandyMazeGame:
             if not self.start_screen.update_conect():
                 self.start = False
             return
-       
+        self.fase1.update_fase1()
 
         # ------------------- se clicar em ESC volta pra tela inicial -------------------#
         if pyxel.btnp(pyxel.KEY_ESCAPE):
             self.start = True
             return
 
-        #---------------------- Personagem não sumir da tela ----------------------#
-        if self.colisao == True:
-            self.x = self.x - dx
-            self.y = self.y - dy
-        if self.personagem.x < 0:
-            self.personagem.x = 0
-        if self.personagem.x + self.personagem.largura > 250:
-            self.personagem.x = 250 - self.personagem.largura
-        if self.personagem.y < 0:
-            self.personagem.y = 0
-        if self.personagem.y + self.personagem.altura > 180:
-            self.personagem.y = 180 - self.personagem.altura
-
-    # ------------------- Movimento do personagem -------------------#
-        dx = 0
-        dy = 0
-
-        if pyxel.btn(pyxel.KEY_UP):
-            dy -= 4
-        if pyxel.btn(pyxel.KEY_DOWN):
-            dy += 4
-        if pyxel.btn(pyxel.KEY_LEFT):
-            dx -= 4
-        if pyxel.btn(pyxel.KEY_RIGHT):
-            dx += 4
-
-
-        if dx != 0 or dy != 0:
-            self.personagem.move(dx, dy)
-        else:
-            self.personagem.parada()
-
-          #  for parede in self.paredes:
-           #     if self.colisao(self.personagem, parede):
-            #     # Se houver colisão, reverte o movimento
-             #       self.personagem.move(-dx, -dy)
-              #      break
-
     def draw(self):
         if self.start:
             self.start_screen.desenhastart()
         else:
             self.fase1.draw_fase1()
+            
+
 
 CandyMazeGame()
