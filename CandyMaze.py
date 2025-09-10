@@ -13,7 +13,7 @@ class Start:
 
 
     def update_conect(self):
-        
+
         # Área do botão Start (ajuste conforme o texto)
         start_x = 97
         start_y = 119
@@ -54,6 +54,53 @@ class Start:
         # Desenha cursor do mouse customizado
         pyxel.mouse(True)
         
+
+#----------------- FASE 1 -----------------------#
+
+class Fase1:
+    def __init__(self):
+        self.personagem = Personagem(56, 72)
+        self.x = 0
+        self.y = 0
+
+    def update_fase1(self):
+        
+           #---------------------- Personagem não sumir da tela ----------------------#
+        if self.colisao == True:
+            self.x = self.x - dx
+            self.y = self.y - dy
+        if self.personagem.x < 0:
+            self.personagem.x = 0
+        if self.personagem.x + self.personagem.largura > 250:
+            self.personagem.x = 250 - self.personagem.largura
+        if self.personagem.y < 0:
+            self.personagem.y = 0
+        if self.personagem.y + self.personagem.altura > 180:
+            self.personagem.y = 180 - self.personagem.altura
+
+    # ------------------- Movimento do personagem -------------------#
+        dx = 0
+        dy = 0
+
+        if pyxel.btn(pyxel.KEY_UP):
+            dy -= 4
+        if pyxel.btn(pyxel.KEY_DOWN):
+            dy += 4
+        if pyxel.btn(pyxel.KEY_LEFT):
+            dx -= 4
+        if pyxel.btn(pyxel.KEY_RIGHT):
+            dx += 4
+
+
+        if dx != 0 or dy != 0:
+            self.personagem.move(dx, dy)
+        else:
+            self.personagem.parada()
+
+    def draw_fase1(self):
+        pyxel.cls(14)
+        pyxel.mouse(False) 
+        self.personagem.desenhapersonagem()
 
 
 #----------------- Personagem -------------------#
@@ -123,6 +170,7 @@ class CandyMazeGame:
     def __init__(self):
         pyxel.init(250, 180, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
 
+        self.fase1 = Fase1()
         self.start = True
         self.start_screen = Start()
         self.personagem = Personagem(56, 72)
@@ -191,8 +239,6 @@ class CandyMazeGame:
         if self.start:
             self.start_screen.desenhastart()
         else:
-            pyxel.cls(14)
-            pyxel.mouse(False) 
-            self.personagem.desenhapersonagem()
+            self.fase1.draw_fase1()
 
 CandyMazeGame()
