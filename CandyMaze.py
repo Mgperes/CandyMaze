@@ -4,6 +4,8 @@ import pyxel
 #----------------- Start -------------------#
 class Start:
     def __init__(self):
+        self.colortext = 7
+        self.hover_timer = 0
         self.x = 0
         self.y = 0
         self.width = 250
@@ -11,15 +13,95 @@ class Start:
 
 
     def update_conect(self):
+
+        # Área do botão Start (ajuste conforme o texto)
+        start_x = 97
+        start_y = 119
+        start_w = 110
+        start_h = 10
+        mouse_over_start = (
+            start_x <= pyxel.mouse_x <= start_x + start_w and
+            start_y <= pyxel.mouse_y <= start_y + start_h
+        )
+
+        mouse_over_quit = (130 <= pyxel.mouse_x <= 130 + 50 and
+                           119 <= pyxel.mouse_y <= 119 + 10
+                           )
+        
+
+        # Clique em QUIT ou aperte o "Q "para fechar o jogo
+        if mouse_over_quit and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) or pyxel.btnp(pyxel.KEY_Q)):
+            pyxel.quit()
+        # Clique em ENTER ou ESPAÇO para iniciar
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
             return False
+    
+        # Clique do mouse inicia o jogo se estiver sobre o texto Start
+        if mouse_over_start and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)):
+            self.hover_timer += 1
+            if self.hover_timer > 10:
+                self.colortext = 8  # cor diferente
+            else:
+                self.colortext = 7
+                return False
         return True
 
     def desenhastart(self):
         pyxel.cls(0)
-        pyxel.blt(0, 0, 0, 0, 0, 250, 180)
-        pyxel.text(80, 109, "(Q)uit", 7)
-        pyxel.text(80, 119, "(Enter ou Espaço) Start", 7)
+        pyxel.blt(0, 0, 0, 0, 0, 250, 180)  
+        pyxel.text(130, 119, "(Q)UIT", 7)
+        pyxel.text(97, 119, "START |", self.colortext)
+        # Desenha cursor do mouse customizado
+        pyxel.mouse(True)
+        
+
+#----------------- FASE 1 -----------------------#
+
+class Fase1:
+    def __init__(self):
+        self.personagem = Personagem(56, 72)
+        self.x = 0
+        self.y = 0
+        self.colisao = False
+
+    def update_fase1(self):
+        
+           #---------------------- Personagem não sumir da tela ----------------------#
+        if self.colisao == True:
+            self.x = self.x - dx
+            self.y = self.y - dy
+        if self.personagem.x < 0:
+            self.personagem.x = 0
+        if self.personagem.x + self.personagem.largura > 250:
+            self.personagem.x = 250 - self.personagem.largura
+        if self.personagem.y < 0:
+            self.personagem.y = 0
+        if self.personagem.y + self.personagem.altura > 180:
+            self.personagem.y = 180 - self.personagem.altura
+
+    # ------------------- Movimento do personagem -------------------#
+        dx = 0
+        dy = 0
+
+        if pyxel.btn(pyxel.KEY_UP):
+            dy -= 4
+        if pyxel.btn(pyxel.KEY_DOWN):
+            dy += 4
+        if pyxel.btn(pyxel.KEY_LEFT):
+            dx -= 4
+        if pyxel.btn(pyxel.KEY_RIGHT):
+            dx += 4
+
+
+        if dx != 0 or dy != 0:
+            self.personagem.move(dx, dy)
+        else:
+            self.personagem.parada()
+
+    def draw_fase1(self):
+        pyxel.cls(14)
+        pyxel.mouse(False) 
+        self.personagem.desenhapersonagem()
 
 
 #----------------- Personagem -------------------#
@@ -61,7 +143,6 @@ class Personagem:
 
         self.x_mem = 0 
         self.y_mem = 0
-
 #----------------- colisão --------------------#
     def colisao(self):
 
@@ -88,80 +169,41 @@ class Personagem:
 #----------------- CandyMazeGame -------------------#
 class CandyMazeGame:
     def __init__(self):
-        pyxel.init(250, 180, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q)
+        pyxel.init(250, 180, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
 
+        self.fase1 = Fase1()
         self.start = True
         self.start_screen = Start()
         self.personagem = Personagem(56, 72)
         self.colisao = False
+
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
         pyxel.images[1].load(0, 0, "personagem.png")
-        pyxel.images[2].load(0, 0, "FASE1.png")
-
+        
+        
         pyxel.run(self.update, self.draw)
 
-
-
-
-
-
+        
     def update(self):
         if self.start:
             # Aguarda Enter ou Espaço para começar
             if not self.start_screen.update_conect():
                 self.start = False
             return
-       
+        self.fase1.update_fase1()
 
         # ------------------- se clicar em ESC volta pra tela inicial -------------------#
         if pyxel.btnp(pyxel.KEY_ESCAPE):
             self.start = True
             return
 
-        #---------------------- Personagem não sumir da tela ----------------------#
-        if self.colisao == True:
-            self.x = self.x - dx
-            self.y = self.y - dy
-        if self.personagem.x < 0:
-            self.personagem.x = 0
-        if self.personagem.x + self.personagem.largura > 250:
-            self.personagem.x = 250 - self.personagem.largura
-        if self.personagem.y < 0:
-            self.personagem.y = 0
-        if self.personagem.y + self.personagem.altura > 180:
-            self.personagem.y = 180 - self.personagem.altura
-
-    # ------------------- Movimento do personagem -------------------#
-        dx = 0
-        dy = 0
-
-        if pyxel.btn(pyxel.KEY_UP):
-            dy -= 4
-        if pyxel.btn(pyxel.KEY_DOWN):
-            dy += 4
-        if pyxel.btn(pyxel.KEY_LEFT):
-            dx -= 4
-        if pyxel.btn(pyxel.KEY_RIGHT):
-            dx += 4
-
-
-        if dx != 0 or dy != 0:
-            self.personagem.move(dx, dy)
-        else:
-            self.personagem.parada()
-
-          #  for parede in self.paredes:
-           #     if self.colisao(self.personagem, parede):
-            #     # Se houver colisão, reverte o movimento
-             #       self.personagem.move(-dx, -dy)
-              #      break
-
     def draw(self):
         if self.start:
             self.start_screen.desenhastart()
         else:
-            pyxel.cls(14)
-            self.personagem.desenhapersonagem()
+            self.fase1.draw_fase1()
+            
+
 
 CandyMazeGame()
