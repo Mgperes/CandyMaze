@@ -13,6 +13,7 @@ class Start:
 
 
     def update_conect(self):
+        
         # Área do botão Start (ajuste conforme o texto)
         start_x = 97
         start_y = 119
@@ -22,13 +23,19 @@ class Start:
             start_x <= pyxel.mouse_x <= start_x + start_w and
             start_y <= pyxel.mouse_y <= start_y + start_h
         )
+
         mouse_over_quit = (130 <= pyxel.mouse_x <= 130 + 50 and
                            119 <= pyxel.mouse_y <= 119 + 10
                            )
+        
 
+        # Clique em QUIT ou aperte o "Q "para fechar o jogo
         if mouse_over_quit and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) or pyxel.btnp(pyxel.KEY_Q)):
             pyxel.quit()
-
+        # Clique em ENTER ou ESPAÇO para iniciar
+        if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+            return False
+    
         # Clique do mouse inicia o jogo se estiver sobre o texto Start
         if mouse_over_start and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)):
             self.hover_timer += 1
