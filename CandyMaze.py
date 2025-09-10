@@ -14,7 +14,7 @@ class Start:
 
     def update_conect(self):
         # Área do botão Start (ajuste conforme o texto)
-        start_x = 80
+        start_x = 97
         start_y = 119
         start_w = 110
         start_h = 10
@@ -22,31 +22,31 @@ class Start:
             start_x <= pyxel.mouse_x <= start_x + start_w and
             start_y <= pyxel.mouse_y <= start_y + start_h
         )
-        mouse_over_quit = ( 80 <= pyxel.mouse_x <= 80 + 50 and
-            109 <= pyxel.mouse_y <= 109 + 10
-        )
+        mouse_over_quit = (130 <= pyxel.mouse_x <= 130 + 50 and
+                           119 <= pyxel.mouse_y <= 119 + 10
+                           )
 
         if mouse_over_quit and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) or pyxel.btnp(pyxel.KEY_Q)):
             pyxel.quit()
 
         # Clique do mouse inicia o jogo se estiver sobre o texto Start
-        if mouse_over_start and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) or pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE)):
+        if mouse_over_start and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)):
             self.hover_timer += 1
             if self.hover_timer > 10:
                 self.colortext = 8  # cor diferente
             else:
                 self.colortext = 7
                 return False
-        
         return True
 
     def desenhastart(self):
         pyxel.cls(0)
-        pyxel.blt(0, 0, 0, 0, 0, 250, 180)
-        pyxel.text(80, 109, "(Q)uit", 7)
-        pyxel.text(80, 119, "(Enter or Space) Start", self.colortext)
+        pyxel.blt(0, 0, 0, 0, 0, 250, 180)  
+        pyxel.text(130, 119, "(Q)UIT", 7)
+        pyxel.text(97, 119, "START |", self.colortext)
         # Desenha cursor do mouse customizado
-        pyxel.circ(pyxel.mouse_x, pyxel.mouse_y, 2, 7)
+        pyxel.mouse(True)
+        
 
 
 #----------------- Personagem -------------------#
@@ -114,7 +114,7 @@ class Personagem:
 #----------------- CandyMazeGame -------------------#
 class CandyMazeGame:
     def __init__(self):
-        pyxel.init(250, 180, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q)
+        pyxel.init(250, 180, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
 
         self.start = True
         self.start_screen = Start()
@@ -124,15 +124,11 @@ class CandyMazeGame:
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
         pyxel.images[1].load(0, 0, "personagem.png")
-        pyxel.tilemaps[2].load(0, 0, "PYXEL_RESOURCE_FILE.pyxres", True)
-
+        
+        
         pyxel.run(self.update, self.draw)
 
-
-
-
-
-
+        
     def update(self):
         if self.start:
             # Aguarda Enter ou Espaço para começar
@@ -189,7 +185,7 @@ class CandyMazeGame:
             self.start_screen.desenhastart()
         else:
             pyxel.cls(14)
-            pyxel.bltm(0, 0, 2, 0, 0, 250, 180)
+            pyxel.mouse(False) 
             self.personagem.desenhapersonagem()
 
 CandyMazeGame()
