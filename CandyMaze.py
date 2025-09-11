@@ -1,7 +1,7 @@
 import pyxel
 
 
-#----------------- Start -------------------#
+#----------------- Start ---------------------------------------------------------------------------------#
 class Start:
     def __init__(self):
         self.colortext = 7
@@ -55,7 +55,7 @@ class Start:
         pyxel.mouse(True)
         
 
-#----------------- FASE 1 -----------------------#
+#----------------- FASE 1 ----------------------------------------------------------------------------------------#
 
 class Fase1:
     def __init__(self):
@@ -66,7 +66,7 @@ class Fase1:
 
     def update_fase1(self):
         
-           #---------------------- Personagem não sumir da tela ----------------------#
+        #---------------------- Personagem não sumir da tela ----------------------#
         if self.colisao == True:
             self.x = self.x - dx
             self.y = self.y - dy
@@ -79,7 +79,7 @@ class Fase1:
         if self.personagem.y + self.personagem.altura > 180:
             self.personagem.y = 180 - self.personagem.altura
 
-    # ------------------- Movimento do personagem -------------------#
+        # ------------------- Movimento do personagem -------------------#
         dx = 0
         dy = 0
 
@@ -96,17 +96,25 @@ class Fase1:
         if dx != 0 or dy != 0:
             self.personagem.move(dx, dy)
         else:
+            #-------------- Personagem parado -------------------#
             self.personagem.parada()
+        #----------------- Personagem pulando -------------------#
+        if pyxel.btnp(pyxel.KEY_SPACE) and self.personagem.no_chao:
+            self.personagem.vy = -10
+            self.personagem.no_chao = False
+        self.personagem.atualizar_pulo()
 
     def draw_fase1(self):
         pyxel.cls(14)
-        pyxel.mouse(False) 
+        pyxel.mouse(False) # mouse desativado
         self.personagem.desenhapersonagem()
 
 
-#----------------- Personagem -------------------#
+#----------------- Personagem ---------------------------------------------------------------------------------------#
 class Personagem:
     def __init__(self, x, y):
+        self.vy = 0
+        self.no_chao = True
         self.x = x
         self.y = y
         self.largura = 14
@@ -138,12 +146,28 @@ class Personagem:
 
         self.x += dx
         self.y += dy
+    #----------------- Personagem pulando -------------------#
+    def atualizar_pulo(self):
 
+        gravidade = 1
+        if not self.no_chao:
+            self.vy += gravidade
+            self.y += self.vy
+            # Chegou no chão 
+            if self.y >= 72:
+                self.y = 72
+                self.vy = 0
+                self.no_chao = True
+
+
+
+    #----------------- Personagem parado -------------------#
     def parada(self):
 
         self.x_mem = 0 
         self.y_mem = 0
-#----------------- colisão --------------------#
+
+    #----------------- colisão --------------------#
     def colisao(self):
 
         self.largura_parede = 250
@@ -159,18 +183,19 @@ class Personagem:
             return True
         return False
 
-#----------------- Desenha o personagem -------------------#
+    #----------------- Desenha o personagem -------------------#
     def desenhapersonagem(self):
 
         pyxel.blt(self.x, self.y, 1, self.x_mem, self.y_mem, self.largura, self.altura, 7)
 
 
 
-#----------------- CandyMazeGame -------------------#
+#----------------- CandyMazeGame ---------------------------------------------------------------------------#
 class CandyMazeGame:
     def __init__(self):
         pyxel.init(250, 180, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
 
+        
         self.fase1 = Fase1()
         self.start = True
         self.start_screen = Start()
@@ -193,7 +218,9 @@ class CandyMazeGame:
             return
         self.fase1.update_fase1()
 
-        # ------------------- se clicar em ESC volta pra tela inicial -------------------#
+        
+
+        # -------- se clicar em ESC volta pra tela inicial -------------------#
         if pyxel.btnp(pyxel.KEY_ESCAPE):
             self.start = True
             return
