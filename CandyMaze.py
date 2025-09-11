@@ -47,10 +47,10 @@ class Start:
         return True
 
     def desenhastart(self):
-        pyxel.cls(0)
+        pyxel.cls(8)
         pyxel.blt(0, 0, 0, 0, 0, 250, 180)  
-        pyxel.text(130, 119, "(Q)UIT", 7)
-        pyxel.text(97, 119, "START |", self.colortext)
+        pyxel.text(130, 119, "(Q)UIT", pyxel.frame_count % 8)
+        pyxel.text(97, 119, "START |", pyxel.frame_count % 8)
         # Desenha cursor do mouse customizado
         pyxel.mouse(True)
         
@@ -59,6 +59,8 @@ class Start:
 
 class Fase1:
     def __init__(self):
+        self.colortext = 7
+        self.pontos = 0
         self.personagem = Personagem(56, 72)
         self.x = 0
         self.y = 0
@@ -83,13 +85,13 @@ class Fase1:
         dx = 0
         dy = 0
 
-        if pyxel.btn(pyxel.KEY_UP):
+        if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.KEY_W):
             dy -= 4
-        if pyxel.btn(pyxel.KEY_DOWN):
+        if pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.KEY_S):
             dy += 4
-        if pyxel.btn(pyxel.KEY_LEFT):
+        if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.KEY_A):
             dx -= 4
-        if pyxel.btn(pyxel.KEY_RIGHT):
+        if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.KEY_D):
             dx += 4
 
 
@@ -108,6 +110,9 @@ class Fase1:
         pyxel.cls(14)
         pyxel.mouse(False) # mouse desativado
         self.personagem.desenhapersonagem()
+
+        pyxel.text(5, 5, "FASE 1", 0)
+        pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
 
 
 #----------------- Personagem ---------------------------------------------------------------------------------------#
