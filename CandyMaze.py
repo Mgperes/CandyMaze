@@ -85,13 +85,13 @@ class Fase1:
         dx = 0
         dy = 0
 
-        if pyxel.btn(pyxel.KEY_UP):
+        if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.KEY_W):
             dy -= 4
-        if pyxel.btn(pyxel.KEY_DOWN):
+        if pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.KEY_S):
             dy += 4
-        if pyxel.btn(pyxel.KEY_LEFT):
+        if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.KEY_A):
             dx -= 4
-        if pyxel.btn(pyxel.KEY_RIGHT):
+        if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.KEY_D):
             dx += 4
 
 
@@ -110,8 +110,9 @@ class Fase1:
         pyxel.cls(14)
         pyxel.mouse(False) # mouse desativado
         self.personagem.desenhapersonagem()
-        pyxel.text(5, 5, "FASE 1", self.colortext)
-        
+
+        pyxel.text(5, 5, "FASE 1", 0)
+        pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
 
 
 #----------------- Personagem ---------------------------------------------------------------------------------------#
