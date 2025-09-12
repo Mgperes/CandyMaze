@@ -47,10 +47,10 @@ class Start:
         return True
 
     def desenhastart(self):
-        pyxel.cls(8)
+        pyxel.cls(14)
         pyxel.blt(0, 0, 0, 0, 0, 250, 180)  
-        pyxel.text(130, 119, "(Q)UIT", pyxel.frame_count % 8)
-        pyxel.text(97, 119, "START |", pyxel.frame_count % 8)
+        pyxel.text(130, 119, "(Q)UIT", pyxel.frame_count % 4)
+        pyxel.text(97, 119, "START |", pyxel.frame_count % 4)
         # Desenha cursor do mouse customizado
         pyxel.mouse(True)
         
@@ -61,13 +61,19 @@ class Fase1:
     def __init__(self):
         self.colortext = 7
         self.pontos = 0
-        self.personagem = Personagem(56, 72)
+        altura_chao = 8
+        altura_tela = 220
+        altura_personagem = 18
+        y_chao = altura_tela - altura_chao
+        self.personagem = Personagem(2, y_chao - altura_personagem)
         self.x = 0
         self.y = 0
         self.colisao = False
 
     def update_fase1(self):
         
+
+
         #---------------------- Personagem não sumir da tela ----------------------#
         if self.colisao == True:
             self.x = self.x - dx
@@ -78,17 +84,15 @@ class Fase1:
             self.personagem.x = 250 - self.personagem.largura
         if self.personagem.y < 0:
             self.personagem.y = 0
-        if self.personagem.y + self.personagem.altura > 180:
-            self.personagem.y = 180 - self.personagem.altura
+        if self.personagem.y + self.personagem.altura > 212:
+            self.personagem.y = 212 - self.personagem.altura
 
         # ------------------- Movimento do personagem -------------------#
         dx = 0
         dy = 0
 
-        if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.KEY_W):
-            dy -= 4
-        if pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.KEY_S):
-            dy += 4
+        #if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.KEY_W):
+         #   dy -= 4
         if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.KEY_A):
             dx -= 4
         if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.KEY_D):
@@ -101,10 +105,32 @@ class Fase1:
             #-------------- Personagem parado -------------------#
             self.personagem.parada()
         #----------------- Personagem pulando -------------------#
-        if pyxel.btnp(pyxel.KEY_SPACE) and self.personagem.no_chao:
-            self.personagem.vy = -10
+        # --- Lógica de duplo pulo --- #
+        if not hasattr(self.personagem, 'pulos_restantes'):
+            self.personagem.pulos_restantes = 2
+            self.personagem.ultimo_pulo_tick = 0
+        if self.personagem.no_chao:
+            self.personagem.pulos_restantes = 2
+        if pyxel.btnp(pyxel.KEY_SPACE) and self.personagem.pulos_restantes > 0:
+            agora = pyxel.frame_count
+            if self.personagem.pulos_restantes == 1 and (agora - self.personagem.ultimo_pulo_tick) < 10:
+                self.personagem.vy = -10  # 
+            else:
+                self.personagem.vy = -10
             self.personagem.no_chao = False
+            self.personagem.pulos_restantes -= 1
+            self.personagem.ultimo_pulo_tick = agora
         self.personagem.atualizar_pulo()
+
+        if pyxel.btnp(pyxel.KEY_ESCAPE)*2:
+            self.personagem.x = 2
+            self.personagem.y = 194
+
+    def paredes(self):
+        self.heightfloor = 8
+        self.widthfloor = 250
+    def vidas(self):
+        pass
 
     def draw_fase1(self):
         pyxel.cls(14)
@@ -113,6 +139,11 @@ class Fase1:
 
         pyxel.text(5, 5, "FASE 1", 0)
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
+        pyxel.rect(0, 212, 250, 8, pyxel.COLOR_CYAN)
+        pyxel.rect(121, 180, 6, 32, pyxel.COLOR_BROWN)
+        pyxel.rect(35, 173, 180, 8, pyxel.COLOR_BROWN)
+        pyxel.rect(0, 135, 105, 8, pyxel.COLOR_BROWN)
+        pyxel.rect(145, 135, 110, 8, pyxel.COLOR_BROWN)
 
 
 #----------------- Personagem ---------------------------------------------------------------------------------------#
@@ -153,14 +184,15 @@ class Personagem:
         self.y += dy
     #----------------- Personagem pulando -------------------#
     def atualizar_pulo(self):
-
-        gravidade = 1
+        gravidade = 1.5
+        altura_chao = 8
+        y_chao = 220 - altura_chao
         if not self.no_chao:
             self.vy += gravidade
             self.y += self.vy
-            # Chegou no chão 
-            if self.y >= 72:
-                self.y = 72
+            # Chegou no chão
+            if self.y + self.altura >= y_chao:
+                self.y = y_chao - self.altura
                 self.vy = 0
                 self.no_chao = True
 
@@ -175,8 +207,9 @@ class Personagem:
     #----------------- colisão --------------------#
     def colisao(self):
 
-        self.largura_parede = 250
-        self.altura_parede = 180
+        self.largura_parede = pyxel.width
+        self.altura_parede = pyxel.height
+         
 
         Esquerda_personagem = self.x
         Direita_personagem = self.x + self.largura_parede
@@ -198,13 +231,17 @@ class Personagem:
 #----------------- CandyMazeGame ---------------------------------------------------------------------------#
 class CandyMazeGame:
     def __init__(self):
-        pyxel.init(250, 180, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
+        pyxel.init(250, 220, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
 
         
         self.fase1 = Fase1()
         self.start = True
         self.start_screen = Start()
-        self.personagem = Personagem(56, 72)
+        altura_chao = 8
+        altura_tela = pyxel.height
+        altura_personagem = 18
+        y_chao = altura_tela - altura_chao
+        self.personagem = Personagem(2, y_chao - altura_personagem)
         self.colisao = False
 
         #-------- carrega as imagens --------#
