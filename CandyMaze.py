@@ -69,9 +69,14 @@ class Fase1:
         self.x = 0
         self.y = 0
         self.colisao = False
+        self.win = False
+        self.win_counter = 0  # Contador de frames na porta final
 
 
     def update_fase1(self):
+        # Se venceu, não atualiza mais nada
+        if self.win:
+            return
         
 
 
@@ -130,6 +135,25 @@ class Fase1:
             self.personagem.x = 2
             self.personagem.y = 194
 
+
+        # Porta final (posição e tamanho)
+        porta_x, porta_y, porta_w, porta_h = 200, 37, 21, 31
+        # Checa colisão do personagem com a porta final
+        if (
+            self.personagem.x < porta_x + porta_w and
+            self.personagem.x + self.personagem.largura > porta_x and
+            self.personagem.y < porta_y + porta_h and
+            self.personagem.y + self.personagem.altura > porta_y
+        ):
+            self.win_counter += 1  # Incrementa contador se estiver na porta
+            if self.win_counter > 30:  # Espera 30 frames (~1 segundo a 30fps)
+                self.win = True
+            else:
+                self.win = False
+        else:
+            self.win_counter = 0  # Reseta contador se sair da porta
+            self.win = False
+
     def paredes(self):
         
             self.parede1 = pyxel.rect(119, 172, 6, 40, pyxel.COLOR_BROWN)  # parede vertical
@@ -147,16 +171,35 @@ class Fase1:
         pyxel.blt(0, 0, 2, 0, 0, 250, 220)
         pyxel.mouse(False) # mouse desativado
         self.personagem.desenhapersonagem()
-
-        pyxel.text(5, 5, "FASE 1", 0)
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
+        pyxel.text(5, 5, "FASE 1", 0)
         pyxel.rect(0, 212, 250, 8, 3) # chão
         self.porta_final = pyxel.rect(200, 37, 21, 31, pyxel.COLOR_BLACK) # porta final
         self.paredes()
+        if self.win:
+            Win().desenhawin()
+            return
         
+
+#----------------- Win ---------------------------------------------------------------------------------------#
+class Win:
+    def __init__(self):
+        self.colortext = 7
+        self.x = 0
+        self.y = 0
+        self.width = 250
+        self.height = 220
+
+
+    def desenhawin(self):
+        pyxel.cls(0)
+        pyxel.text(120, 110, "YOU WIN!", pyxel.frame_count % 4)
+        pyxel.mouse(True)
+
 
 
 #----------------- Personagem ---------------------------------------------------------------------------------------#
+
 class Personagem:
     def __init__(self, x, y):
         self.vy = 0
@@ -169,6 +212,32 @@ class Personagem:
         self.contX = 0  
         self.y_mem = 0
         self.contY = 0
+    def ha_parede_abaixo(self):
+        # Lista das paredes horizontais (x, y, largura, altura)
+        paredes_horizontais = [
+            (36, 164, 180, 8),   # parede horizontal 1
+            (0, 116, 100, 8),    # parede horizontal 2
+            (151, 116, 100, 8),  # parede horizontal 3
+            (40, 68, 210, 8),    # parede horizontal 4
+            (0, 212, 250, 8)     # chão
+        ]
+        for rx, ry, rl, ra in paredes_horizontais:
+            # Verifica se há parede logo abaixo do personagem
+            if (
+                self.y + self.altura == ry and
+                self.x + self.largura > rx and
+                self.x < rx + rl
+            ):
+                return True
+        return False
+    # Função utilitária para colisão de retângulos
+    def colide_retangulo(self, px, py, pl, pa, rx, ry, rl, ra):
+        return (
+            px < rx + rl and
+            px + pl > rx and
+            py < ry + ra and
+            py + pa > ry
+        )
 
     def move(self, dx, dy):
         self.x_mem = self.contX * self.largura
@@ -176,30 +245,100 @@ class Personagem:
 
         if dy > 0: # indo para baixo, linha 0
             self.contY = 0
-
         if dy < 0: # indo para cima, linha 1
             self.contY = 1
-
         if dx > 0: # indo para direita, linha 2
             self.contY = 3
-
         if dx < 0: # indo para esquerda, linha 3
             self.contY = 2
-
         self.y_mem = self.contY * self.altura
-            
 
-        self.x += dx
-        self.y += dy
+        # Lista de paredes verticais e horizontais (x, y, largura, altura)
+        paredes = [
+            (119, 172, 6, 40),   # parede vertical
+            (36, 164, 180, 8),   # parede horizontal 1
+            (0, 116, 100, 8),    # parede horizontal 2
+            (151, 116, 100, 8),  # parede horizontal 3
+            (40, 68, 210, 8),    # parede horizontal 4
+            (0, 212, 250, 8)     # chão
+        ]
+
+        # --- Colisão lateral (X) ---
+        novo_x = self.x + dx
+        pode_mover_x = True
+        for rx, ry, rl, ra in paredes:
+            if self.colide_retangulo(novo_x, self.y, self.largura, self.altura, rx, ry, rl, ra):
+                pode_mover_x = False
+                break
+        if pode_mover_x:
+            self.x = novo_x
+
+        # --- Colisão vertical (Y) ---
+        novo_y = self.y + dy
+        pode_mover_y = True
+        for rx, ry, rl, ra in paredes:
+            if self.colide_retangulo(self.x, novo_y, self.largura, self.altura, rx, ry, rl, ra):
+                pode_mover_y = False
+                break
+        if pode_mover_y:
+            self.y = novo_y
+
+        # --- Após qualquer movimento, verifica se há parede embaixo ---
+        if not self.ha_parede_abaixo():
+            self.no_chao = False
     #----------------- Personagem pulando -------------------#
     def atualizar_pulo(self):
         gravidade = 1.5
         altura_chao = 8
         y_chao = 220 - altura_chao
+        # Lista das paredes horizontais (x, y, largura, altura)
+        paredes_horizontais = [
+            (36, 164, 180, 8),   # parede horizontal 1
+            (0, 116, 100, 8),    # parede horizontal 2
+            (151, 116, 100, 8),  # parede horizontal 3
+            (40, 68, 210, 8),    # parede horizontal 4
+            (0, 212, 250, 8)     # chão
+        ]
         if not self.no_chao:
-            self.vy += gravidade
-            self.y += self.vy
-            # Chegou no chão
+            self.vy += gravidade  # Aplica gravidade
+            novo_y = self.y + self.vy  # Calcula nova posição vertical
+            colidiu = False  # Flag para saber se colidiu com alguma parede
+            # Lista das paredes horizontais (x, y, largura, altura)
+            paredes_horizontais = [
+                (36, 164, 180, 8),   # parede horizontal 1
+                (0, 116, 100, 8),    # parede horizontal 2
+                (151, 116, 100, 8),  # parede horizontal 3
+                (40, 68, 210, 8),    # parede horizontal 4
+                (0, 212, 250, 8)     # chão
+            ]
+            for rx, ry, rl, ra in paredes_horizontais:
+                # Colisão por cima (cair sobre a plataforma)
+                if (
+                    self.y + self.altura <= ry and  # Personagem acima da parede
+                    novo_y + self.altura >= ry and  # Vai cruzar o topo da parede
+                    self.x + self.largura > rx and  # Sobrepõe horizontalmente
+                    self.x < rx + rl
+                ):
+                    self.y = ry - self.altura  # Encosta o personagem no topo da parede
+                    self.vy = 0  # Para o movimento vertical
+                    self.no_chao = True  # Marca que está no chão
+                    colidiu = True
+                    break
+                # Colisão por baixo (bater a cabeça na plataforma)
+                if (
+                    self.y >= ry + ra and  # Personagem abaixo da parede
+                    novo_y <= ry + ra and  # Vai cruzar a parte de baixo da parede
+                    self.x + self.largura > rx and
+                    self.x < rx + rl
+                ):
+                    self.y = ry + ra  # Encosta o personagem embaixo da parede
+                    self.vy = 0  # Para o movimento vertical
+                    colidiu = True
+                    break
+            if not colidiu:
+                self.y = novo_y  # Se não colidiu, atualiza normalmente
+                self.no_chao = False  # Não está no chão
+            # Chegou no chão do cenário (garantia extra)
             if self.y + self.altura >= y_chao:
                 self.y = y_chao - self.altura
                 self.vy = 0
@@ -244,7 +383,6 @@ class CandyMazeGame:
     def __init__(self):
         pyxel.init(250, 220, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
 
-        
         self.fase1 = Fase1()
         self.start = True
         self.start_screen = Start()
@@ -284,7 +422,9 @@ class CandyMazeGame:
             self.start_screen.desenhastart()
         else:
             self.fase1.draw_fase1()
-            
+            # Exibe tela de vitória se win estiver True
+            if self.fase1.win:
+                Win().desenhawin()
 
 
 CandyMazeGame()
