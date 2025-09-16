@@ -176,25 +176,27 @@ class Fase1:
         pyxel.rect(0, 212, 250, 8, 3) # chão
         self.porta_final = pyxel.rect(200, 37, 21, 31, pyxel.COLOR_BLACK) # porta final
         self.paredes()
-        if self.win:
-            Win().desenhawin()
-            return
         
 
-#----------------- Win ---------------------------------------------------------------------------------------#
-class Win:
+
+#----------------- VictoryScreen ---------------------------------------------------------------------------------------#
+class VictoryScreen:
     def __init__(self):
         self.colortext = 7
-        self.x = 0
-        self.y = 0
         self.width = 250
         self.height = 220
 
+    def update(self):
+        # Pressione Enter para reiniciar
+        if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+            return True
+        return False
 
-    def desenhawin(self):
+    def draw(self):
         pyxel.cls(0)
-        pyxel.text(120, 110, "YOU WIN!", pyxel.frame_count % 4)
-        pyxel.mouse(True)
+        pyxel.text(100, 90, "YOU WIN!", pyxel.frame_count % 16)
+        pyxel.text(70, 120, "Press ENTER to play again", 7)
+        pyxel.mouse(False)
 
 
 
@@ -383,48 +385,47 @@ class CandyMazeGame:
     def __init__(self):
         pyxel.init(250, 220, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
 
-        self.fase1 = Fase1()
-        self.start = True
+        self.state = "start"  # start, game, victory
         self.start_screen = Start()
-        altura_chao = 8
-        altura_tela = pyxel.height
-        altura_personagem = 18
-        y_chao = altura_tela - altura_chao
-        self.personagem = Personagem(2, y_chao - altura_personagem)
-        self.colisao = False
+        self.fase1 = Fase1()
+        self.victory_screen = VictoryScreen()
 
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
         pyxel.images[1].load(0, 0, "personagem.png")
         pyxel.images[2].load(0, 0, "fundofase1.png")
-        
-        
+
         pyxel.run(self.update, self.draw)
 
-        
     def update(self):
-        if self.start:
+        if self.state == "start":
             # Aguarda Enter ou Espaço para começar
             if not self.start_screen.update_conect():
-                self.start = False
+                self.state = "game"
             return
-        self.fase1.update_fase1()
-
-        
-
-        # -------- se clicar em ESC volta pra tela inicial -------------------#
-        if pyxel.btnp(pyxel.KEY_ESCAPE):
-            self.start = True
-            return
+        elif self.state == "game":
+            self.fase1.update_fase1()
+            if self.fase1.win:
+                self.state = "victory"
+                return
+            # -------- se clicar em ESC volta pra tela inicial -------------------#
+            if pyxel.btnp(pyxel.KEY_ESCAPE):
+                self.state = "start"
+                return
+        elif self.state == "victory":
+            if self.victory_screen.update():
+                # Reinicia a fase e volta ao menu inicial
+                self.fase1 = Fase1()
+                self.state = "start"
+                return
 
     def draw(self):
-        if self.start:
+        if self.state == "start":
             self.start_screen.desenhastart()
-        else:
+        elif self.state == "game":
             self.fase1.draw_fase1()
-            # Exibe tela de vitória se win estiver True
-            if self.fase1.win:
-                Win().desenhawin()
+        elif self.state == "victory":
+            self.victory_screen.draw()
 
 
 CandyMazeGame()
