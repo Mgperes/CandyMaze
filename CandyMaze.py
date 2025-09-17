@@ -59,6 +59,7 @@ class Start:
 
 class Fase1:
     def __init__(self):
+        self.porta_x, self.porta_y, self.porta_w, self.porta_h = 220, 37, 21, 31
         self.colortext = 7
         self.pontos = 0
         altura_chao = 8
@@ -140,23 +141,23 @@ class Fase1:
             self.personagem.y = 194
 
 
-        # Porta final (posição e tamanho)
-        porta_x, porta_y, porta_w, porta_h = 220, 37, 21, 31
         # Checa colisão do personagem com a porta final
         if (
-            self.personagem.x < porta_x + porta_w and
-            self.personagem.x + self.personagem.largura > porta_x and
-            self.personagem.y < porta_y + porta_h and
-            self.personagem.y + self.personagem.altura > porta_y
+            self.personagem.x < self.porta_x + self.porta_w and
+            self.personagem.x + self.personagem.largura > self.porta_x and
+            self.personagem.y < self.porta_y + self.porta_h and
+            self.personagem.y + self.personagem.altura > self.porta_y
         ):
             self.win_counter += 1  # Incrementa contador se estiver na porta
-            if self.win_counter > 30:  # Espera 30 frames (~1 segundo a 30fps)
+            if self.win_counter > 20:  # Espera 20 frames (~1 segundo a 30fps)
                 self.win = True
             else:
                 self.win = False
         else:
             self.win_counter = 0  # Reseta contador se sair da porta
             self.win = False
+
+
     #-------------LAGO--------------
         self.x_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
         if self.largura_lago1 > 0 and self.x_lago1 < 250:
@@ -181,7 +182,16 @@ class Fase1:
         pyxel.cls(6)
         pyxel.blt(0, 0, 2, 0, 0, 250, 220)
         pyxel.mouse(False) # mouse desativado
-        self.porta_final = pyxel.blt(220, 37, 1, 149, 0, 21, 31) # porta final
+        # Checa colisão do personagem com a porta final
+        if (
+            self.personagem.x < self.porta_x + self.porta_w and
+            self.personagem.x + self.personagem.largura > self.porta_x and
+            self.personagem.y < self.porta_y + self.porta_h and
+            self.personagem.y + self.personagem.altura > self.porta_y
+        ):
+            self.porta_final = pyxel.blt(220, 37, 1, 170, 0, 21, 31)  # Porta final
+        else:
+            self.porta_final = pyxel.blt(220, 37, 1, 149, 0, 21, 31) # porta final
         pyxel.blt(self.x_lago1, self.y_lago1, 1, 101, 0, self.largura_lago1, self.altura_lago1,7) #primeira imagem do looping do lago
         pyxel.blt(self.x_lago1 - 20, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)  #segunda imagem do looping do lago
         pyxel.blt(self.x_lago1 - 40, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)   #terceira imagem do looping do lago
