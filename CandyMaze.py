@@ -137,7 +137,7 @@ class Fase1:
 
 
         # Porta final (posição e tamanho)
-        porta_x, porta_y, porta_w, porta_h = 200, 37, 21, 31
+        porta_x, porta_y, porta_w, porta_h = 220, 37, 21, 31
         # Checa colisão do personagem com a porta final
         if (
             self.personagem.x < porta_x + porta_w and
@@ -156,11 +156,11 @@ class Fase1:
 
     def paredes(self):
         
-            self.parede1 = pyxel.rect(119, 172, 6, 40, pyxel.COLOR_BROWN)  # parede vertical
-            self.parede2 = pyxel.rect(36, 164, 180, 8, pyxel.COLOR_BROWN)  # parede horizontal 1
-            self.parede3 = pyxel.rect(0, 116, 100, 8, pyxel.COLOR_BROWN)  # parede horizontal 2
-            self.parede4 = pyxel.rect(151, 116, 100, 8, pyxel.COLOR_BROWN)  # parede horizontal 3
-            self.parede5 = pyxel.rect(40, 68, 210, 8, pyxel.COLOR_BROWN)   # parede horizontal 4
+            self.parede1 = pyxel.blt(122, 172, 1, 191, 0, 6, 40)  # parede vertical
+            self.parede2 = pyxel.blt(35, 164, 1, 56, 40, 180, 8)  # parede horizontal 1
+            self.parede3 = pyxel.blt(0, 116, 1, 62, 40, 100, 8)  # parede horizontal 2
+            self.parede4 = pyxel.blt(150, 116, 1, 56, 40, 100, 8)  # parede horizontal 3
+            self.parede5 = pyxel.blt(40, 68, 1, 0, 80, 210, 8)   # parede horizontal 4
             
 
     def vidas(self):
@@ -170,11 +170,11 @@ class Fase1:
         pyxel.cls(6)
         pyxel.blt(0, 0, 2, 0, 0, 250, 220)
         pyxel.mouse(False) # mouse desativado
+        self.porta_final = pyxel.blt(220, 37, 1, 149, 0, 21, 31) # porta final
         self.personagem.desenhapersonagem()
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
-        pyxel.rect(0, 212, 250, 8, 3) # chão
-        self.porta_final = pyxel.rect(200, 37, 21, 31, pyxel.COLOR_BLACK) # porta final
+        pyxel.blt(0, 212, 1, 0, 88, 250, 8) # chão
         self.paredes()
         if self.win:
             Win().desenhawin()
@@ -215,9 +215,9 @@ class Personagem:
     def ha_parede_abaixo(self):
         # Lista das paredes horizontais (x, y, largura, altura)
         paredes_horizontais = [
-            (36, 164, 180, 8),   # parede horizontal 1
+            (35, 164, 180, 8),   # parede horizontal 1
             (0, 116, 100, 8),    # parede horizontal 2
-            (151, 116, 100, 8),  # parede horizontal 3
+            (150, 116, 100, 8),  # parede horizontal 3
             (40, 68, 210, 8),    # parede horizontal 4
             (0, 212, 250, 8)     # chão
         ]
@@ -255,10 +255,10 @@ class Personagem:
 
         # Lista de paredes verticais e horizontais (x, y, largura, altura)
         paredes = [
-            (119, 172, 6, 40),   # parede vertical
-            (36, 164, 180, 8),   # parede horizontal 1
+            (122, 172, 6, 40),   # parede vertical
+            (35, 164, 180, 8),   # parede horizontal 1
             (0, 116, 100, 8),    # parede horizontal 2
-            (151, 116, 100, 8),  # parede horizontal 3
+            (150, 116, 100, 8),  # parede horizontal 3
             (40, 68, 210, 8),    # parede horizontal 4
             (0, 212, 250, 8)     # chão
         ]
@@ -395,7 +395,7 @@ class CandyMazeGame:
 
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
-        pyxel.images[1].load(0, 0, "personagem.png")
+        pyxel.images[1].load(0, 0, "itens.png")
         pyxel.images[2].load(0, 0, "fundofase1.png")
         
         
