@@ -76,14 +76,47 @@ class Fase1:
         self.y_lago1 = 212
         self.largura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
         self.altura_lago1 = 8
+        self.afogando = False
+        self.lose = False
+        self.afogar_timer = 0
 
 
     def update_fase1(self):
-        # Se venceu, não atualiza mais nada
-        if self.win:
+        if self.win or self.lose:
             return
-        
 
+        # Detecta se personagem está sobre o lago (todas as partes)
+        px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
+        lago_x = self.x_lago1
+        lago_y = self.y_lago1
+        lago_w = self.largura_lago1
+        lago_h = self.altura_lago1
+
+        # Debug: mostrar coordenadas
+        print(f"Personagem: x={px}, y={py}, largura={pl}, altura={pa}")
+        print(f"Lago: x={lago_x}, y={lago_y}, largura={lago_w}, altura={lago_h}")
+
+        # Reduzir ainda mais a largura da área de afogamento na borda direita do lago principal
+        largura_afogamento = max(self.largura_lago1 - 14, 2)  # reduz 14 pixels da direita, mínimo 2px
+        sobre_lago = (
+            (py + pa >= lago_y) and (
+                (px + pl > lago_x and px < lago_x + largura_afogamento) or
+                (px + pl > lago_x - 20 + 7 and px < lago_x - 20 + 13) or
+                (px + pl > lago_x - 40 + 7 and px < lago_x - 40 + 13)
+            )
+        )
+
+        if sobre_lago and not self.afogando:
+            self.afogando = True
+            self.afogar_timer = 0
+
+        if self.afogando:
+            print("Afogando!")  # Debug: ver se está entrando aqui
+            self.afogar_timer += 1
+            self.personagem.y += 3  # Afunda mais rápido
+            if self.afogar_timer > 30 or self.personagem.y > 220:
+                self.lose = True
+            return
 
         #---------------------- Personagem não sumir da tela ----------------------#
         if self.colisao == True:
@@ -192,10 +225,12 @@ class Fase1:
             self.porta_final = pyxel.blt(220, 37, 1, 170, 0, 21, 31)  # Porta final
         else:
             self.porta_final = pyxel.blt(220, 37, 1, 149, 0, 21, 31) # porta final
+        # Desenha o personagem ANTES do lago
+        self.personagem.desenhapersonagem()
+        # Desenha o lago por cima do personagem
         pyxel.blt(self.x_lago1, self.y_lago1, 1, 101, 0, self.largura_lago1, self.altura_lago1,7) #primeira imagem do looping do lago
         pyxel.blt(self.x_lago1 - 20, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)  #segunda imagem do looping do lago
         pyxel.blt(self.x_lago1 - 40, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)   #terceira imagem do looping do lago
-        self.personagem.desenhapersonagem()
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
         pyxel.blt(0, 212, 1, 0, 88, 250, 8,7) # chão
@@ -211,7 +246,6 @@ class VictoryScreen:
         self.height = 220
 
     def update(self):
-        # Pressione Enter para reiniciar
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
             return True
         return False
@@ -222,8 +256,23 @@ class VictoryScreen:
         pyxel.text(70, 120, "Press ENTER to play again", 7)
         pyxel.mouse(False)
 
+#----------------- LoseScreen ---------------------------------------------------------------------------------------#
+class LoseScreen:
+    def __init__(self):
+        self.colortext = 8
+        self.width = 250
+        self.height = 220
 
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+            return True
+        return False
 
+    def draw(self):
+        pyxel.cls(0)
+        pyxel.text(100, 90, "YOU LOSE!", pyxel.frame_count % 16)
+        pyxel.text(70, 120, "Press ENTER to try again", 8)
+        pyxel.mouse(False)
 #----------------- Personagem ---------------------------------------------------------------------------------------#
 
 class Personagem:
@@ -238,6 +287,7 @@ class Personagem:
         self.contX = 0  
         self.y_mem = 0
         self.contY = 0
+        
     def ha_parede_abaixo(self):
         # Lista das paredes horizontais (x, y, largura, altura)
         paredes_horizontais = [
@@ -413,6 +463,7 @@ class CandyMazeGame:
         self.start_screen = Start()
         self.fase1 = Fase1()
         self.victory_screen = VictoryScreen()
+        self.lose_screen = LoseScreen()
 
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
@@ -432,12 +483,21 @@ class CandyMazeGame:
             if self.fase1.win:
                 self.state = "victory"
                 return
+            if self.fase1.lose:
+                self.state = "lose"
+                return
             # -------- se clicar em ESC volta pra tela inicial -------------------#
             if pyxel.btnp(pyxel.KEY_ESCAPE):
                 self.state = "start"
                 return
         elif self.state == "victory":
             if self.victory_screen.update():
+                # Reinicia a fase e volta ao menu inicial
+                self.fase1 = Fase1()
+                self.state = "start"
+                return
+        elif self.state == "lose":
+            if self.lose_screen.update():
                 # Reinicia a fase e volta ao menu inicial
                 self.fase1 = Fase1()
                 self.state = "start"
@@ -450,6 +510,8 @@ class CandyMazeGame:
             self.fase1.draw_fase1()
         elif self.state == "victory":
             self.victory_screen.draw()
+        elif self.state == "lose":
+            self.lose_screen.draw()
 
 
 CandyMazeGame()
