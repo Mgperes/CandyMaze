@@ -60,9 +60,9 @@ class Plataforma:
         self.direita = True
     def update(self):
         if self.x == 87:
-            self.direita = True
+            self.direita = True  #quando x for 87 (o inicial) ela se moverá para a direita
         if self.x == 153:
-            self.direita = False
+            self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
         if self.direita == True:
             self.x += 0.5
             self.direita = True
@@ -71,6 +71,7 @@ class Plataforma:
             self.direita = False
     def draw(self):
         pyxel.blt(self.x, 42, 1, 56, 32, 24, 8,7)
+
 
 #----------------- FASE 1 ----------------------------------------------------------------------------------------#
 
@@ -88,7 +89,7 @@ class Fase1:
         self.colisao = False
         self.win = False
         self.win_counter = 0  # Contador de frames na porta final
-        self.x_lago1 = 214
+        self.x_lago1 = 204
         self.y_lago1 = 212
         self.largura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
         self.altura_lago1 = 8
@@ -184,11 +185,11 @@ class Fase1:
             self.win = False
     #-------------LAGO 1--------------
         self.x_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
-        if self.largura_lago1 > 0 and self.x_lago1 < 234:
+        if self.largura_lago1 > 0 and self.x_lago1 < 224:
             self.largura_lago1 -= 0.5
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
             self.largura_lago1 = 20
-            self.x_lago1 = 214
+            self.x_lago1 = 204
     
     #----------LAGO2--------------
         self.x_lago2 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
@@ -235,15 +236,16 @@ class Fase1:
         pyxel.blt(self.x_lago2 - 80, self.y_lago2, 1, 56, 16, 40, self.altura_lago2,7) 
         pyxel.blt(self.x_lago2 - 95, self.y_lago2, 1, 56, 16, 15, self.altura_lago2,7)   
         #-----LAGO3--------
-        pyxel.blt(self.x_lago3, self.y_lago3, 1, 56, 24, self.largura_lago3, self.altura_lago3,7) #primeira imagem do looping do lago
-        pyxel.blt(self.x_lago3 - 20, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7)  #segunda imagem do looping do lago
+        pyxel.blt(self.x_lago3, self.y_lago3, 1, 56, 24, self.largura_lago3, self.altura_lago3,7) 
+        pyxel.blt(self.x_lago3 - 20, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7)  
         pyxel.blt(self.x_lago3 - 40, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7) 
         self.personagem.desenhapersonagem()
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
         pyxel.blt(0, 212, 1, 0, 88, 250, 8,7) # chão
-        pyxel.blt(self.plataforma.x,42,1,56,32,24,8)
+        pyxel.blt(self.plataforma.x,42,1,56,32,24,8) #plataforma móvel
         self.paredes()
+        pyxel.blt(145, 199, 1, 121, 0, 7, 7,7)
         if self.win:
             Win().desenhawin()
             return
