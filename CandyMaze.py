@@ -53,7 +53,24 @@ class Start:
         pyxel.text(90, 130, "START |", pyxel.frame_count % 4)
         # Desenha cursor do mouse customizado
         pyxel.mouse(True)
-        
+
+class Plataforma:
+    def __init__(self):
+        self.x = 87
+        self.direita = True
+    def update(self):
+        if self.x == 87:
+            self.direita = True
+        if self.x == 153:
+            self.direita = False
+        if self.direita == True:
+            self.x += 0.5
+            self.direita = True
+        if self.direita == False:
+            self.x -= 0.5
+            self.direita = False
+    def draw(self):
+        pyxel.blt(self.x, 42, 1, 56, 32, 24, 8,7)
 
 #----------------- FASE 1 ----------------------------------------------------------------------------------------#
 
@@ -71,7 +88,7 @@ class Fase1:
         self.colisao = False
         self.win = False
         self.win_counter = 0  # Contador de frames na porta final
-        self.x_lago1 = 209
+        self.x_lago1 = 214
         self.y_lago1 = 212
         self.largura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
         self.altura_lago1 = 8
@@ -79,13 +96,12 @@ class Fase1:
         self.y_lago2 = 68
         self.largura_lago2 = 40   #posicão inicial e tamanho do segundo lago
         self.altura_lago2 = 8
-        self.x_lago3 = 46
+        self.x_lago3 = 50
         self.y_lago3 = 116
         self.largura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
         self.altura_lago3 = 8
+        self.plataforma = Plataforma()
         
-
-
     def update_fase1(self):
         # Se venceu, não atualiza mais nada
         if self.win:
@@ -168,11 +184,11 @@ class Fase1:
             self.win = False
     #-------------LAGO 1--------------
         self.x_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
-        if self.largura_lago1 > 0 and self.x_lago1 < 229:
+        if self.largura_lago1 > 0 and self.x_lago1 < 234:
             self.largura_lago1 -= 0.5
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
             self.largura_lago1 = 20
-            self.x_lago1 = 209
+            self.x_lago1 = 214
     
     #----------LAGO2--------------
         self.x_lago2 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
@@ -184,11 +200,13 @@ class Fase1:
 
     #----------LAGO3--------------
         self.x_lago3 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
-        if self.largura_lago3 > 0 and self.x_lago3 < 65:
+        if self.largura_lago3 > 0 and self.x_lago3 < 70:
             self.largura_lago3 -= 0.5
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
             self.largura_lago3 = 20
-            self.x_lago3 = 45
+            self.x_lago3 = 50
+        
+        self.plataforma.update() 
 
 
     def paredes(self):
@@ -198,7 +216,6 @@ class Fase1:
             self.parede3 = pyxel.blt(0, 116, 1, 0, 72, 100, 8,7)  # parede horizontal 2
             self.parede4 = pyxel.blt(150, 116, 1, 150, 72, 100, 8)  # parede horizontal 3
             self.parede5 = pyxel.blt(40, 68, 1, 0, 80, 210, 8,7)   # parede horizontal 4
-            
 
     def vidas(self):
         pass
@@ -225,6 +242,7 @@ class Fase1:
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
         pyxel.blt(0, 212, 1, 0, 88, 250, 8,7) # chão
+        pyxel.blt(self.plataforma.x,42,1,56,32,24,8)
         self.paredes()
         if self.win:
             Win().desenhawin()
