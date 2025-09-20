@@ -328,9 +328,9 @@ class VictoryScreen:
         return False
 
     def draw(self):
-        pyxel.cls(0)
+        pyxel.cls(11)
         pyxel.text(100, 90, "YOU WIN!", pyxel.frame_count % 16)
-        pyxel.text(70, 120, "Press ENTER to play again", 7)
+        pyxel.text(70, 120, "Press ENTER/SPACE to play again", 7)
         pyxel.mouse(False)
 
 #----------------- LoseScreen ---------------------------------------------------------------------------------------#
@@ -346,9 +346,9 @@ class LoseScreen:
         return False
 
     def draw(self):
-        pyxel.cls(0)
+        pyxel.cls(8)
         pyxel.text(100, 90, "YOU LOSE!", pyxel.frame_count % 16)
-        pyxel.text(70, 120, "Press ENTER to try again", 8)
+        pyxel.text(70, 120, "Press ENTER/SPACE to try again", 7)
         pyxel.mouse(False)
 #----------------- Personagem ---------------------------------------------------------------------------------------#
 
