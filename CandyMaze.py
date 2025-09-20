@@ -111,37 +111,51 @@ class Fase1:
         if self.win or self.lose:
             return
 
-        # Detecta se personagem está sobre o lago (todas as partes)
+        # Detecta se personagem está sobre a parte azul (água) dos lagos
         px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
-        lago_x = self.x_lago1
-        lago_y = self.y_lago1
-        lago_w = self.largura_lago1
-        lago_h = self.altura_lago1
+        
+        sobre_agua = False
+        
+        # Detecção mais precisa - apenas a parte central azul dos lagos
+        # Lago 1 com margem menor (como estava funcionando bem)
+        margem_lago1 = 4  # margem menor para o lago 1
+        if (px + pl > self.x_lago1 + margem_lago1 and px < self.x_lago1 + self.largura_lago1 - margem_lago1 and
+            py >= 190 and self.largura_lago1 > margem_lago1 * 2):
+            sobre_agua = True
+            print("*** PERSONAGEM NA ÁGUA DO LAGO 1! ***")
+            
+        # Lagos 2 e 3 com margem maior
+        margem_lago = 6  # pixels de margem de cada lado para os outros lagos
+            
+        # Lago 2 - apenas parte central azul
+        if (px + pl > self.x_lago2 + margem_lago and px < self.x_lago2 + self.largura_lago2 - margem_lago and
+            py >= 60 and py <= 80 and self.largura_lago2 > margem_lago * 2):
+            sobre_agua = True
+            print("*** PERSONAGEM NA ÁGUA DO LAGO 2! ***")
+            
+        # Lago 3 - apenas parte central azul
+        if (px + pl > self.x_lago3 + margem_lago and px < self.x_lago3 + self.largura_lago3 - margem_lago and
+            py >= 110 and py <= 130 and self.largura_lago3 > margem_lago * 2):
+            sobre_agua = True
+            print("*** PERSONAGEM NA ÁGUA DO LAGO 3! ***")
 
-        # Debug: mostrar coordenadas
-        print(f"Personagem: x={px}, y={py}, largura={pl}, altura={pa}")
-        print(f"Lago: x={lago_x}, y={lago_y}, largura={lago_w}, altura={lago_h}")
-
-        # Reduzir ainda mais a largura da área de afogamento na borda direita do lago principal
-        largura_afogamento = max(self.largura_lago1 - 14, 2)  # reduz 14 pixels da direita, mínimo 2px
-        sobre_lago = (
-            (py + pa >= lago_y) and (
-                (px + pl > lago_x and px < lago_x + largura_afogamento) or
-                (px + pl > lago_x - 20 + 7 and px < lago_x - 20 + 13) or
-                (px + pl > lago_x - 40 + 7 and px < lago_x - 40 + 13)
-            )
-        )
-
-        if sobre_lago and not self.afogando:
+        if sobre_agua and not self.afogando:
             self.afogando = True
             self.afogar_timer = 0
+            print("COMEÇOU A AFOGAR!")
+        elif not sobre_agua and self.afogando:
+            # Personagem saiu da água, reseta o estado de afogamento
+            self.afogando = False
+            self.afogar_timer = 0
+            print("SAIU DA ÁGUA!")
 
         if self.afogando:
-            print("Afogando!")  # Debug: ver se está entrando aqui
             self.afogar_timer += 1
             self.personagem.y += 3  # Afunda mais rápido
+            print(f"AFOGANDO... Timer: {self.afogar_timer}")
             if self.afogar_timer > 30 or self.personagem.y > 220:
                 self.lose = True
+                print("MORREU AFOGADO!")
             return
 
         #---------------------- Personagem não sumir da tela ----------------------#
