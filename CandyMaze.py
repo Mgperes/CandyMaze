@@ -53,7 +53,25 @@ class Start:
         pyxel.text(90, 130, "START |", pyxel.frame_count % 4)
         # Desenha cursor do mouse customizado
         pyxel.mouse(True)
-        
+
+class Plataforma:
+    def __init__(self):
+        self.x = 87
+        self.direita = True
+    def update(self):
+        if self.x == 87:
+            self.direita = True  #quando x for 87 (o inicial) ela se moverá para a direita
+        if self.x == 153:
+            self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
+        if self.direita == True:
+            self.x += 0.5
+            self.direita = True
+        if self.direita == False:
+            self.x -= 0.5
+            self.direita = False
+    def draw(self):
+        pyxel.blt(self.x, 42, 1, 56, 32, 24, 8,7)
+
 
 #----------------- FASE 1 ----------------------------------------------------------------------------------------#
 
@@ -72,15 +90,23 @@ class Fase1:
         self.colisao = False
         self.win = False
         self.win_counter = 0  # Contador de frames na porta final
-        self.x_lago1 = 209
+        self.x_lago1 = 204
         self.y_lago1 = 212
         self.largura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
         self.altura_lago1 = 8
         self.afogando = False
         self.lose = False
         self.afogar_timer = 0
-
-
+        self.x_lago2 = 137
+        self.y_lago2 = 68
+        self.largura_lago2 = 40   #posicão inicial e tamanho do segundo lago
+        self.altura_lago2 = 8
+        self.x_lago3 = 50
+        self.y_lago3 = 116
+        self.largura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
+        self.altura_lago3 = 8
+        self.plataforma = Plataforma()
+        
     def update_fase1(self):
         if self.win or self.lose:
             return
@@ -190,23 +216,41 @@ class Fase1:
             self.win_counter = 0  # Reseta contador se sair da porta
             self.win = False
 
+    #-------------LAGO 1--------------
 
-    #-------------LAGO--------------
         self.x_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
-        if self.largura_lago1 > 0 and self.x_lago1 < 250:
+        if self.largura_lago1 > 0 and self.x_lago1 < 224:
             self.largura_lago1 -= 0.5
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
             self.largura_lago1 = 20
-            self.x_lago1 = 209
+            self.x_lago1 = 204
+    
+    #----------LAGO2--------------
+        self.x_lago2 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
+        if self.largura_lago2 > 0 and self.x_lago2 < 177:
+            self.largura_lago2 -= 0.5
+        else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
+            self.largura_lago2 = 40
+            self.x_lago2 = 137
+
+    #----------LAGO3--------------
+        self.x_lago3 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
+        if self.largura_lago3 > 0 and self.x_lago3 < 70:
+            self.largura_lago3 -= 0.5
+        else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
+            self.largura_lago3 = 20
+            self.x_lago3 = 50
+        
+        self.plataforma.update() 
+
 
     def paredes(self):
         
             self.parede1 = pyxel.blt(122, 172, 1, 191, 0, 6, 40)  # parede vertical
             self.parede2 = pyxel.blt(35, 164, 1, 56, 40, 180, 8)  # parede horizontal 1
-            self.parede3 = pyxel.blt(0, 116, 1, 0, 72, 100, 8)  # parede horizontal 2
+            self.parede3 = pyxel.blt(0, 116, 1, 0, 72, 100, 8,7)  # parede horizontal 2
             self.parede4 = pyxel.blt(150, 116, 1, 150, 72, 100, 8)  # parede horizontal 3
-            self.parede5 = pyxel.blt(40, 68, 1, 0, 80, 210, 8)   # parede horizontal 4
-            
+            self.parede5 = pyxel.blt(40, 68, 1, 0, 80, 210, 8,7)   # parede horizontal 4
 
     def vidas(self):
         pass
@@ -215,6 +259,7 @@ class Fase1:
         pyxel.cls(6)
         pyxel.blt(0, 0, 2, 0, 0, 250, 220)
         pyxel.mouse(False) # mouse desativado
+
         # Checa colisão do personagem com a porta final
         if (
             self.personagem.x < self.porta_x + self.porta_w and
@@ -225,16 +270,34 @@ class Fase1:
             self.porta_final = pyxel.blt(220, 37, 1, 170, 0, 21, 31)  # Porta final
         else:
             self.porta_final = pyxel.blt(220, 37, 1, 149, 0, 21, 31) # porta final
+
         # Desenha o personagem ANTES do lago
         self.personagem.desenhapersonagem()
         # Desenha o lago por cima do personagem
         pyxel.blt(self.x_lago1, self.y_lago1, 1, 101, 0, self.largura_lago1, self.altura_lago1,7) #primeira imagem do looping do lago
         pyxel.blt(self.x_lago1 - 20, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)  #segunda imagem do looping do lago
         pyxel.blt(self.x_lago1 - 40, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)   #terceira imagem do looping do lago
+       #-----LAGO2--------
+        pyxel.blt(self.x_lago2, self.y_lago2, 1, 56, 16, self.largura_lago2, self.altura_lago2,7) 
+        pyxel.blt(self.x_lago2 - 40, self.y_lago2, 1, 56, 16, 40, self.altura_lago2,7) 
+        pyxel.blt(self.x_lago2 - 80, self.y_lago2, 1, 56, 16, 40, self.altura_lago2,7) 
+        pyxel.blt(self.x_lago2 - 95, self.y_lago2, 1, 56, 16, 15, self.altura_lago2,7)   
+        #-----LAGO3--------
+        pyxel.blt(self.x_lago3, self.y_lago3, 1, 56, 24, self.largura_lago3, self.altura_lago3,7) 
+        pyxel.blt(self.x_lago3 - 20, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7)  
+        pyxel.blt(self.x_lago3 - 40, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7) 
+
+
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
         pyxel.blt(0, 212, 1, 0, 88, 250, 8,7) # chão
+        pyxel.blt(self.plataforma.x,42,1,56,32,24,8) #plataforma móvel
         self.paredes()
+
+        pyxel.blt(145, 199, 1, 121, 0, 7, 7,7)
+        
+        
+
         
 
 
@@ -457,7 +520,7 @@ class Personagem:
 #----------------- CandyMazeGame ---------------------------------------------------------------------------#
 class CandyMazeGame:
     def __init__(self):
-        pyxel.init(250, 220, title="CandyMaze", fps=30, quit_key=pyxel.KEY_Q )
+        pyxel.init(250, 220, title="CandyMaze", fps=20, quit_key=pyxel.KEY_Q )
 
         self.state = "start"  # start, game, victory
         self.start_screen = Start()
