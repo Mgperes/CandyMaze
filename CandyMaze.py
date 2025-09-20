@@ -77,6 +77,7 @@ class Plataforma:
 
 class Fase1:
     def __init__(self):
+        self.porta_x, self.porta_y, self.porta_w, self.porta_h = 220, 37, 21, 31
         self.colortext = 7
         self.pontos = 0
         altura_chao = 8
@@ -93,6 +94,9 @@ class Fase1:
         self.y_lago1 = 212
         self.largura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
         self.altura_lago1 = 8
+        self.afogando = False
+        self.lose = False
+        self.afogar_timer = 0
         self.x_lago2 = 137
         self.y_lago2 = 68
         self.largura_lago2 = 40   #posicão inicial e tamanho do segundo lago
@@ -104,11 +108,55 @@ class Fase1:
         self.plataforma = Plataforma()
         
     def update_fase1(self):
-        # Se venceu, não atualiza mais nada
-        if self.win:
+        if self.win or self.lose:
             return
-        
 
+        # Detecta se personagem está sobre a parte azul (água) dos lagos
+        px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
+        
+        sobre_agua = False
+        
+        # Detecção mais precisa - apenas a parte central azul dos lagos
+        # Lago 1 com margem menor (como estava funcionando bem)
+        margem_lago1 = 4  # margem menor para o lago 1
+        if (px + pl > self.x_lago1 + margem_lago1 and px < self.x_lago1 + self.largura_lago1 - margem_lago1 and
+            py >= 190 and self.largura_lago1 > margem_lago1 * 2):
+            sobre_agua = True
+            print("*** PERSONAGEM NA ÁGUA DO LAGO 1! ***")
+            
+        # Lagos 2 e 3 com margem maior
+        margem_lago = 6  # pixels de margem de cada lado para os outros lagos
+            
+        # Lago 2 - apenas parte central azul
+        if (px + pl > self.x_lago2 + margem_lago and px < self.x_lago2 + self.largura_lago2 - margem_lago and
+            py >= 60 and py <= 80 and self.largura_lago2 > margem_lago * 2):
+            sobre_agua = True
+            print("*** PERSONAGEM NA ÁGUA DO LAGO 2! ***")
+            
+        # Lago 3 - apenas parte central azul
+        if (px + pl > self.x_lago3 + margem_lago and px < self.x_lago3 + self.largura_lago3 - margem_lago and
+            py >= 110 and py <= 130 and self.largura_lago3 > margem_lago * 2):
+            sobre_agua = True
+            print("*** PERSONAGEM NA ÁGUA DO LAGO 3! ***")
+
+        if sobre_agua and not self.afogando:
+            self.afogando = True
+            self.afogar_timer = 0
+            print("COMEÇOU A AFOGAR!")
+        elif not sobre_agua and self.afogando:
+            # Personagem saiu da água, reseta o estado de afogamento
+            self.afogando = False
+            self.afogar_timer = 0
+            print("SAIU DA ÁGUA!")
+
+        if self.afogando:
+            self.afogar_timer += 1
+            self.personagem.y += 3  # Afunda mais rápido
+            print(f"AFOGANDO... Timer: {self.afogar_timer}")
+            if self.afogar_timer > 30 or self.personagem.y > 220:
+                self.lose = True
+                print("MORREU AFOGADO!")
+            return
 
         #---------------------- Personagem não sumir da tela ----------------------#
         if self.colisao == True:
@@ -166,24 +214,24 @@ class Fase1:
             self.personagem.y = 194
 
 
-        # Porta final (posição e tamanho)
-        porta_x, porta_y, porta_w, porta_h = 220, 37, 21, 31
         # Checa colisão do personagem com a porta final
         if (
-            self.personagem.x < porta_x + porta_w and
-            self.personagem.x + self.personagem.largura > porta_x and
-            self.personagem.y < porta_y + porta_h and
-            self.personagem.y + self.personagem.altura > porta_y
+            self.personagem.x < self.porta_x + self.porta_w and
+            self.personagem.x + self.personagem.largura > self.porta_x and
+            self.personagem.y < self.porta_y + self.porta_h and
+            self.personagem.y + self.personagem.altura > self.porta_y
         ):
             self.win_counter += 1  # Incrementa contador se estiver na porta
-            if self.win_counter > 30:  # Espera 30 frames (~1 segundo a 30fps)
+            if self.win_counter > 20:  # Espera 20 frames (~1 segundo a 30fps)
                 self.win = True
             else:
                 self.win = False
         else:
             self.win_counter = 0  # Reseta contador se sair da porta
             self.win = False
+
     #-------------LAGO 1--------------
+
         self.x_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
         if self.largura_lago1 > 0 and self.x_lago1 < 224:
             self.largura_lago1 -= 0.5
@@ -225,8 +273,21 @@ class Fase1:
         pyxel.cls(6)
         pyxel.blt(0, 0, 2, 0, 0, 250, 220)
         pyxel.mouse(False) # mouse desativado
-        self.porta_final = pyxel.blt(220, 37, 1, 149, 0, 21, 31) # porta final
-        #----LAGO1---------
+
+        # Checa colisão do personagem com a porta final
+        if (
+            self.personagem.x < self.porta_x + self.porta_w and
+            self.personagem.x + self.personagem.largura > self.porta_x and
+            self.personagem.y < self.porta_y + self.porta_h and
+            self.personagem.y + self.personagem.altura > self.porta_y
+        ):
+            self.porta_final = pyxel.blt(220, 37, 1, 170, 0, 21, 31)  # Porta final
+        else:
+            self.porta_final = pyxel.blt(220, 37, 1, 149, 0, 21, 31) # porta final
+
+        # Desenha o personagem ANTES do lago
+        self.personagem.desenhapersonagem()
+        # Desenha o lago por cima do personagem
         pyxel.blt(self.x_lago1, self.y_lago1, 1, 101, 0, self.largura_lago1, self.altura_lago1,7) #primeira imagem do looping do lago
         pyxel.blt(self.x_lago1 - 20, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)  #segunda imagem do looping do lago
         pyxel.blt(self.x_lago1 - 40, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)   #terceira imagem do looping do lago
@@ -239,35 +300,56 @@ class Fase1:
         pyxel.blt(self.x_lago3, self.y_lago3, 1, 56, 24, self.largura_lago3, self.altura_lago3,7) 
         pyxel.blt(self.x_lago3 - 20, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7)  
         pyxel.blt(self.x_lago3 - 40, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7) 
-        self.personagem.desenhapersonagem()
+
+
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
         pyxel.blt(0, 212, 1, 0, 88, 250, 8,7) # chão
         pyxel.blt(self.plataforma.x,42,1,56,32,24,8) #plataforma móvel
         self.paredes()
+
         pyxel.blt(145, 199, 1, 121, 0, 7, 7,7)
-        if self.win:
-            Win().desenhawin()
-            return
+        
         
 
-#----------------- Win ---------------------------------------------------------------------------------------#
-class Win:
+        
+
+
+#----------------- VictoryScreen ---------------------------------------------------------------------------------------#
+class VictoryScreen:
     def __init__(self):
         self.colortext = 7
-        self.x = 0
-        self.y = 0
         self.width = 250
         self.height = 220
 
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+            return True
+        return False
 
-    def desenhawin(self):
+    def draw(self):
         pyxel.cls(0)
-        pyxel.text(120, 110, "YOU WIN!", pyxel.frame_count % 4)
-        pyxel.mouse(True)
+        pyxel.text(100, 90, "YOU WIN!", pyxel.frame_count % 16)
+        pyxel.text(70, 120, "Press ENTER to play again", 7)
+        pyxel.mouse(False)
 
+#----------------- LoseScreen ---------------------------------------------------------------------------------------#
+class LoseScreen:
+    def __init__(self):
+        self.colortext = 8
+        self.width = 250
+        self.height = 220
 
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+            return True
+        return False
 
+    def draw(self):
+        pyxel.cls(0)
+        pyxel.text(100, 90, "YOU LOSE!", pyxel.frame_count % 16)
+        pyxel.text(70, 120, "Press ENTER to try again", 8)
+        pyxel.mouse(False)
 #----------------- Personagem ---------------------------------------------------------------------------------------#
 
 class Personagem:
@@ -282,6 +364,7 @@ class Personagem:
         self.contX = 0  
         self.y_mem = 0
         self.contY = 0
+        
     def ha_parede_abaixo(self):
         # Lista das paredes horizontais (x, y, largura, altura)
         paredes_horizontais = [
@@ -453,48 +536,59 @@ class CandyMazeGame:
     def __init__(self):
         pyxel.init(250, 220, title="CandyMaze", fps=20, quit_key=pyxel.KEY_Q )
 
-        self.fase1 = Fase1()
-        self.start = True
+        self.state = "start"  # start, game, victory
         self.start_screen = Start()
-        altura_chao = 8
-        altura_tela = pyxel.height
-        altura_personagem = 18
-        y_chao = altura_tela - altura_chao
-        self.personagem = Personagem(2, y_chao - altura_personagem)
-        self.colisao = False
+        self.fase1 = Fase1()
+        self.victory_screen = VictoryScreen()
+        self.lose_screen = LoseScreen()
 
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
         pyxel.images[1].load(0, 0, "itens.png")
         pyxel.images[2].load(0, 0, "fundofase1.png")
-        
-        
+
         pyxel.run(self.update, self.draw)
 
-        
     def update(self):
-        if self.start:
+        if self.state == "start":
             # Aguarda Enter ou Espaço para começar
             if not self.start_screen.update_conect():
-                self.start = False
+                self.state = "game"
             return
-        self.fase1.update_fase1()
-
-        
-
-        # -------- se clicar em ESC volta pra tela inicial -------------------#
-        if pyxel.btnp(pyxel.KEY_ESCAPE):
-            self.start = True
-            return
+        elif self.state == "game":
+            self.fase1.update_fase1()
+            if self.fase1.win:
+                self.state = "victory"
+                return
+            if self.fase1.lose:
+                self.state = "lose"
+                return
+            # -------- se clicar em ESC volta pra tela inicial -------------------#
+            if pyxel.btnp(pyxel.KEY_ESCAPE):
+                self.state = "start"
+                return
+        elif self.state == "victory":
+            if self.victory_screen.update():
+                # Reinicia a fase e volta ao menu inicial
+                self.fase1 = Fase1()
+                self.state = "start"
+                return
+        elif self.state == "lose":
+            if self.lose_screen.update():
+                # Reinicia a fase e volta ao menu inicial
+                self.fase1 = Fase1()
+                self.state = "start"
+                return
 
     def draw(self):
-        if self.start:
+        if self.state == "start":
             self.start_screen.desenhastart()
-        else:
+        elif self.state == "game":
             self.fase1.draw_fase1()
-            # Exibe tela de vitória se win estiver True
-            if self.fase1.win:
-                Win().desenhawin()
+        elif self.state == "victory":
+            self.victory_screen.draw()
+        elif self.state == "lose":
+            self.lose_screen.draw()
 
 
 CandyMazeGame()
