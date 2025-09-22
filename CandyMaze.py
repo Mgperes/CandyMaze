@@ -1,7 +1,24 @@
 import pyxel
 
 
-#----------------- Start ---------------------------------------------------------------------------------#
+#----------------- Start --------------------------        # MÉTODO 2: Efeito Rainbow - cada letra uma cor diferente ✨
+        # self.draw_rainbow_text("START", 90, 130)
+        # self.draw_rainbow_text("QUIT", 130, 130)
+        
+        # MÉTODO 3: Texto piscante com duas cores alternadas
+        # self.draw_blinking_text("START", 90, 130)
+        # self.draw_blinking_text("QUIT", 130, 130)
+        
+        # MÉTODO 4: Gradiente animado
+        # self.draw_gradient_text("START", 90, 130)
+        # self.draw_gradient_text("QUIT", 130, 130)
+        
+        # MÉTODO 5: Efeito onda com matemática
+        # self.draw_wave_text("START", 90, 130)
+        # self.draw_wave_text("QUIT", 130, 130)
+        
+        # MÉTODO 6: Efeito fogo (cores quentes) ✨ (ATIVO)
+        
 class Start:
     def __init__(self):
         self.colortext = 7
@@ -10,9 +27,15 @@ class Start:
         self.y = 0
         self.width = 250
         self.height = 180
+        # Variáveis para efeitos de cor
+        self.color_timer = 0
+        self.rainbow_offset = 0
 
 
     def update_conect(self):
+        # Atualiza timer para efeitos de cor
+        self.color_timer += 1
+        self.rainbow_offset += 0.1
 
         # Área do botão Start (ajuste conforme o texto)
         start_x = 97
@@ -46,13 +69,91 @@ class Start:
                 return False
         return True
 
+    def draw_rainbow_text(self, text, x, y):
+        """
+        Desenha texto com cada letra em uma cor diferente (efeito arco-íris)
+        
+        PALETA DE CORES PYXEL:
+        0 = Preto        8 = Vermelho
+        1 = Azul escuro  9 = Laranja  
+        2 = Roxo         10 = Amarelo
+        3 = Verde escuro 11 = Verde claro
+        4 = Marrom       12 = Azul claro
+        5 = Cinza escuro 13 = Cinza
+        6 = Cinza claro  14 = Rosa/Branco rosado
+        7 = Branco       15 = Bege claro
+        """
+        colors = [8, 9, 10, 11, 12, 13, 14, 15, 7, 6, 5, 4, 3, 2, 1]  # Paleta de cores
+        for i, char in enumerate(text):
+            color_index = (i + int(self.rainbow_offset)) % len(colors)
+            color = colors[color_index]
+            pyxel.text(x + i * 4, y, char, color)
+    
+    def draw_blinking_text(self, text, x, y):
+        """Desenha texto piscante com cores alternadas"""
+        if self.color_timer % 30 < 15:  # Pisca a cada 30 frames (15 frames cada cor)
+            color = 8  # Vermelho
+        else:
+            color = 12  # Azul claro
+        pyxel.text(x, y, text, color)
+    
+    def draw_gradient_text(self, text, x, y):
+        """Desenha texto com gradiente de cores que se move"""
+        colors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # Gradiente completo
+        for i, char in enumerate(text):
+            color_index = (i + self.color_timer // 8) % len(colors)
+            color = colors[color_index]
+            pyxel.text(x + i * 4, y, char, color)
+    
+    def draw_wave_text(self, text, x, y):
+        """Desenha texto com efeito de onda (cores se movem como ondas)"""
+        import math
+        for i, char in enumerate(text):
+            wave = math.sin((self.color_timer + i * 10) * 0.1)
+            color = int(8 + wave * 4)  # Varia entre cores 4-12
+            if color < 1: color = 1
+            if color > 15: color = 15
+            pyxel.text(x + i * 4, y, char, color)
+    
+    def draw_fire_text(self, text, x, y):
+        """Desenha texto com efeito de fogo (cores quentes)"""
+        fire_colors = [8, 9, 10, 14, 7]  # Vermelho, laranja, amarelo, branco
+        for i, char in enumerate(text):
+            # Cria um efeito aleatório usando o frame count
+            color_index = (self.color_timer + i * 3) % len(fire_colors)
+            color = fire_colors[color_index]
+            pyxel.text(x + i * 4, y, char, color)
+
     def desenhastart(self):
         pyxel.cls(14)
         pyxel.blt(0, 0, 0, 0, 0, 250, 220)  
-        pyxel.text(125, 130, "(Q)UIT", pyxel.frame_count % 4)
-        pyxel.text(90, 130, "START |", pyxel.frame_count % 4)
-        # Desenha cursor do mouse customizado
+        
+        # ====== OPÇÕES DE TEXTO COLORIDO ======
+        # Descomente apenas uma das opções abaixo para testar diferentes efeitos:
+        
+        
+        # MÉTODO 1: Efeito Rainbow - cada letra uma cor diferente 
+        # self.draw_rainbow_text("START  |", 90, 130)
+        # self.draw_rainbow_text("(Q)UIT", 118, 130)
+        
+        # MÉTODO 2: Texto piscante com duas cores alternadas
+        #self.draw_blinking_text("START  |", 90, 130)
+        #self.draw_blinking_text("(Q)UIT", 118, 130)
+        
+        # MÉTODO 3: Gradiente animado
+        # self.draw_gradient_text("START |", 90, 130)
+        # self.draw_gradient_text("(Q)UIT", 118, 130)
+        
+        # MÉTODO 4: Efeito onda com matemática (ativo) ✨
+        self.draw_wave_text("START |", 90, 130)
+        self.draw_wave_text(" (Q)UIT", 118, 130)
+
+        # MÉTODO 5: Efeito fogo (cores quentes)
+        # self.draw_fire_text("START |", 90, 130)
+        # self.draw_fire_text(" (Q)UIT", 118, 130)
+
         pyxel.mouse(True)
+
 
 class Plataforma:
     def __init__(self):
@@ -116,8 +217,8 @@ class Fase1:
         
         sobre_agua = False
         
-        # Detecção mais precisa - apenas a parte central azul dos lagos
-        # Lago 1 com margem menor (como estava funcionando bem)
+        
+        
         margem_lago1 = 4  # margem menor para o lago 1
         if (px + pl > self.x_lago1 + margem_lago1 and px < self.x_lago1 + self.largura_lago1 - margem_lago1 and
             py >= 190 and self.largura_lago1 > margem_lago1 * 2):
@@ -125,17 +226,17 @@ class Fase1:
             print("*** PERSONAGEM NA ÁGUA DO LAGO 1! ***")
             
         # Lagos 2 e 3 com margem maior
-        margem_lago = 6  # pixels de margem de cada lado para os outros lagos
+        margem_lago23 = 6  # pixels de margem de cada lado para os outros lagos
             
         # Lago 2 - apenas parte central azul
-        if (px + pl > self.x_lago2 + margem_lago and px < self.x_lago2 + self.largura_lago2 - margem_lago and
-            py >= 60 and py <= 80 and self.largura_lago2 > margem_lago * 2):
+        if (px + pl > self.x_lago2 + margem_lago23 and px < self.x_lago2 + self.largura_lago2 - margem_lago23 and
+            py >= 60 and py <= 80 and self.largura_lago2 > margem_lago23 * 2):
             sobre_agua = True
             print("*** PERSONAGEM NA ÁGUA DO LAGO 2! ***")
             
         # Lago 3 - apenas parte central azul
-        if (px + pl > self.x_lago3 + margem_lago and px < self.x_lago3 + self.largura_lago3 - margem_lago and
-            py >= 110 and py <= 130 and self.largura_lago3 > margem_lago * 2):
+        if (px + pl > self.x_lago3 + margem_lago23 and px < self.x_lago3 + self.largura_lago3 - margem_lago23 and
+            py >= 110 and py <= 130 and self.largura_lago3 > margem_lago23 * 2):
             sobre_agua = True
             print("*** PERSONAGEM NA ÁGUA DO LAGO 3! ***")
 
@@ -256,6 +357,22 @@ class Fase1:
             self.x_lago3 = 50
         
         self.plataforma.update() 
+        if self.plataforma.x < self.personagem.x + self.personagem.largura and self.plataforma.x + 24 > self.personagem.x:
+            if self.personagem.y + self.personagem.altura <= 50 and self.personagem.y + self.personagem.altura >= 42:
+                self.personagem.y = 42 - self.personagem.altura
+                self.personagem.no_chao = True
+                self.personagem.vy = 0
+                # Move o personagem junto com a plataforma na direção correta
+                if self.plataforma.direita:
+                    self.personagem.x += 0.5  # Move para a direita
+                else:
+                    self.personagem.x -= 0.5  # Move para a esquerda
+            else:
+                pass  # Não faz nada se o personagem não estiver em cima da plataforma
+        else:
+            pass  # Não faz nada se não houver colisão
+
+
 
 
     def paredes(self):
