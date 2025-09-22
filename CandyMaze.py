@@ -123,18 +123,6 @@ class Start:
             color_index = (self.color_timer + i * 3) % len(fire_colors)
             color = fire_colors[color_index]
             pyxel.text(x + i * 4, y, char, color)
-    
-    def draw_neon_text(self, text, x, y):
-        """Desenha texto com efeito neon (contorno + cor brilhante)"""
-        # Desenha contorno escuro primeiro
-        for dx in [-1, 0, 1]:
-            for dy in [-1, 0, 1]:
-                if dx != 0 or dy != 0:
-                    pyxel.text(x + dx, y + dy, text, 1)  # Contorno azul escuro
-        
-        # Desenha texto principal brilhante
-        neon_color = 12 if (self.color_timer // 10) % 2 == 0 else 14
-        pyxel.text(x, y, text, neon_color)
 
     def desenhastart(self):
         pyxel.cls(14)
@@ -144,23 +132,23 @@ class Start:
         # Descomente apenas uma das opções abaixo para testar diferentes efeitos:
         
         
-        # MÉTODO 2: Efeito Rainbow - cada letra uma cor diferente ✨
+        # MÉTODO 1: Efeito Rainbow - cada letra uma cor diferente 
         # self.draw_rainbow_text("START  |", 90, 130)
         # self.draw_rainbow_text("(Q)UIT", 118, 130)
         
-        # MÉTODO 3: Texto piscante com duas cores alternadas
+        # MÉTODO 2: Texto piscante com duas cores alternadas
         #self.draw_blinking_text("START  |", 90, 130)
         #self.draw_blinking_text("(Q)UIT", 118, 130)
         
-        # MÉTODO 4: Gradiente animado
+        # MÉTODO 3: Gradiente animado
         # self.draw_gradient_text("START |", 90, 130)
         # self.draw_gradient_text("(Q)UIT", 118, 130)
         
-        # MÉTODO 5: Efeito onda com matemática (ativo)
+        # MÉTODO 4: Efeito onda com matemática (ativo) ✨
         self.draw_wave_text("START |", 90, 130)
         self.draw_wave_text(" (Q)UIT", 118, 130)
 
-        # MÉTODO 6: Efeito fogo (cores quentes)
+        # MÉTODO 5: Efeito fogo (cores quentes)
         # self.draw_fire_text("START |", 90, 130)
         # self.draw_fire_text(" (Q)UIT", 118, 130)
 
