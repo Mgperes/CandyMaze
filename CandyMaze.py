@@ -1,7 +1,7 @@
 import pyxel
 
+    # --------------------- Classe para logs coloridos e aparentes no terminal --------------------------#
 class GameLogger:
-    """Classe para logs coloridos e aparentes no terminal"""
     
     # Códigos para cores
     RESET = '\033[0m'
@@ -143,7 +143,7 @@ class Start:
             pyxel.text(x + i * 4, y, char, color)
     
     def draw_blinking_text(self, text, x, y):
-        """Desenha texto piscante com cores alternadas"""
+        # Desenha texto piscante com cores alternadas
         if self.color_timer % 30 < 15:  # Pisca a cada 30 frames (15 frames cada cor)
             color = 8  # Vermelho
         else:
@@ -151,7 +151,7 @@ class Start:
         pyxel.text(x, y, text, color)
     
     def draw_gradient_text(self, text, x, y):
-        """Desenha texto com gradiente de cores que se move"""
+        # Desenha texto com gradiente de cores que se move
         colors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # Gradiente completo
         for i, char in enumerate(text):
             color_index = (i + self.color_timer // 8) % len(colors)
@@ -159,7 +159,7 @@ class Start:
             pyxel.text(x + i * 4, y, char, color)
     
     def draw_wave_text(self, text, x, y):
-        """Desenha texto com efeito de onda (cores se movem como ondas)"""
+        # Desenha texto com efeito de onda (cores se movem como ondas)
         import math
         for i, char in enumerate(text):
             wave = math.sin((self.color_timer + i * 10) * 0.1)
@@ -169,7 +169,7 @@ class Start:
             pyxel.text(x + i * 4, y, char, color)
     
     def draw_fire_text(self, text, x, y):
-        """Desenha texto com efeito de fogo (cores quentes)"""
+        # Desenha texto com efeito de fogo (cores quentes)
         fire_colors = [8, 9, 10, 14, 7]  # Vermelho, laranja, amarelo, branco
         for i, char in enumerate(text):
             # Cria um efeito aleatório usando o frame count
