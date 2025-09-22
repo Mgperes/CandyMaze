@@ -53,7 +53,7 @@ class GameLogger:
     @staticmethod
     def success_log(message):
         #Log de sucesso em verde
-        print(f"{GameLogger.GREEN}{GameLogger.BOLD}✅ {message}{GameLogger.RESET}")
+        print(f"\n{GameLogger.GREEN}{GameLogger.BOLD}✅ {message}{GameLogger.RESET}")
     
     @staticmethod
     def debug_log(message):
@@ -69,7 +69,7 @@ class GameLogger:
         print(f"    🕹️  CANDY MAZE INICIADO! 🕹️")
         print(f"    {border}")
         print(f"{GameLogger.RESET}")
-        print(f"{GameLogger.CYAN}📋 OBJETIVO: Chegue na porta final sem se afogar!{GameLogger.RESET}")
+        print(f"\n{GameLogger.CYAN}📋 OBJETIVO: Chegue na porta final sem se afogar!{GameLogger.RESET}")
         print(f"{GameLogger.YELLOW}⚠️  CUIDADO: Evite ficar muito tempo na água dos lagos!{GameLogger.RESET}\n")
 
 class Start:
@@ -388,7 +388,7 @@ class Fase1:
                 self.win = False
         else:
             if self.win_counter > 0:  # Saiu da porta antes de ganhar
-                GameLogger.warning_log("Saiu da porta! Vitória cancelada.")
+                GameLogger.warning_log("Saiu da porta! Volte para vencer essa fase!")
             self.win_counter = 0  # Reseta contador se sair da porta
             self.win = False
 
