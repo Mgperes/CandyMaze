@@ -116,8 +116,8 @@ class Fase1:
         
         sobre_agua = False
         
-        # Detecção mais precisa - apenas a parte central azul dos lagos
-        # Lago 1 com margem menor (como estava funcionando bem)
+        
+        
         margem_lago1 = 4  # margem menor para o lago 1
         if (px + pl > self.x_lago1 + margem_lago1 and px < self.x_lago1 + self.largura_lago1 - margem_lago1 and
             py >= 190 and self.largura_lago1 > margem_lago1 * 2):
@@ -125,17 +125,17 @@ class Fase1:
             print("*** PERSONAGEM NA ÁGUA DO LAGO 1! ***")
             
         # Lagos 2 e 3 com margem maior
-        margem_lago = 6  # pixels de margem de cada lado para os outros lagos
+        margem_lago23 = 6  # pixels de margem de cada lado para os outros lagos
             
         # Lago 2 - apenas parte central azul
-        if (px + pl > self.x_lago2 + margem_lago and px < self.x_lago2 + self.largura_lago2 - margem_lago and
-            py >= 60 and py <= 80 and self.largura_lago2 > margem_lago * 2):
+        if (px + pl > self.x_lago2 + margem_lago23 and px < self.x_lago2 + self.largura_lago2 - margem_lago23 and
+            py >= 60 and py <= 80 and self.largura_lago2 > margem_lago23 * 2):
             sobre_agua = True
             print("*** PERSONAGEM NA ÁGUA DO LAGO 2! ***")
             
         # Lago 3 - apenas parte central azul
-        if (px + pl > self.x_lago3 + margem_lago and px < self.x_lago3 + self.largura_lago3 - margem_lago and
-            py >= 110 and py <= 130 and self.largura_lago3 > margem_lago * 2):
+        if (px + pl > self.x_lago3 + margem_lago23 and px < self.x_lago3 + self.largura_lago3 - margem_lago23 and
+            py >= 110 and py <= 130 and self.largura_lago3 > margem_lago23 * 2):
             sobre_agua = True
             print("*** PERSONAGEM NA ÁGUA DO LAGO 3! ***")
 
@@ -256,6 +256,22 @@ class Fase1:
             self.x_lago3 = 50
         
         self.plataforma.update() 
+        if self.plataforma.x < self.personagem.x + self.personagem.largura and self.plataforma.x + 24 > self.personagem.x:
+            if self.personagem.y + self.personagem.altura <= 50 and self.personagem.y + self.personagem.altura >= 42:
+                self.personagem.y = 42 - self.personagem.altura
+                self.personagem.no_chao = True
+                self.personagem.vy = 0
+                # Move o personagem junto com a plataforma na direção correta
+                if self.plataforma.direita:
+                    self.personagem.x += 0.5  # Move para a direita
+                else:
+                    self.personagem.x -= 0.5  # Move para a esquerda
+            else:
+                pass  # Não faz nada se o personagem não estiver em cima da plataforma
+        else:
+            pass  # Não faz nada se não houver colisão
+
+
 
 
     def paredes(self):
