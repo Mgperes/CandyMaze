@@ -1,24 +1,77 @@
 import pyxel
 
+class GameLogger:
+    """Classe para logs coloridos e aparentes no terminal"""
+    
+    # Códigos para cores
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    
+    # Cores de texto
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    
+    # Cores de fundo
+    BG_RED = '\033[41m'
+    BG_GREEN = '\033[42m'
+    BG_YELLOW = '\033[43m'
+    BG_BLUE = '\033[44m'
+    BG_MAGENTA = '\033[45m'
+    BG_CYAN = '\033[46m'
+    BG_WHITE = '\033[47m'
+    
+    @staticmethod
+    def death_log(message):
+        #Log de morte super aparente
+        border = "=" * 50
+        print(f"\n{GameLogger.BG_RED}{GameLogger.WHITE}{GameLogger.BOLD}")
+        print(border)
+        print(f"💀 MORTE: {message} 💀")
+        print(border)
+        print(f"{GameLogger.RESET}\n")
+    
+    @staticmethod
+    def warning_log(message):
+        #Log de aviso em amarelo
+        print(f"{GameLogger.BG_YELLOW}{GameLogger.RED}{GameLogger.BOLD}⚠️  {message} ⚠️{GameLogger.RESET}")
+    
+    @staticmethod
+    def danger_log(message):
+        #Log de perigo em vermelho piscante
+        print(f"{GameLogger.RED}{GameLogger.BOLD}🚨 {message} 🚨{GameLogger.RESET}")
+    
+    @staticmethod
+    def info_log(message):
+        #Log de informação em azul
+        print(f"{GameLogger.CYAN}ℹ️  {message}{GameLogger.RESET}")
+    
+    @staticmethod
+    def success_log(message):
+        #Log de sucesso em verde
+        print(f"{GameLogger.GREEN}{GameLogger.BOLD}✅ {message}{GameLogger.RESET}")
+    
+    @staticmethod
+    def debug_log(message):
+        #Log de debug em magenta
+        print(f"{GameLogger.MAGENTA}🔧 DEBUG: {message}{GameLogger.RESET}")
+    
+    @staticmethod
+    def game_start_log():
+        #Log especial para início do jogo
+        border = "🎮" * 20
+        print(f"\n{GameLogger.BG_BLUE}{GameLogger.WHITE}{GameLogger.BOLD}")
+        print(f"    {border}")
+        print(f"    🕹️  CANDY MAZE INICIADO! 🕹️")
+        print(f"    {border}")
+        print(f"{GameLogger.RESET}")
+        print(f"{GameLogger.CYAN}📋 OBJETIVO: Chegue na porta final sem se afogar!{GameLogger.RESET}")
+        print(f"{GameLogger.YELLOW}⚠️  CUIDADO: Evite ficar muito tempo na água dos lagos!{GameLogger.RESET}\n")
 
-#----------------- Start --------------------------        # MÉTODO 2: Efeito Rainbow - cada letra uma cor diferente ✨
-        # self.draw_rainbow_text("START", 90, 130)
-        # self.draw_rainbow_text("QUIT", 130, 130)
-        
-        # MÉTODO 3: Texto piscante com duas cores alternadas
-        # self.draw_blinking_text("START", 90, 130)
-        # self.draw_blinking_text("QUIT", 130, 130)
-        
-        # MÉTODO 4: Gradiente animado
-        # self.draw_gradient_text("START", 90, 130)
-        # self.draw_gradient_text("QUIT", 130, 130)
-        
-        # MÉTODO 5: Efeito onda com matemática
-        # self.draw_wave_text("START", 90, 130)
-        # self.draw_wave_text("QUIT", 130, 130)
-        
-        # MÉTODO 6: Efeito fogo (cores quentes) ✨ (ATIVO)
-        
 class Start:
     def __init__(self):
         self.colortext = 7
@@ -223,7 +276,7 @@ class Fase1:
         if (px + pl > self.x_lago1 + margem_lago1 and px < self.x_lago1 + self.largura_lago1 - margem_lago1 and
             py >= 190 and self.largura_lago1 > margem_lago1 * 2):
             sobre_agua = True
-            print("*** PERSONAGEM NA ÁGUA DO LAGO 1! ***")
+            GameLogger.info_log("Personagem entrou na água do Lago 1")
             
         # Lagos 2 e 3 com margem maior
         margem_lago23 = 6  # pixels de margem de cada lado para os outros lagos
@@ -232,31 +285,31 @@ class Fase1:
         if (px + pl > self.x_lago2 + margem_lago23 and px < self.x_lago2 + self.largura_lago2 - margem_lago23 and
             py >= 60 and py <= 80 and self.largura_lago2 > margem_lago23 * 2):
             sobre_agua = True
-            print("*** PERSONAGEM NA ÁGUA DO LAGO 2! ***")
+            GameLogger.info_log("Personagem entrou na água do Lago 2")
             
         # Lago 3 - apenas parte central azul
         if (px + pl > self.x_lago3 + margem_lago23 and px < self.x_lago3 + self.largura_lago3 - margem_lago23 and
             py >= 110 and py <= 130 and self.largura_lago3 > margem_lago23 * 2):
             sobre_agua = True
-            print("*** PERSONAGEM NA ÁGUA DO LAGO 3! ***")
+            GameLogger.info_log("Personagem entrou na água do Lago 3")
 
         if sobre_agua and not self.afogando:
             self.afogando = True
             self.afogar_timer = 0
-            print("COMEÇOU A AFOGAR!")
+            GameLogger.danger_log("PERSONAGEM COMEÇOU A SE AFOGAR!")
         elif not sobre_agua and self.afogando:
             # Personagem saiu da água, reseta o estado de afogamento
             self.afogando = False
             self.afogar_timer = 0
-            print("SAIU DA ÁGUA!")
+            GameLogger.success_log("PERSONAGEM SAIU DA ÁGUA A TEMPO!")
 
         if self.afogando:
             self.afogar_timer += 1
             self.personagem.y += 3  # Afunda mais rápido
-            print(f"AFOGANDO... Timer: {self.afogar_timer}")
+            GameLogger.warning_log(f"AFOGANDO... Timer: {self.afogar_timer}/30")
             if self.afogar_timer > 30 or self.personagem.y > 220:
                 self.lose = True
-                print("MORREU AFOGADO!")
+                GameLogger.death_log("PERSONAGEM MORREU AFOGADO!")
             return
 
         #---------------------- Personagem não sumir da tela ----------------------#
@@ -323,11 +376,19 @@ class Fase1:
             self.personagem.y + self.personagem.altura > self.porta_y
         ):
             self.win_counter += 1  # Incrementa contador se estiver na porta
-            if self.win_counter > 20:  # Espera 20 frames (~1 segundo a 30fps)
+            if self.win_counter == 1:  # Primeira vez na porta
+                GameLogger.info_log("Personagem chegou na porta final!")
+            elif self.win_counter == 10:  # Meio caminho
+                GameLogger.warning_log("Aguardando confirmação de vitória...")
+            elif self.win_counter > 20:  # Espera 20 frames (~1 segundo a 30fps)
+                if not self.win:  # Só mostra uma vez
+                    GameLogger.success_log("🎉 PARABÉNS! VOCÊ VENCEU O CANDY MAZE! 🎉")
                 self.win = True
             else:
                 self.win = False
         else:
+            if self.win_counter > 0:  # Saiu da porta antes de ganhar
+                GameLogger.warning_log("Saiu da porta! Vitória cancelada.")
             self.win_counter = 0  # Reseta contador se sair da porta
             self.win = False
 
@@ -671,6 +732,7 @@ class CandyMazeGame:
             # Aguarda Enter ou Espaço para começar
             if not self.start_screen.update_conect():
                 self.state = "game"
+                GameLogger.game_start_log()  # Log aparente de início do jogo
             return
         elif self.state == "game":
             self.fase1.update_fase1()
