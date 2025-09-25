@@ -1,4 +1,5 @@
 import pyxel
+import math
 
     # --------------------- Classe para logs coloridos e aparentes no terminal --------------------------#
 class GameLogger:
@@ -260,57 +261,9 @@ class Fase1:
         self.largura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
         self.altura_lago3 = 8
         self.plataforma = Plataforma()
+        self.sobre_agua = False
         
     def update_fase1(self):
-        if self.win or self.lose:
-            return
-
-        # Detecta se personagem está sobre a parte azul (água) dos lagos
-        px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
-        
-        sobre_agua = False
-        
-        
-        
-        margem_lago1 = 4  # margem menor para o lago 1
-        if (px + pl > self.x_lago1 + margem_lago1 and px < self.x_lago1 + self.largura_lago1 - margem_lago1 and
-            py >= 190 and self.largura_lago1 > margem_lago1 * 2):
-            sobre_agua = True
-            GameLogger.info_log("Personagem entrou na água do Lago 1")
-            
-        # Lagos 2 e 3 com margem maior
-        margem_lago23 = 6  # pixels de margem de cada lado para os outros lagos
-            
-        # Lago 2 - apenas parte central azul
-        if (px + pl > self.x_lago2 + margem_lago23 and px < self.x_lago2 + self.largura_lago2 - margem_lago23 and
-            py >= 60 and py <= 80 and self.largura_lago2 > margem_lago23 * 2):
-            sobre_agua = True
-            GameLogger.info_log("Personagem entrou na água do Lago 2")
-            
-        # Lago 3 - apenas parte central azul
-        if (px + pl > self.x_lago3 + margem_lago23 and px < self.x_lago3 + self.largura_lago3 - margem_lago23 and
-            py >= 110 and py <= 130 and self.largura_lago3 > margem_lago23 * 2):
-            sobre_agua = True
-            GameLogger.info_log("Personagem entrou na água do Lago 3")
-
-        if sobre_agua and not self.afogando:
-            self.afogando = True
-            self.afogar_timer = 0
-            GameLogger.danger_log("PERSONAGEM COMEÇOU A SE AFOGAR!")
-        elif not sobre_agua and self.afogando:
-            # Personagem saiu da água, reseta o estado de afogamento
-            self.afogando = False
-            self.afogar_timer = 0
-            GameLogger.success_log("PERSONAGEM SAIU DA ÁGUA A TEMPO!")
-
-        if self.afogando:
-            self.afogar_timer += 1
-            self.personagem.y += 3  # Afunda mais rápido
-            GameLogger.warning_log(f"AFOGANDO... Timer: {self.afogar_timer}/30")
-            if self.afogar_timer > 30 or self.personagem.y > 220:
-                self.lose = True
-                GameLogger.death_log("PERSONAGEM MORREU AFOGADO!")
-            return
 
         #---------------------- Personagem não sumir da tela ----------------------#
         if self.colisao == True:
@@ -392,6 +345,11 @@ class Fase1:
             self.win_counter = 0  # Reseta contador se sair da porta
             self.win = False
 
+
+
+
+
+
     #-------------LAGO 1--------------
 
         self.x_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
@@ -416,7 +374,35 @@ class Fase1:
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
             self.largura_lago3 = 20
             self.x_lago3 = 50
-        
+
+
+
+        # ------------------- Detecta se personagem está sobre a água dos lagos (APÓS movimento) -------------------#
+        px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
+
+        # Verifica colisão com Lago 1 (x=204, y=212)
+        if (px + pl > 203 and px < 204 + 10 and
+            py + pa > 211.5 and py < 211.5 + 8):
+            GameLogger.death_log("TOCOU NO LAGO 1! O personagem se afogou instantaneamente!")
+            self.lose = True
+
+        # Verifica colisão com Lago 2 (x=137, y=68)
+        elif (px + pl > 136 and px < 137 + 30 and
+              py + pa > 67.5 and py < 67.5 + 8):
+            GameLogger.death_log("TOCOU NO LAGO 2! O personagem se afogou instantaneamente!")
+            self.lose = True
+
+        # Verifica colisão com Lago 3 (x=50, y=116)
+        elif (px + pl > 49 and px < 50 + 10 and
+              py + pa > 115.5 and py < 115.5 + 8):
+            GameLogger.death_log("TOCOU NO LAGO 3! O personagem se afogou instantaneamente!")
+            self.lose = True
+
+
+
+
+
+        # ---------- plataforma movimento ---------------------------------
         self.plataforma.update() 
         if self.plataforma.x < self.personagem.x + self.personagem.largura and self.plataforma.x + 24 > self.personagem.x:
             if self.personagem.y + self.personagem.altura <= 50 and self.personagem.y + self.personagem.altura >= 42:
@@ -435,6 +421,8 @@ class Fase1:
 
 
 
+        if self.win or self.lose:
+            return
 
     def paredes(self):
         
@@ -465,7 +453,8 @@ class Fase1:
 
         # Desenha o personagem ANTES do lago
         self.personagem.desenhapersonagem()
-        # Desenha o lago por cima do personagem
+
+        #----LAGO1-------
         pyxel.blt(self.x_lago1, self.y_lago1, 1, 101, 0, self.largura_lago1, self.altura_lago1,7) #primeira imagem do looping do lago
         pyxel.blt(self.x_lago1 - 20, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)  #segunda imagem do looping do lago
         pyxel.blt(self.x_lago1 - 40, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)   #terceira imagem do looping do lago
