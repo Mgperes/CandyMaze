@@ -84,6 +84,9 @@ class Start:
         # Variáveis para efeitos de cor
         self.color_timer = 0
         self.rainbow_offset = 0
+        # Controle de hover sound
+        self.last_hover_start = False
+        self.last_hover_quit = False
 
 
     def update_conect(self):
@@ -105,16 +108,26 @@ class Start:
                            130 <= pyxel.mouse_y <= 130 + 10
                            )
         
+        # Som sutil de hover nos botões
+        if mouse_over_start and not self.last_hover_start:
+            pyxel.play(1, 8)  # Som muito sutil de hover
+        if mouse_over_quit and not self.last_hover_quit:
+            pyxel.play(1, 8)  # Som muito sutil de hover
+            
+        self.last_hover_start = mouse_over_start
+        self.last_hover_quit = mouse_over_quit
 
         # Clique em QUIT ou aperte o "Q "para fechar o jogo
         if mouse_over_quit and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) or pyxel.btnp(pyxel.KEY_Q)):
             pyxel.quit()
         # Clique em ENTER ou ESPAÇO para iniciar
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+            pyxel.play(0, 4)  # Som de menu/click
             return False
     
         # Clique do mouse inicia o jogo se estiver sobre o texto Start
         if mouse_over_start and (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)):
+            pyxel.play(0, 4)  # Som de menu/click
             self.hover_timer += 1
             if self.hover_timer > 10:
                 self.colortext = 8  # cor diferente
@@ -331,6 +344,7 @@ class Fase1:
             elif self.win_counter > 20:  # Espera 20 frames (~1 segundo a 30fps)
                 if not self.win:  # Só mostra uma vez
                     GameLogger.success_log("🎉 PARABÉNS! VOCÊ VENCEU O CANDY MAZE! 🎉")
+                    pyxel.play(2, 3)  # Som de vitória
                 self.win = True
             else:
                 self.win = False
@@ -399,6 +413,7 @@ class Fase1:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
+                pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 1!")
         elif colide_com_lago(self.mx_lago2, self.my_lago2, self.mlargura_lago2, self.maltura_lago2):
@@ -406,6 +421,7 @@ class Fase1:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
+                pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 2!")
         elif colide_com_lago(self.mx_lago3, self.my_lago3, self.mlargura_lago3, self.maltura_lago3):
@@ -413,6 +429,7 @@ class Fase1:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
+                pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 3!")
 
@@ -432,6 +449,7 @@ class Fase1:
             # Após 2 segundos (40 frames com fps=20), morte definitiva
             if self.afogar_timer >= 40:
                 GameLogger.death_log("💀💀💀 O PERSONAGEM SE AFOGOU COMPLETAMENTE! 💀💀💀")
+                pyxel.play(3, 2)  # Som de morte/afogamento
                 self.lose = True
 
 
@@ -503,6 +521,7 @@ class Fase1:
                 self.formiga_collision_cooldown = 30  # 1.5 segundos de cooldown (30 frames a 20fps)
                 self.invencibilidade_timer = 30  # Efeito visual de invencibilidade
                 
+                pyxel.play(2, 1)  # Som de dano/colisão com formiga
                 GameLogger.danger_log(f"🐜 FORMIGA ATACOU! {lado_tocado} encostou na formiga! Vidas restantes: {self.personagem.vidas}")
                 
                 # Empurrar o personagem para trás com mais força (knockback)
@@ -546,6 +565,7 @@ class Fase1:
                 # Verificar se perdeu todas as vidas
                 if self.personagem.vidas <= 0:
                     GameLogger.death_log("💀 GAME OVER! Todas as vidas foram perdidas! 💀")
+                    pyxel.play(3, 2)  # Som de morte
                     self.lose = True
         
         # Decrementar cooldowns
@@ -652,6 +672,7 @@ class VictoryScreen:
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+            pyxel.play(0, 4)  # Som de menu/click
             return True
         return False
 
@@ -670,6 +691,7 @@ class LoseScreen:
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+            pyxel.play(0, 4)  # Som de menu/click
             return True
         return False
 
@@ -876,16 +898,116 @@ class CandyMazeGame:
         pyxel.images[1].load(0, 0, "itens.png")
         pyxel.images[2].load(0, 0, "fundofase1.png")
 
+        #-------- configuração de áudio --------#
+        self.setup_audio()
+
         pyxel.run(self.update, self.draw)
+
+    def setup_audio(self):
+        """Configura os sons do jogo usando Pyxel"""
+        
+        # Som de pulo (canal 0) - Volume muito baixo e suave
+        pyxel.sounds[0].set(
+            notes="C3E3G3", 
+            tones="TTT", 
+            volumes="121", 
+            effects="NNN", 
+            speed=25
+        )
+        
+        # Som de dano/colisão com formiga (canal 1) - Mais suave
+        pyxel.sounds[1].set(
+            notes="F2E2D2C2", 
+            tones="TTTT", 
+            volumes="3221", 
+            effects="NNNN", 
+            speed=15
+        )
+        
+        # Som de morte/afogamento (canal 2) - Melancólico mas suave
+        pyxel.sounds[2].set(
+            notes="G3F3E3D3C3", 
+            tones="TTTTT", 
+            volumes="43321", 
+            effects="NNNNN", 
+            speed=20
+        )
+        
+        # Som de vitória (canal 3) - Alegre mas não agressivo
+        pyxel.sounds[3].set(
+            notes="C3E3G3C4G3E3C3", 
+            tones="TTTTTTT", 
+            volumes="3454543", 
+            effects="NNNNNNN", 
+            speed=20
+        )
+        
+        # Som de menu/click (canal 4) - Muito sutil
+        pyxel.sounds[4].set(
+            notes="E3", 
+            tones="T", 
+            volumes="2", 
+            effects="N", 
+            speed=40
+        )
+        
+        # Som ambiente do jogo (canal 5) - Calmo e tranquilo
+        pyxel.sounds[5].set(
+            notes="C3G3A3F3E3G3C3E3", 
+            tones="TTTTTTTT", 
+            volumes="22222222", 
+            effects="NNNNNNNN", 
+            speed=80
+        )
+        
+        # Som ambiente do menu (canal 6) - Muito relaxante e grave
+        pyxel.sounds[6].set(
+            notes="C2E2G2F2E2D2C2G2", 
+            tones="SSSSSSSS", 
+            volumes="12211221", 
+            effects="NNNNNNNN", 
+            speed=120
+        )
+        
+        # Som de toque na água (canal 7) - Suave aviso
+        pyxel.sounds[7].set(
+            notes="G3F3E3", 
+            tones="SSS", 
+            volumes="321", 
+            effects="NNN", 
+            speed=25
+        )
+        
+        # Som de hover no menu (canal 8) - Muito sutil
+        pyxel.sounds[8].set(
+            notes="C4", 
+            tones="T", 
+            volumes="1", 
+            effects="N", 
+            speed=50
+        )
+
+    def play_sound(self, sound_id, channel=0):
+        """Toca um som específico em um canal"""
+        pyxel.play(channel, sound_id)
 
     def update(self):
         if self.state == "start":
+            # Som ambiente do menu (toca em loop)
+            if not pyxel.play_pos(0):  # Se não há som tocando no canal 0
+                pyxel.play(0, 6, loop=True)  # Toca som ambiente do menu em loop
+            
             # Aguarda Enter ou Espaço para começar
             if not self.start_screen.update_conect():
+                pyxel.stop(0)  # Para o som do menu
                 self.state = "game"
                 GameLogger.game_start_log()  # Log aparente de início do jogo
             return
         elif self.state == "game":
+            # Som ambiente calmo de fundo (toca em loop)
+            if not pyxel.play_pos(0):  # Se não há som tocando no canal 0
+                pyxel.play(0, 5, loop=True)  # Toca som ambiente tranquilo em loop
+                
             self.fase1.update_fase1()
             if self.fase1.win:
                 self.state = "victory"
@@ -895,15 +1017,18 @@ class CandyMazeGame:
                 return
             # -------- se clicar em ESC volta pra tela inicial -------------------#
             if pyxel.btnp(pyxel.KEY_ESCAPE):
+                pyxel.stop(0)  # Para o som do jogo
                 self.state = "start"
                 return
         elif self.state == "victory":
+            pyxel.stop(0)  # Para qualquer som de fundo
             if self.victory_screen.update():
                 # Reinicia a fase e volta ao menu inicial
                 self.fase1 = Fase1()
                 self.state = "start"
                 return
         elif self.state == "lose":
+            pyxel.stop(0)  # Para qualquer som de fundo
             if self.lose_screen.update():
                 # Reinicia a fase e volta ao menu inicial
                 self.fase1 = Fase1()
