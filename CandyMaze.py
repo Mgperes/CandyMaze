@@ -161,6 +161,8 @@ class Plataforma:
 
 class formiga:
     def __init__(self):
+
+        
         self.x = 35
         self.y = 153
         self.largura = 18
@@ -170,6 +172,7 @@ class formiga:
         self.direita = True
         self.v = 0  #velocidade
         self.i = 1  #imagem 1 da formiga (são duas imagens para simular movimento)
+
     def update(self):
         if self.x == 35:
             self.direita = True  #quando x for 87 (o inicial) ela se moverá para a direita
@@ -222,6 +225,7 @@ class Fase1:
         self.formiga = formiga()
 
         self.personagem = Personagem(2, y_chao - altura_personagem)
+        self.vidas = Vidas(self.personagem)
         self.x = 0
         self.y = 0
 
@@ -247,6 +251,12 @@ class Fase1:
         self.maltura_lago3 = 8
 
         self.plataforma = Plataforma()
+        
+        # Cooldown para colisão com formiga
+        self.formiga_collision_cooldown = 0
+        
+        # Sistema de invencibilidade visual
+        self.invencibilidade_timer = 0
         
     def update_fase1(self):
 
@@ -447,6 +457,105 @@ class Fase1:
 
         self.formiga.update() 
 
+        # ---------- Colisão formiga - Sistema de perda de vida ---------------------------------
+        # Verificar se o personagem encostar em qualquer lado da formiga
+        formiga_esquerda = self.formiga.x
+        formiga_direita = self.formiga.x + self.formiga.largura
+        formiga_topo = self.formiga.y
+        formiga_base = self.formiga.y + self.formiga.altura
+        
+        personagem_esquerda = self.personagem.x
+        personagem_direita = self.personagem.x + self.personagem.largura
+        personagem_topo = self.personagem.y
+        personagem_base = self.personagem.y + self.personagem.altura
+        
+        # Verificar colisão geral
+        colisao_formiga = (
+            personagem_direita > formiga_esquerda and
+            personagem_esquerda < formiga_direita and
+            personagem_base > formiga_topo and
+            personagem_topo < formiga_base
+        )
+        
+        # Se houver colisão e o cooldown permitir, aplicar perda de vida
+        if colisao_formiga and self.formiga_collision_cooldown <= 0:
+            # Verificar qual lado do personagem tocou na formiga
+            lado_tocado = ""
+            
+            # Lado esquerdo do personagem toca no lado direito da formiga
+            if personagem_esquerda <= formiga_direita and personagem_direita > formiga_direita:
+                lado_tocado = "esquerda do personagem"
+                
+            # Lado direito do personagem toca no lado esquerdo da formiga  
+            elif personagem_direita >= formiga_esquerda and personagem_esquerda < formiga_esquerda:
+                lado_tocado = "direita do personagem"
+                
+            # Topo do personagem toca na base da formiga
+            elif personagem_topo <= formiga_base and personagem_base > formiga_base:
+                lado_tocado = "topo do personagem"
+                
+            # Base do personagem toca no topo da formiga
+            elif personagem_base >= formiga_topo and personagem_topo < formiga_topo:
+                lado_tocado = "base do personagem"
+            
+            if lado_tocado:
+                self.personagem.vidas -= 1
+                self.formiga_collision_cooldown = 30  # 1.5 segundos de cooldown (30 frames a 20fps)
+                self.invencibilidade_timer = 30  # Efeito visual de invencibilidade
+                
+                GameLogger.danger_log(f"🐜 FORMIGA ATACOU! {lado_tocado} encostou na formiga! Vidas restantes: {self.personagem.vidas}")
+                
+                # Empurrar o personagem para trás com mais força (knockback)
+                knockback_distance = 20  # Distância maior de empurrão
+                
+                if lado_tocado == "esquerda do personagem":
+                    # Empurra para a esquerda (para trás)
+                    self.personagem.x -= knockback_distance
+                elif lado_tocado == "direita do personagem":
+                    # Empurra para a direita (para trás)
+                    self.personagem.x += knockback_distance
+                elif lado_tocado == "topo do personagem":
+                    # Empurra para cima (para trás)
+                    self.personagem.y -= knockback_distance
+                elif lado_tocado == "base do personagem":
+                    # Empurra para baixo (para trás)
+                    self.personagem.y += knockback_distance
+                
+                # Adicionar efeito de knockback na velocidade vertical se estiver no ar
+                if not self.personagem.no_chao:
+                    if lado_tocado in ["esquerda do personagem", "direita do personagem"]:
+                        # Se colidiu lateralmente, empurra também verticalmente
+                        self.personagem.vy = -5  # Pequeno impulso para cima
+                    elif lado_tocado == "topo do personagem":
+                        # Se bateu por cima, empurra para baixo
+                        self.personagem.vy = 8
+                    elif lado_tocado == "base do personagem":
+                        # Se colidiu por baixo, empurra mais para cima
+                        self.personagem.vy = -8
+                
+                # Garantir que o personagem não saia dos limites da tela
+                if self.personagem.x < 0:
+                    self.personagem.x = 0
+                if self.personagem.x + self.personagem.largura > 250:
+                    self.personagem.x = 250 - self.personagem.largura
+                if self.personagem.y < 0:
+                    self.personagem.y = 0
+                if self.personagem.y + self.personagem.altura > 212:
+                    self.personagem.y = 212 - self.personagem.altura
+                
+                # Verificar se perdeu todas as vidas
+                if self.personagem.vidas <= 0:
+                    GameLogger.death_log("💀 GAME OVER! Todas as vidas foram perdidas! 💀")
+                    self.lose = True
+        
+        # Decrementar cooldowns
+        if self.formiga_collision_cooldown > 0:
+            self.formiga_collision_cooldown -= 1
+        if self.invencibilidade_timer > 0:
+            self.invencibilidade_timer -= 1
+
+
+
         if self.win or self.lose:
             return
 
@@ -457,14 +566,18 @@ class Fase1:
         self.parede3 = pyxel.blt(0, 116, 1, 0, 72, 100, 8,7)  # parede horizontal 2
         self.parede4 = pyxel.blt(150, 116, 1, 150, 72, 100, 8)  # parede horizontal 3
         self.parede5 = pyxel.blt(40, 68, 1, 0, 80, 210, 8,7)   # parede horizontal 4
+        
 
-    def vidas(self):
-        pass
+
 
     def draw_fase1(self):
         pyxel.cls(6)
         pyxel.blt(0, 0, 2, 0, 0, 250, 220)
         pyxel.mouse(False) # mouse desativado
+
+        # Verifica se perdeu todas as vidas
+        if self.vidas.sistema_vidas():
+            self.lose = True
 
         # Checa colisão do personagem com a porta final
         if (
@@ -477,8 +590,12 @@ class Fase1:
         else:
             self.porta_final = pyxel.blt(220, 37, 1, 149, 0, 21, 31) # porta final
 
-        # Desenha o personagem ANTES do lago
-        self.personagem.desenhapersonagem()
+        # Desenha o personagem ANTES do lago (com efeito de piscar se invencível)
+        if self.invencibilidade_timer > 0 and self.invencibilidade_timer % 4 < 2:
+            # Personagem piscando (desenha só metade do tempo)
+            pass  # Não desenha o personagem neste frame
+        else:
+            self.personagem.desenhapersonagem()
 
         #----LAGO1-------
         pyxel.blt(self.mx_lago1, self.my_lago1, 1, 101, 0, self.mlargura_lago1, self.maltura_lago1,7) #primeira imagem do looping do lago
@@ -504,9 +621,26 @@ class Fase1:
 
         pyxel.blt(145, 199, 1, 121, 0, 7, 7,7)
         
-        
+#----------------- Vidas ---------------------------------------------------------------------------------------#
+class Vidas:
+    def __init__(self, personagem):
+        self.personagem = personagem
+        self.lose = False
 
-        
+    def sistema_vidas(self):
+        if self.personagem.vidas >= 3:
+            pyxel.blt(40, 5, 1, 139, 9, 10, 7, 7)  # coração
+            pyxel.blt(52, 5, 1, 139, 9, 10, 7, 7)  # coração
+            pyxel.blt(64, 5, 1, 139, 9, 10, 7, 7)  # coração
+        elif self.personagem.vidas == 2:
+            pyxel.blt(40, 5, 1, 139, 9, 10, 7, 7)  # coração
+            pyxel.blt(52, 5, 1, 139, 9, 10, 7, 7)  # coração
+        elif self.personagem.vidas == 1:
+            pyxel.blt(40, 5, 1, 139, 9, 10, 7, 7)  # coração
+        elif self.personagem.vidas <= 0:
+            self.lose = True
+            return True  # Retorna True quando perde todas as vidas
+        return False
 
 
 #----------------- VictoryScreen ---------------------------------------------------------------------------------------#
@@ -558,6 +692,7 @@ class Personagem:
         self.contX = 0  
         self.y_mem = 0
         self.contY = 0
+        self.vidas = 3  # Número inicial de vidas
         
     def ha_parede_abaixo(self):
         # Lista das paredes horizontais (x, y, largura, altura)
