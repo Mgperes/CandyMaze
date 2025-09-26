@@ -123,33 +123,6 @@ class Start:
                 return False
         return True
 
-    def draw_rainbow_text(self, text, x, y):
-        """
-        Desenha texto com cada letra em uma cor diferente (efeito arco-íris)
-        
-        PALETA DE CORES PYXEL:
-        0 = Preto        8 = Vermelho
-        1 = Azul escuro  9 = Laranja  
-        2 = Roxo         10 = Amarelo
-        3 = Verde escuro 11 = Verde claro
-        4 = Marrom       12 = Azul claro
-        5 = Cinza escuro 13 = Cinza
-        6 = Cinza claro  14 = Rosa/Branco rosado
-        7 = Branco       15 = Bege claro
-        """
-        colors = [8, 9, 10, 11, 12, 13, 14, 15, 7, 6, 5, 4, 3, 2, 1]  # Paleta de cores
-        for i, char in enumerate(text):
-            color_index = (i + int(self.rainbow_offset)) % len(colors)
-            color = colors[color_index]
-            pyxel.text(x + i * 4, y, char, color)
-    
-    def draw_blinking_text(self, text, x, y):
-        # Desenha texto piscante com cores alternadas
-        if self.color_timer % 30 < 15:  # Pisca a cada 30 frames (15 frames cada cor)
-            color = 8  # Vermelho
-        else:
-            color = 12  # Azul claro
-        pyxel.text(x, y, text, color)
     
     def draw_gradient_text(self, text, x, y):
         # Desenha texto com gradiente de cores que se move
@@ -159,30 +132,12 @@ class Start:
             color = colors[color_index]
             pyxel.text(x + i * 4, y, char, color)
     
-    def draw_wave_text(self, text, x, y):
-        # Desenha texto com efeito de onda (cores se movem como ondas)
-        import math
-        for i, char in enumerate(text):
-            wave = math.sin((self.color_timer + i * 10) * 0.1)
-            color = int(8 + wave * 4)  # Varia entre cores 4-12
-            if color < 1: color = 1
-            if color > 15: color = 15
-            pyxel.text(x + i * 4, y, char, color)
-    
-    def draw_fire_text(self, text, x, y):
-        # Desenha texto com efeito de fogo (cores quentes)
-        fire_colors = [8, 9, 10, 14, 7]  # Vermelho, laranja, amarelo, branco
-        for i, char in enumerate(text):
-            # Cria um efeito aleatório usando o frame count
-            color_index = (self.color_timer + i * 3) % len(fire_colors)
-            color = fire_colors[color_index]
-            pyxel.text(x + i * 4, y, char, color)
 
     def desenhastart(self):
         pyxel.cls(14)
         pyxel.blt(0, 0, 0, 0, 0, 250, 220)  
         self.draw_gradient_text("START |", 90, 130)
-        self.draw_gradient_text("(Q)UIT", 118, 130)
+        self.draw_gradient_text(" (Q)UIT", 118, 130)
         pyxel.mouse(True)
 
 
@@ -290,20 +245,6 @@ class Fase1:
         self.my_lago3 = 116
         self.mlargura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
         self.maltura_lago3 = 8
-
-
-        self.x_lago1 = 185
-        self.y_lago1 = 212
-        self.largura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
-        self.altura_lago1 = 8
-        self.x_lago2 = 137
-        self.y_lago2 = 68
-        self.largura_lago2 = 40   #posicão inicial e tamanho do segundo lago
-        self.altura_lago2 = 8
-        self.x_lago3 = 50
-        self.y_lago3 = 116
-        self.largura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
-        self.altura_lago3 = 8
 
         self.plataforma = Plataforma()
         
@@ -428,7 +369,12 @@ class Fase1:
         self.ptop = py       # topo do personagem
         self.pbottom = py + pa  # base do personagem
 
-        print("Posição do Personagem: direita, esquerda, topo e base em (", self.pdir, ",", self.pesq,",", self.ptop,",", self.pbottom,")")
+        print(f"Personagem: x={self.personagem.x}, y={self.personagem.y}, direita={self.pdir}, base={self.pbottom}")
+        print(f"Lago1: x={self.mx_lago1}-{self.mx_lago1+self.mlargura_lago1}, y={self.my_lago1}-{self.my_lago1+self.maltura_lago1}")
+        print(f"Lago2: x={self.mx_lago2}-{self.mx_lago2+self.mlargura_lago2}, y={self.my_lago2}-{self.my_lago2+self.maltura_lago2}")
+        print(f"Lago3: x={self.mx_lago3}-{self.mx_lago3+self.mlargura_lago3}, y={self.my_lago3}-{self.my_lago3+self.maltura_lago3}")
+        
+        
 
         # Função auxiliar para verificar colisão com retângulo (lago)
         def colide_com_lago(lago_x, lago_y, lago_w, lago_h):
@@ -437,20 +383,46 @@ class Fase1:
                 self.pbottom > lago_y and self.ptop < lago_y + lago_h   # colisão vertical
             )
 
-        # Verifica colisão com Lago 1 (x=self.x_lago1, y=212, largura=self.largura_lago1, altura=8)
-        if colide_com_lago(self.x_lago1, self.y_lago1, self.largura_lago1, self.altura_lago1) and self.personagem.no_chao:
-            GameLogger.death_log("TOCOU NO LAGO 1! O personagem se afogou instantaneamente!")
-            self.lose = True
+        # Verifica colisão com qualquer lago
+        if colide_com_lago(self.mx_lago1, self.my_lago1, self.mlargura_lago1, self.maltura_lago1):
+            if not self.afogando:
+                # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
+                self.afogando = True
+                self.afogar_timer = 0
+                GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
+                print("COLISÃO DETECTADA COM LAGO 1!")
+        elif colide_com_lago(self.mx_lago2, self.my_lago2, self.mlargura_lago2, self.maltura_lago2):
+            if not self.afogando:
+                # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
+                self.afogando = True
+                self.afogar_timer = 0
+                GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
+                print("COLISÃO DETECTADA COM LAGO 2!")
+        elif colide_com_lago(self.mx_lago3, self.my_lago3, self.mlargura_lago3, self.maltura_lago3):
+            if not self.afogando:
+                # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
+                self.afogando = True
+                self.afogar_timer = 0
+                GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
+                print("COLISÃO DETECTADA COM LAGO 3!")
 
-        # Verifica colisão com Lago 2 (x=self.x_lago2, y=68, largura=self.largura_lago2, altura=8)
-        elif colide_com_lago(self.x_lago2, self.y_lago2, self.largura_lago2, self.altura_lago2) and self.personagem.no_chao:
-            GameLogger.death_log("TOCOU NO LAGO 2! O personagem se afogou instantaneamente!")
-            self.lose = True
-
-        # Verifica colisão com Lago 3 (x=self.x_lago3, y=116, largura=self.largura_lago3, altura=8)
-        elif colide_com_lago(self.x_lago3, self.y_lago3, self.largura_lago3, self.altura_lago3) and self.personagem.no_chao:
-            GameLogger.death_log("TOCOU NO LAGO 3! O personagem se afogou instantaneamente!")
-            self.lose = True
+        # Sistema de morte lenta e inevitável (2 segundos)
+        if self.afogando:
+            self.afogar_timer += 1
+            tempo_restante = (40 - self.afogar_timer) / 20  # Converte frames para segundos (fps=20)
+            
+            # Avisos progressivos durante o afogamento
+            if self.afogar_timer == 10:  # 0.5 segundos
+                GameLogger.danger_log("🌊 AFOGANDO... Não há como escapar! 🌊")
+            elif self.afogar_timer == 20:  # 1 segundo
+                GameLogger.danger_log("💀 MEIO AFOGADO... Prepare-se para morrer! 💀")
+            elif self.afogar_timer == 30:  # 1.5 segundos
+                GameLogger.danger_log("☠️  QUASE MORTO... Últimos momentos! ☠️")
+            
+            # Após 2 segundos (40 frames com fps=20), morte definitiva
+            if self.afogar_timer >= 40:
+                GameLogger.death_log("💀💀💀 O PERSONAGEM SE AFOGOU COMPLETAMENTE! 💀💀💀")
+                self.lose = True
 
 
 
@@ -509,18 +481,18 @@ class Fase1:
         self.personagem.desenhapersonagem()
 
         #----LAGO1-------
-        pyxel.blt(self.x_lago1, self.y_lago1, 1, 101, 0, self.largura_lago1, self.altura_lago1,7) #primeira imagem do looping do lago
-        pyxel.blt(self.x_lago1 - 20, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)  #segunda imagem do looping do lago
-        pyxel.blt(self.x_lago1 - 40, self.y_lago1, 1, 101, 0, 20, self.altura_lago1,7)   #terceira imagem do looping do lago
+        pyxel.blt(self.mx_lago1, self.my_lago1, 1, 101, 0, self.mlargura_lago1, self.maltura_lago1,7) #primeira imagem do looping do lago
+        pyxel.blt(self.mx_lago1 - 20, self.my_lago1, 1, 101, 0, 20, self.maltura_lago1,7)  #segunda imagem do looping do lago
+        pyxel.blt(self.mx_lago1 - 40, self.my_lago1, 1, 101, 0, 20, self.maltura_lago1,7)   #terceira imagem do looping do lago
        #-----LAGO2--------
-        pyxel.blt(self.x_lago2, self.y_lago2, 1, 56, 16, self.largura_lago2, self.altura_lago2,7) 
-        pyxel.blt(self.x_lago2 - 40, self.y_lago2, 1, 56, 16, 40, self.altura_lago2,7) 
-        pyxel.blt(self.x_lago2 - 80, self.y_lago2, 1, 56, 16, 40, self.altura_lago2,7) 
-        pyxel.blt(self.x_lago2 - 95, self.y_lago2, 1, 56, 16, 15, self.altura_lago2,7)   
+        pyxel.blt(self.mx_lago2, self.my_lago2, 1, 56, 16, self.mlargura_lago2, self.maltura_lago2,7) 
+        pyxel.blt(self.mx_lago2 - 40, self.my_lago2, 1, 56, 16, 40, self.maltura_lago2,7) 
+        pyxel.blt(self.mx_lago2 - 80, self.my_lago2, 1, 56, 16, 40, self.maltura_lago2,7) 
+        pyxel.blt(self.mx_lago2 - 95, self.my_lago2, 1, 56, 16, 15, self.maltura_lago2,7)   
         #-----LAGO3--------
-        pyxel.blt(self.x_lago3, self.y_lago3, 1, 56, 24, self.largura_lago3, self.altura_lago3,7) 
-        pyxel.blt(self.x_lago3 - 20, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7)  
-        pyxel.blt(self.x_lago3 - 40, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7) 
+        pyxel.blt(self.mx_lago3, self.my_lago3, 1, 56, 24, self.mlargura_lago3, self.maltura_lago3,7) 
+        pyxel.blt(self.mx_lago3 - 20, self.my_lago3, 1, 56, 24, 20, self.maltura_lago3,7)  
+        pyxel.blt(self.mx_lago3 - 40, self.my_lago3, 1, 56, 24, 20, self.maltura_lago3,7) 
 
         self.formiga.draw()
 
