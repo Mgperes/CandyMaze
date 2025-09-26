@@ -180,31 +180,8 @@ class Start:
     def desenhastart(self):
         pyxel.cls(14)
         pyxel.blt(0, 0, 0, 0, 0, 250, 220)  
-        
-        # ====== OPÇÕES DE TEXTO COLORIDO ======
-        # Descomente apenas uma das opções abaixo para testar diferentes efeitos:
-        
-        
-        # MÉTODO 1: Efeito Rainbow - cada letra uma cor diferente 
-        # self.draw_rainbow_text("START  |", 90, 130)
-        # self.draw_rainbow_text("(Q)UIT", 118, 130)
-        
-        # MÉTODO 2: Texto piscante com duas cores alternadas
-        #self.draw_blinking_text("START  |", 90, 130)
-        #self.draw_blinking_text("(Q)UIT", 118, 130)
-        
-        # MÉTODO 3: Gradiente animado
-        # self.draw_gradient_text("START |", 90, 130)
-        # self.draw_gradient_text("(Q)UIT", 118, 130)
-        
-        # MÉTODO 4: Efeito onda com matemática (ativo) ✨
-        self.draw_wave_text("START |", 90, 130)
-        self.draw_wave_text(" (Q)UIT", 118, 130)
-
-        # MÉTODO 5: Efeito fogo (cores quentes)
-        # self.draw_fire_text("START |", 90, 130)
-        # self.draw_fire_text(" (Q)UIT", 118, 130)
-
+        self.draw_gradient_text("START |", 90, 130)
+        self.draw_gradient_text("(Q)UIT", 118, 130)
         pyxel.mouse(True)
 
 
@@ -226,6 +203,51 @@ class Plataforma:
     def draw(self):
         pyxel.blt(self.x, 42, 1, 56, 32, 24, 8,7)
 
+class formiga:
+    def __init__(self):
+        self.x = 35
+        self.y = 153
+        self.largura = 18
+        self.altura = 11
+        self.x_mem = 197
+        self.y_mem = 0
+        self.direita = True
+        self.v = 0  #velocidade
+        self.i = 1  #imagem 1 da formiga (são duas imagens para simular movimento)
+    def update(self):
+        if self.x == 35:
+            self.direita = True  #quando x for 87 (o inicial) ela se moverá para a direita
+        if self.x == 197:
+            self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
+        if self.direita == True:
+            self.v = 0.5
+            self.x += self.v
+            self.direita = True
+            self.y_mem = 11
+        if self.direita == False:
+            self.v = -(0.5)
+            self.x += self.v
+            self.direita = False
+            self.y_mem = 0
+        #desenho do movimento
+        if self.v == 0.5 and self.i == 1:
+            self.x_mem = 197
+            self.i = 2
+        else: 
+            if self.v == 0.5:
+                self.x_mem = 215
+                self.i = 1
+        if self.v == -(0.5) and self.i == 1:
+            self.x_mem = 197
+            self.i = 2
+        else: 
+            if self.v == -(0.5):
+                self.x_mem = 215
+                self.i = 1
+        
+    def draw(self):
+        pyxel.blt(self.x, self.y, 1, self.x_mem, self.y_mem, 18, 11,7)
+
 
 #----------------- FASE 1 ----------------------------------------------------------------------------------------#
 
@@ -238,6 +260,7 @@ class Fase1:
         altura_tela = 220
         altura_personagem = 18
         y_chao = altura_tela - altura_chao
+        self.formiga = formiga()
         self.personagem = Personagem(2, y_chao - altura_personagem)
         self.x = 0
         self.y = 0
@@ -433,7 +456,7 @@ class Fase1:
         else:
             pass  # Não faz nada se não houver colisão
 
-
+        self.formiga.update() 
 
 
     def paredes(self):
@@ -479,6 +502,7 @@ class Fase1:
         pyxel.blt(self.x_lago3 - 20, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7)  
         pyxel.blt(self.x_lago3 - 40, self.y_lago3, 1, 56, 24, 20, self.altura_lago3,7) 
 
+        self.formiga.draw()
 
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
