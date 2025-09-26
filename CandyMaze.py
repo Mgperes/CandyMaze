@@ -239,19 +239,37 @@ class Fase1:
         altura_tela = 220
         altura_personagem = 18
         y_chao = altura_tela - altura_chao
+
         self.personagem = Personagem(2, y_chao - altura_personagem)
         self.x = 0
         self.y = 0
+
         self.colisao = False
+
         self.win = False
         self.win_counter = 0  # Contador de frames na porta final
-        self.x_lago1 = 204
-        self.y_lago1 = 212
-        self.largura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
-        self.altura_lago1 = 8
+
+        self.mx_lago1 = 204
+        self.my_lago1 = 212
+        self.mlargura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
+        self.maltura_lago1 = 8
         self.afogando = False
         self.lose = False
         self.afogar_timer = 0
+        self.mx_lago2 = 137
+        self.my_lago2 = 68
+        self.mlargura_lago2 = 40   #posicão inicial e tamanho do segundo lago
+        self.maltura_lago2 = 8
+        self.mx_lago3 = 50
+        self.my_lago3 = 116
+        self.mlargura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
+        self.maltura_lago3 = 8
+
+
+        self.x_lago1 = 185
+        self.y_lago1 = 212
+        self.largura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
+        self.altura_lago1 = 8
         self.x_lago2 = 137
         self.y_lago2 = 68
         self.largura_lago2 = 40   #posicão inicial e tamanho do segundo lago
@@ -260,8 +278,8 @@ class Fase1:
         self.y_lago3 = 116
         self.largura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
         self.altura_lago3 = 8
+
         self.plataforma = Plataforma()
-        self.sobre_agua = False
         
     def update_fase1(self):
 
@@ -352,49 +370,59 @@ class Fase1:
 
     #-------------LAGO 1--------------
 
-        self.x_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
-        if self.largura_lago1 > 0 and self.x_lago1 < 224:
-            self.largura_lago1 -= 0.5
+        self.mx_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
+        if self.mlargura_lago1 > 0 and self.mx_lago1 < 224:
+            self.mlargura_lago1 -= 0.5
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
-            self.largura_lago1 = 20
-            self.x_lago1 = 204
+            self.mlargura_lago1 = 20
+            self.mx_lago1 = 204
     
     #----------LAGO2--------------
-        self.x_lago2 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
-        if self.largura_lago2 > 0 and self.x_lago2 < 177:
-            self.largura_lago2 -= 0.5
+        self.mx_lago2 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
+        if self.mlargura_lago2 > 0 and self.mx_lago2 < 177:
+            self.mlargura_lago2 -= 0.5
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
-            self.largura_lago2 = 40
-            self.x_lago2 = 137
+            self.mlargura_lago2 = 40
+            self.mx_lago2 = 137
 
     #----------LAGO3--------------
-        self.x_lago3 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
-        if self.largura_lago3 > 0 and self.x_lago3 < 70:
-            self.largura_lago3 -= 0.5
+        self.mx_lago3 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
+        if self.mlargura_lago3 > 0 and self.mx_lago3 < 70:
+            self.mlargura_lago3 -= 0.5
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
-            self.largura_lago3 = 20
-            self.x_lago3 = 50
+            self.mlargura_lago3 = 20
+            self.mx_lago3 = 50
 
 
 
         # ------------------- Detecta se personagem está sobre a água dos lagos (APÓS movimento) -------------------#
         px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
+        self.pdir = px + pl  # lado direito do personagem
+        self.pesq = px       # lado esquerdo do personagem
+        self.ptop = py       # topo do personagem
+        self.pbottom = py + pa  # base do personagem
 
-        # Verifica colisão com Lago 1 (x=204, y=212)
-        if (px + pl > 203 and px < 204 + 10 and
-            py + pa > 211.5 and py < 211.5 + 8):
+        print("Posição do Personagem: direita, esquerda, topo e base em (", self.pdir, ",", self.pesq,",", self.ptop,",", self.pbottom,")")
+
+        # Função auxiliar para verificar colisão com retângulo (lago)
+        def colide_com_lago(lago_x, lago_y, lago_w, lago_h):
+            return (
+                self.pdir > lago_x and self.pesq < lago_x + lago_w and  # colisão horizontal
+                self.pbottom > lago_y and self.ptop < lago_y + lago_h   # colisão vertical
+            )
+
+        # Verifica colisão com Lago 1 (x=self.x_lago1, y=212, largura=self.largura_lago1, altura=8)
+        if colide_com_lago(self.x_lago1, self.y_lago1, self.largura_lago1, self.altura_lago1) and self.personagem.no_chao:
             GameLogger.death_log("TOCOU NO LAGO 1! O personagem se afogou instantaneamente!")
             self.lose = True
 
-        # Verifica colisão com Lago 2 (x=137, y=68)
-        elif (px + pl > 136 and px < 137 + 30 and
-              py + pa > 67.5 and py < 67.5 + 8):
+        # Verifica colisão com Lago 2 (x=self.x_lago2, y=68, largura=self.largura_lago2, altura=8)
+        elif colide_com_lago(self.x_lago2, self.y_lago2, self.largura_lago2, self.altura_lago2) and self.personagem.no_chao:
             GameLogger.death_log("TOCOU NO LAGO 2! O personagem se afogou instantaneamente!")
             self.lose = True
 
-        # Verifica colisão com Lago 3 (x=50, y=116)
-        elif (px + pl > 49 and px < 50 + 10 and
-              py + pa > 115.5 and py < 115.5 + 8):
+        # Verifica colisão com Lago 3 (x=self.x_lago3, y=116, largura=self.largura_lago3, altura=8)
+        elif colide_com_lago(self.x_lago3, self.y_lago3, self.largura_lago3, self.altura_lago3) and self.personagem.no_chao:
             GameLogger.death_log("TOCOU NO LAGO 3! O personagem se afogou instantaneamente!")
             self.lose = True
 
