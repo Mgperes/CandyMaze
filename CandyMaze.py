@@ -164,10 +164,10 @@ class Plataforma:
         if self.x == 153:
             self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
         if self.direita == True:
-            self.x += 0.5
+            self.x += 2
             self.direita = True
         if self.direita == False:
-            self.x -= 0.5
+            self.x -= 2
             self.direita = False
     def draw(self):
         pyxel.blt(self.x, 42, 1, 56, 32, 24, 8,7)
@@ -192,28 +192,28 @@ class formiga:
         if self.x == 197:
             self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
         if self.direita == True:
-            self.v = 0.5
+            self.v = 1.5
             self.x += self.v
             self.direita = True
             self.y_mem = 11
         if self.direita == False:
-            self.v = -(0.5)
+            self.v = -(1.5)
             self.x += self.v
             self.direita = False
             self.y_mem = 0
         #desenho do movimento
-        if self.v == 0.5 and self.i == 1:
+        if self.v == 1.5 and self.i == 1:
             self.x_mem = 197
             self.i = 2
         else: 
-            if self.v == 0.5:
+            if self.v == 1.5:
                 self.x_mem = 215
                 self.i = 1
-        if self.v == -(0.5) and self.i == 1:
+        if self.v == -(1.5) and self.i == 1:
             self.x_mem = 197
             self.i = 2
         else: 
-            if self.v == -(0.5):
+            if self.v == -(1.5):
                 self.x_mem = 215
                 self.i = 1
         
@@ -458,16 +458,16 @@ class Fase1:
 
         # ---------- plataforma movimento ---------------------------------
         self.plataforma.update() 
-        if self.plataforma.x < self.personagem.x + self.personagem.largura and self.plataforma.x + 24 > self.personagem.x:
+        if self.plataforma.x < self.personagem.x + self.personagem.largura/2 and self.plataforma.x + 24 > self.personagem.x:
             if self.personagem.y + self.personagem.altura <= 50 and self.personagem.y + self.personagem.altura >= 42:
                 self.personagem.y = 42 - self.personagem.altura
                 self.personagem.no_chao = True
                 self.personagem.vy = 0
                 # Move o personagem junto com a plataforma na direção correta
                 if self.plataforma.direita:
-                    self.personagem.x += 0.5  # Move para a direita
+                    self.personagem.x += 2  # Move para a direita
                 else:
-                    self.personagem.x -= 0.5  # Move para a esquerda
+                    self.personagem.x -= 2  # Move para a esquerda
             else:
                 pass  # Não faz nada se o personagem não estiver em cima da plataforma
         else:
