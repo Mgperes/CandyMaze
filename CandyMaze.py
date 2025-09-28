@@ -1,5 +1,5 @@
 import pyxel
-import math
+import math 
 
     # --------------------- Classe para logs coloridos e aparentes no terminal --------------------------#
 class GameLogger:
@@ -164,10 +164,10 @@ class Plataforma:
         if self.x == 153:
             self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
         if self.direita == True:
-            self.x += 0.5
+            self.x += 2
             self.direita = True
         if self.direita == False:
-            self.x -= 0.5
+            self.x -= 2
             self.direita = False
     def draw(self):
         pyxel.blt(self.x, 42, 1, 56, 32, 24, 8,7)
@@ -192,28 +192,28 @@ class formiga:
         if self.x == 197:
             self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
         if self.direita == True:
-            self.v = 0.5
+            self.v = 1.5
             self.x += self.v
             self.direita = True
             self.y_mem = 11
         if self.direita == False:
-            self.v = -(0.5)
+            self.v = -(1.5)
             self.x += self.v
             self.direita = False
             self.y_mem = 0
         #desenho do movimento
-        if self.v == 0.5 and self.i == 1:
+        if self.v == 1.5 and self.i == 1:
             self.x_mem = 197
             self.i = 2
         else: 
-            if self.v == 0.5:
+            if self.v == 1.5:
                 self.x_mem = 215
                 self.i = 1
-        if self.v == -(0.5) and self.i == 1:
+        if self.v == -(1.5) and self.i == 1:
             self.x_mem = 197
             self.i = 2
         else: 
-            if self.v == -(0.5):
+            if self.v == -(1.5):
                 self.x_mem = 215
                 self.i = 1
         
@@ -251,6 +251,9 @@ class Fase1:
         self.my_lago1 = 212
         self.mlargura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
         self.maltura_lago1 = 8
+        self.mx_inicial_lago1 = 184
+        self.mx_final_lago1 = 219
+        self.my_final_lago1 = 220
         self.afogando = False
         self.lose = False
         self.afogar_timer = 0
@@ -258,10 +261,16 @@ class Fase1:
         self.my_lago2 = 68
         self.mlargura_lago2 = 40   #posicão inicial e tamanho do segundo lago
         self.maltura_lago2 = 8
+        self.mx_inicial_lago2 = 86
+        self.mx_final_lago2 = 176
+        self.my_final_lago2 = 76
         self.mx_lago3 = 50
         self.my_lago3 = 116
         self.mlargura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
         self.maltura_lago3 = 8
+        self.mx_inicial_lago3 = 30
+        self.mx_final_lago3 = 65
+        self.my_final_lago3 = 124
 
         self.plataforma = Plataforma()
         
@@ -297,8 +306,7 @@ class Fase1:
         if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.KEY_D):
             dx += 4
 
-
-        if dx != 0 or dy != 0:
+        if (dx != 0 or dy != 0) and not self.afogando: 
             self.personagem.move(dx, dy)
         else:
 
@@ -315,10 +323,11 @@ class Fase1:
             self.personagem.pulos_restantes = 2
         if pyxel.btnp(pyxel.KEY_SPACE) and self.personagem.pulos_restantes > 0:
             agora = pyxel.frame_count
-            if self.personagem.pulos_restantes == 1 and (agora - self.personagem.ultimo_pulo_tick) < 10:
+            if self.personagem.pulos_restantes == 1 and (agora - self.personagem.ultimo_pulo_tick) < 10 and not self.afogando:
                 self.personagem.vy = -10  # 
             else:
-                self.personagem.vy = -10
+                if not self.afogando:
+                    self.personagem.vy = -10
             self.personagem.no_chao = False
             self.personagem.pulos_restantes -= 1
             self.personagem.ultimo_pulo_tick = agora
@@ -392,31 +401,30 @@ class Fase1:
         self.pesq = px       # lado esquerdo do personagem
         self.ptop = py       # topo do personagem
         self.pbottom = py + pa  # base do personagem
-
-        print(f"Personagem: x={self.personagem.x}, y={self.personagem.y}, direita={self.pdir}, base={self.pbottom}")
-        print(f"Lago1: x={self.mx_lago1}-{self.mx_lago1+self.mlargura_lago1}, y={self.my_lago1}-{self.my_lago1+self.maltura_lago1}")
-        print(f"Lago2: x={self.mx_lago2}-{self.mx_lago2+self.mlargura_lago2}, y={self.my_lago2}-{self.my_lago2+self.maltura_lago2}")
-        print(f"Lago3: x={self.mx_lago3}-{self.mx_lago3+self.mlargura_lago3}, y={self.my_lago3}-{self.my_lago3+self.maltura_lago3}")
         
         
 
         # Função auxiliar para verificar colisão com retângulo (lago)
-        def colide_com_lago(lago_x, lago_y, lago_w, lago_h):
-            return (
-                self.pdir > lago_x and self.pesq < lago_x + lago_w and  # colisão horizontal
-                self.pbottom > lago_y and self.ptop < lago_y + lago_h   # colisão vertical
-            )
+        def colide_com_lago(xi,xf,yi,yf,lago_w,lago_h):
+            for i in range(xi,xf):
+                x = i
+                for j in range(yi -1,yf):
+                    y = j
+                    return (self.pdir > x and self.pesq < x + lago_w and
+                            self.pbottom > y and self.ptop < y + lago_h) 
+            
 
         # Verifica colisão com qualquer lago
-        if colide_com_lago(self.mx_lago1, self.my_lago1, self.mlargura_lago1, self.maltura_lago1):
+        if colide_com_lago(self.mx_inicial_lago1,self.mx_final_lago1,self.my_lago1,self.my_final_lago1,self.mlargura_lago1,self.maltura_lago1): 
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
+                self.personagem.x = 194  
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 1!")
-        elif colide_com_lago(self.mx_lago2, self.my_lago2, self.mlargura_lago2, self.maltura_lago2):
+        elif colide_com_lago(self.mx_inicial_lago3,self.mx_final_lago3,self.my_lago3,self.my_final_lago3,self.mlargura_lago3,self.maltura_lago3):
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
@@ -424,7 +432,7 @@ class Fase1:
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 2!")
-        elif colide_com_lago(self.mx_lago3, self.my_lago3, self.mlargura_lago3, self.maltura_lago3):
+        elif colide_com_lago(self.mx_inicial_lago2,self.mx_final_lago2,self.my_lago2,self.my_final_lago2,self.mlargura_lago2,self.maltura_lago2):
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
@@ -458,16 +466,16 @@ class Fase1:
 
         # ---------- plataforma movimento ---------------------------------
         self.plataforma.update() 
-        if self.plataforma.x < self.personagem.x + self.personagem.largura and self.plataforma.x + 24 > self.personagem.x:
+        if self.plataforma.x < self.personagem.x + self.personagem.largura/2 and self.plataforma.x + 24 > self.personagem.x:
             if self.personagem.y + self.personagem.altura <= 50 and self.personagem.y + self.personagem.altura >= 42:
                 self.personagem.y = 42 - self.personagem.altura
                 self.personagem.no_chao = True
                 self.personagem.vy = 0
                 # Move o personagem junto com a plataforma na direção correta
                 if self.plataforma.direita:
-                    self.personagem.x += 0.5  # Move para a direita
+                    self.personagem.x += 2  # Move para a direita
                 else:
-                    self.personagem.x -= 0.5  # Move para a esquerda
+                    self.personagem.x -= 2  # Move para a esquerda
             else:
                 pass  # Não faz nada se o personagem não estiver em cima da plataforma
         else:
