@@ -727,14 +727,17 @@ class VictoryScreen:
         # Fundo gradiente (mantém o original)
         for y in range(220):
             if y < 73:
-                color = 12  # Azul claro 
+                color = 12 # Azul claro
+                pyxel.blt(0, 0, 2, 0, 20, 250, y) # Desenha o fundo azul claro
             elif y < 146:
                 color = 14  # Rosa
+                pyxel.line(0, y, 250, y, color)
             elif y < 206:
                 color = pyxel.COLOR_DARK_BLUE
+                pyxel.line(0, y, 250, y, color)
             else:
                 color = 10  # Amarelo
-            pyxel.line(0, y, 250, y, color)
+                pyxel.line(0, y, 250, y, color)
         
         
         # Lago 1 - Lado esquerdo
