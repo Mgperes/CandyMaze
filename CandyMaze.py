@@ -669,36 +669,546 @@ class VictoryScreen:
         self.colortext = 7
         self.width = 250
         self.height = 220
+        self.animation_timer = 0
+        self.personagem = Personagem(117, 135)  # Posição inicial fixa
+        self.dx = 0
+        self.dy = 0
+        self.animacao_ativa = False
+        self.som_tocado = False
+        self.posicao_inicial_y = 135  # Guarda a posição inicial para calcular a distância
 
     def update(self):
-        if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
-            pyxel.play(0, 4)  # Som de menu/click
-            return True
+        self.animation_timer += 1
+        
+        # Se a animação não foi iniciada e o jogador pressiona Enter/Espaço
+        if not self.animacao_ativa and (pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE)):
+            if not self.som_tocado:
+                pyxel.play(0, 4)  # Som de menu/click
+                self.som_tocado = True
+            self.animacao_ativa = True
+            self.dy = 2  # Velocidade de queda mais lenta para ver a animação melhor
+            self.posicao_inicial_y = self.personagem.y  # Salva posição inicial
+            return False
+        
+        # Se a animação está ativa, move o personagem gradualmente
+        if self.animacao_ativa:
+            # Move o personagem para baixo
+            self.personagem.y += self.dy
+            
+            # Força a animação de caminhada para baixo
+            # A cada 6 frames muda o sprite (velocidade boa para visualizar)
+            frame_cycle = (self.animation_timer // 6) % 4  # Ciclo de 4 frames a cada 6 ticks
+            
+            # Atualiza as variáveis de sprite do personagem
+            self.personagem.contX = frame_cycle
+            self.personagem.contY = 0  # Linha 0 = movimento para baixo
+            
+            # Calcula as posições na sprite sheet
+            self.personagem.x_mem = self.personagem.contX * self.personagem.largura  # 0, 14, 28, 42
+            self.personagem.y_mem = self.personagem.contY * self.personagem.altura   # 0 (primeira linha)
+            
+            # Verifica se o personagem chegou ao final dos lagos (1 pixel antes do fim)
+            if self.personagem.y >= 188:  # Lagos terminam em Y=200, para 1 pixel antes
+                return True  # Retorna à tela inicial
+            else:
+                return False  # Continua na animação
+        
         return False
 
     def draw(self):
-        pyxel.cls(11)
-        pyxel.text(100, 90, "YOU WIN!", pyxel.frame_count % 16)
-        pyxel.text(70, 120, "Press ENTER/SPACE to play again", 7)
-        pyxel.mouse(False)
+        # Fundo gradiente (mantém o original)
+        for y in range(220):
+            if y < 73:
+                color = 12  # Azul claro 
+            elif y < 146:
+                color = 14  # Rosa
+            elif y < 206:
+                color = pyxel.COLOR_DARK_BLUE
+            else:
+                color = 10  # Amarelo
+            pyxel.line(0, y, 250, y, color)
+        
+        
+        # Lago 1 - Lado esquerdo
+        if not hasattr(self, 'mx_lago1'):
+            self.mx_lago1 = -5  # Começa 5px mais à esquerda
+            self.mlargura_lago1 = 20
+        
+        self.mx_lago1 += 0.3 
+        if self.mlargura_lago1 > 0 and self.mx_lago1 < 25:  
+            self.mlargura_lago1 -= 0.3
+        else:
+            self.mlargura_lago1 = 20
+            self.mx_lago1 = -5  # Reposiciona 5px mais à esquerda
+        
+        # Desenha lago 1 com sobreposição de 4px (24px em vez de 28px de distância) e 2 fileiras a menos
+        for offset_y in range(0, 56, 6):  # y=144 até y=200 (56 pixels de altura) com 2px mais juntas
+            pyxel.blt(int(self.mx_lago1), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago1), 8, 7)
+            pyxel.blt(int(self.mx_lago1) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago1) - 48, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago1) - 72, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago1) - 96, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago1) - 120, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago1) - 144, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago1) - 168, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago1) - 192, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago1) - 216, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago1) - 240, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago1) - 264, 144 + offset_y, 1, 56, 16, 20, 8, 7)
 
+        # Lago 2 - Centro
+        if not hasattr(self, 'mx_lago2'):
+            self.mx_lago2 = 55  # Começa 5px mais à esquerda
+            self.mlargura_lago2 = 20
+        
+        self.mx_lago2 += 0.4
+        if self.mlargura_lago2 > 0 and self.mx_lago2 < 90:  
+            self.mlargura_lago2 -= 0.4
+        else:
+            self.mlargura_lago2 = 20
+            self.mx_lago2 = 55  # Reposiciona 5px mais à esquerda
+        
+        # Desenha lago 2 com sobreposição de 4px e 2 fileiras a menos
+        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+            pyxel.blt(int(self.mx_lago2), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago2), 8, 7)
+            pyxel.blt(int(self.mx_lago2) - 29, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -29 para sobreposição de 4px
+            pyxel.blt(int(self.mx_lago2) - 58, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago2) - 87, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago2) - 116, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago2) - 145, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago2) - 174, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago2) - 203, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago2) - 232, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+        
+        # Lago 3 - Lado direito
+        if not hasattr(self, 'mx_lago3'):
+            self.mx_lago3 = 115  
+            self.mlargura_lago3 = 20
+        
+        self.mx_lago3 += 0.35
+        if self.mlargura_lago3 > 0 and self.mx_lago3 < 140: 
+            self.mlargura_lago3 -= 0.35
+        else:
+            self.mlargura_lago3 = 20
+            self.mx_lago3 = 115  
+        
+        # Desenha lago 3 com sobreposição de 4px e 2 fileiras a menos
+        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+            pyxel.blt(int(self.mx_lago3), 144 + offset_y, 1, 101, 0, int(self.mlargura_lago3), 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago3) - 42, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 63, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 84, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 105, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 126, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 147, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 168, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 189, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 210, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago3) - 231, 144 + offset_y, 1, 101, 0, 20, 8, 7)  
+
+        # Lago 4 - Continuação do lado direito
+        if not hasattr(self, 'mx_lago4'):
+            self.mx_lago4 = 135  # Começa mais próximo ao lago 3
+            self.mlargura_lago4 = 20
+        
+        self.mx_lago4 += 0.32  # Velocidade ligeiramente diferente
+        if self.mlargura_lago4 > 0 and self.mx_lago4 < 155:  # Limite ajustado
+            self.mlargura_lago4 -= 0.32
+        else:
+            self.mlargura_lago4 = 20
+            self.mx_lago4 = 135  # Reset correto
+        
+        # Desenha lago 4 com sobreposição de 4px (seguindo padrão dos outros)
+        for offset_y in range(0, 56, 6):  # Mesma altura e espaçamento dos outros lagos
+            pyxel.blt(int(self.mx_lago4), 144 + offset_y, 1, 101, 0, int(self.mlargura_lago4), 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  # -21 para sobreposição de 4px (igual lago 3)
+            pyxel.blt(int(self.mx_lago4) - 42, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 63, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 84, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 105, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 126, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 147, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 168, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 189, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 210, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago4) - 231, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+
+        # Lago 5 - Continuação mais à direita
+        if not hasattr(self, 'mx_lago5'):
+            self.mx_lago5 = 155  # Começa onde o lago 4 termina
+            self.mlargura_lago5 = 20
+
+        self.mx_lago5 += 0.38  # Velocidade ligeiramente maior
+        if self.mlargura_lago5 > 0 and self.mx_lago5 < 175:  # Limite adequado
+            self.mlargura_lago5 -= 0.38
+        else:
+            self.mlargura_lago5 = 20
+            self.mx_lago5 = 155  # Reset correto
+
+        # Desenha lago 5 com sobreposição de 4px
+        for offset_y in range(0, 56, 6):
+            pyxel.blt(int(self.mx_lago5), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago5), 8, 7)
+            pyxel.blt(int(self.mx_lago5) - 29, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -29 para sobreposição de 4px (igual lago 2)
+            pyxel.blt(int(self.mx_lago5) - 58, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago5) - 87, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago5) - 116, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago5) - 145, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago5) - 174, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago5) - 203, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago5) - 232, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+
+        # Lago 6 - Continuação da sequência
+        if not hasattr(self, 'mx_lago6'):
+            self.mx_lago6 = 175  # Começa onde o lago 5 termina
+            self.mlargura_lago6 = 20
+
+        self.mx_lago6 += 0.36  # Velocidade intermediária
+        if self.mlargura_lago6 > 0 and self.mx_lago6 < 195:  # Limite final
+            self.mlargura_lago6 -= 0.36
+        else:
+            self.mlargura_lago6 = 20
+            self.mx_lago6 = 175  # Reset correto
+
+        # Desenha lago 6 com sobreposição de 4px
+        for offset_y in range(0, 56, 6):
+            pyxel.blt(int(self.mx_lago6), 144 + offset_y, 1, 101, 0, int(self.mlargura_lago6), 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  # -21 para sobreposição de 4px (igual lago 3)
+            pyxel.blt(int(self.mx_lago6) - 42, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 63, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 84, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 105, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 126, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 147, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 168, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 189, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 210, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago6) - 231, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+
+        # Lago 7 - Continuação seguindo padrão do lago 1
+        if not hasattr(self, 'mx_lago7'):
+            self.mx_lago7 = 195  # Começa onde o lago 6 termina
+            self.mlargura_lago7 = 20
+        
+        self.mx_lago7 += 0.3  # Mesma velocidade do lago 1
+        if self.mlargura_lago7 > 0 and self.mx_lago7 < 215:  # Limite de 20 pixels
+            self.mlargura_lago7 -= 0.3
+        else:
+            self.mlargura_lago7 = 20
+            self.mx_lago7 = 195  # Reset correto
+        
+        # Desenha lago 7 com padrão do lago 1 (sprite 56, 16 e sobreposição -24)
+        for offset_y in range(0, 56, 6):  # y=144 até y=200 (56 pixels de altura) com 2px mais juntas
+            pyxel.blt(int(self.mx_lago7), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago7), 8, 7)
+            pyxel.blt(int(self.mx_lago7) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -24 igual lago 1
+            pyxel.blt(int(self.mx_lago7) - 48, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago7) - 72, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago7) - 96, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago7) - 120, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago7) - 144, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago7) - 168, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago7) - 192, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago7) - 216, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago7) - 240, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago7) - 264, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+
+        # Lago 8 - Continuação seguindo padrão do lago 2
+        if not hasattr(self, 'mx_lago8'):
+            self.mx_lago8 = 215  # Começa onde o lago 7 termina
+            self.mlargura_lago8 = 20
+        
+        self.mx_lago8 += 0.4  # Mesma velocidade do lago 2
+        if self.mlargura_lago8 > 0 and self.mx_lago8 < 240:  # Limite ajustado
+            self.mlargura_lago8 -= 0.4
+        else:
+            self.mlargura_lago8 = 20
+            self.mx_lago8 = 215  # Reset correto
+        
+        # Desenha lago 8 com padrão do lago 2 (sprite 56, 16 e sobreposição -29)
+        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+            pyxel.blt(int(self.mx_lago8), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago8), 8, 7)
+            pyxel.blt(int(self.mx_lago8) - 29, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -29 igual lago 2
+            pyxel.blt(int(self.mx_lago8) - 58, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago8) - 87, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago8) - 116, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago8) - 145, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago8) - 174, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago8) - 203, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago8) - 232, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+
+        # Lago 9 - Continuação final seguindo padrão do lago 3
+        if not hasattr(self, 'mx_lago9'):
+            self.mx_lago9 = 240  # Começa onde o lago 8 termina
+            self.mlargura_lago9 = 20
+        
+        self.mx_lago9 += 0.35  # Mesma velocidade do lago 3
+        if self.mlargura_lago9 > 0 and self.mx_lago9 < 265:  # Limite até 265px
+            self.mlargura_lago9 -= 0.35
+        else:
+            self.mlargura_lago9 = 20
+            self.mx_lago9 = 240  # Reset correto
+        
+        # Desenha lago 9 com padrão do lago 3 (sprite 101, 0 e sobreposição -21)
+        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+            pyxel.blt(int(self.mx_lago9), 144 + offset_y, 1, 101, 0, int(self.mlargura_lago9), 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  # -21 igual lago 3
+            pyxel.blt(int(self.mx_lago9) - 42, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 63, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 84, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 105, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 126, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 147, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 168, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 189, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 210, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago9) - 231, 144 + offset_y, 1, 101, 0, 20, 8, 7)
+
+        # Lago 10 - Final até 270px (250 + 20)
+        if not hasattr(self, 'mx_lago10'):
+            self.mx_lago10 = 265  # Começa onde o lago 9 termina
+            self.mlargura_lago10 = 20
+        
+        self.mx_lago10 += 0.3  # Velocidade igual ao lago 1
+        if self.mlargura_lago10 > 0 and self.mx_lago10 < 290:  # Até 270px + margem
+            self.mlargura_lago10 -= 0.3
+        else:
+            self.mlargura_lago10 = 20
+            self.mx_lago10 = 265  # Reset correto
+        
+        # Desenha lago 10 com padrão do lago 1 (sprite 56, 16 e sobreposição -24)
+        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+            pyxel.blt(int(self.mx_lago10), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago10), 8, 7)
+            pyxel.blt(int(self.mx_lago10) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -24 igual lago 1
+            pyxel.blt(int(self.mx_lago10) - 48, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago10) - 72, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago10) - 96, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago10) - 120, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago10) - 144, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago10) - 168, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago10) - 192, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago10) - 216, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago10) - 240, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+            pyxel.blt(int(self.mx_lago10) - 264, 144 + offset_y, 1, 56, 16, 20, 8, 7)
+
+
+        # Animação de chão se formando (POR CIMA DOS LAGOS)
+        x_chaoinicial1 = 115
+        y_chaoinicial1 = 143
+        W_chaolargura1 = 21
+        x_chaoinicial2 = x_chaoinicial1
+        y_chaoinicial2 = y_chaoinicial1
+        W_chaolargura2 = 21
+
+        # Animação de chão se formando (ORIGINAL)
+        for i in range(1, 63):
+            ch = pyxel.blt(x_chaoinicial1, y_chaoinicial1, 1, 56, 40, W_chaolargura1, 8, 7)
+            if W_chaolargura1 >= 180:
+                ch = pyxel.blt(x_chaoinicial2, y_chaoinicial2, 1, 56, 40, W_chaolargura2, 8, 7)
+                x_chaoinicial2 -= 1
+                y_chaoinicial2 += 1
+                W_chaolargura2 += 2
+            else:
+                ch = pyxel.blt(x_chaoinicial1, y_chaoinicial1, 1, 56, 40, W_chaolargura1, 8, 7)
+                x_chaoinicial1 -= 1
+                y_chaoinicial1 += 1
+                W_chaolargura1 += 2
+        
+        pyxel.blt(0, 204, 1, 0, 88, 160, 8, 7) # chão final
+        pyxel.blt(160, 204, 1, 0, 88, 90, 8, 7) # chão final
+        # Título principal
+        title_text = "SWEET VICTORY!"
+        title_x = 70
+        title_y = 60
+        
+        pyxel.text(title_x + 2, title_y + 2, title_text, 5)  # Sombra cinza
+        pyxel.text(title_x, title_y, title_text, 8)  # Vermelho 
+        
+        # Coração grande central pulsante
+        heart_x = 120
+        heart_y = 90
+        pyxel.blt(heart_x, heart_y, 1, 139, 9, 10, 7, 7)
+        
+        # Porta aberta
+        door_x = 115
+        door_y = 110
+        pyxel.blt(door_x, door_y, 1, 170, 0, 21, 31, 7)
+        
+
+        
+        
+        if not self.animacao_ativa:
+            # Antes da animação - personagem comemorando na posição fixa
+            char_x = 117
+            char_y = 135
+            
+            # Efeitos de brilho ao redor do personagem (na parte rosa claro)
+            if char_y >= 73 and char_y <= 146:  # Só na zona rosa claro
+                # Brilhos pequenos ao redor do personagem
+                brilho_offsets = [
+                    (-10, -8), (20, -6), (-7, 12), (18, 14),  # Cantos
+                    (7, -10), (-5, 24), (22, 10), (0, -12)    # Meio
+                ]
+                for i, (offset_x, offset_y) in enumerate(brilho_offsets):
+                    # Movimento suave e brilho piscante
+                    brilho_x = char_x + offset_x + math.sin(self.animation_timer * 0.1 + i * 0.8) * 4
+                    brilho_y = char_y + offset_y + math.cos(self.animation_timer * 0.08 + i * 1.2) * 3
+                    
+                    # Brilho com efeito de piscar (mais frequente)
+                    if (self.animation_timer + i * 12) % 50 < 40:  # Visível na maior parte do tempo
+                        pyxel.pset(int(brilho_x), int(brilho_y), 7)        # Pixel branco
+                        pyxel.pset(int(brilho_x + 1), int(brilho_y), 15)   # Pixel pêssego claro
+                        pyxel.pset(int(brilho_x), int(brilho_y + 1), 10)   # Pixel amarelo
+            
+            if self.animation_timer % 40 < 20:
+                pyxel.blt(char_x, char_y, 1, 14, 0, 14, 18, 7)  # Pose de comemoração
+            else:
+                pyxel.blt(char_x, char_y, 1, 0, 0, 14, 18, 7)  # Pose padrão
+        else:
+            # Durante a animação - personagem se movendo para o final da janela usando os sprites animados
+            # Efeitos de brilho ao redor do personagem durante a animação (na parte rosa claro)
+            if self.personagem.y >= 73 and self.personagem.y <= 146:  # Só na zona rosa claro
+                # Brilhos pequenos ao redor do personagem em movimento
+                brilho_offsets = [
+                    (-8, -6), (18, -4), (-5, 10), (20, 12),  # Cantos
+                    (7, -8), (-3, 22), (22, 8), (2, -10)     # Meio
+                ]
+                for i, (offset_x, offset_y) in enumerate(brilho_offsets):
+                    # Movimento mais rápido durante a animação
+                    brilho_x = self.personagem.x + offset_x + math.sin(self.animation_timer * 0.15 + i * 0.6) * 5
+                    brilho_y = self.personagem.y + offset_y + math.cos(self.animation_timer * 0.12 + i * 1.0) * 4
+                    
+                    # Brilho mais intenso durante movimento
+                    if (self.animation_timer + i * 8) % 35 < 28:  # Mais frequente e duradouro
+                        pyxel.pset(int(brilho_x), int(brilho_y), 7)        # Pixel branco
+                        pyxel.pset(int(brilho_x + 1), int(brilho_y), 15)   # Pixel pêssego claro
+                        pyxel.pset(int(brilho_x), int(brilho_y + 1), 10)   # Pixel amarelo
+                        
+            # Usa as coordenadas reais do personagem (que foram atualizadas no update())
+            pyxel.blt(self.personagem.x, self.personagem.y, 1, self.personagem.x_mem, self.personagem.y_mem, 
+                     self.personagem.largura, self.personagem.altura, 7)
+        
+            
+        
+        
+        # Instrução para jogar novamente (só mostra se animação não iniciou)
+        if not self.animacao_ativa:
+            instruction_text = "Press ENTER to play again"
+            text_x = 75
+            text_y = 189
+            
+            # Efeito de piscar
+            if self.animation_timer % 100 < 80:  # Visível na maior parte do tempo
+                pyxel.text(text_x + 1, text_y + 1, instruction_text, 0)  # Sombra
+                pyxel.text(text_x, text_y, instruction_text, 7)  # Texto branco
+        
+        # Moldura nas bordas (só se animação não iniciou)
+        if not self.animacao_ativa:
+            pyxel.line(0, 5, 250, 5, 15)  # Linha pêssego clara
+            pyxel.line(0, 215, 250, 215, 15)
+            pyxel.rect(237, 10, 3, 3, 15)
+            pyxel.rect(10, 10, 3, 3, 15)
+            
+
+        pyxel.mouse(False)
 #----------------- LoseScreen ---------------------------------------------------------------------------------------#
 class LoseScreen:
     def __init__(self):
-        self.colortext = 8
+        self.colortext = 8 
         self.width = 250
         self.height = 220
+        self.animation_timer = 0
 
     def update(self):
+        self.animation_timer += 1
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
             pyxel.play(0, 4)  # Som de menu/click
             return True
         return False
 
     def draw(self):
-        pyxel.cls(8)
-        pyxel.text(100, 90, "YOU LOSE!", pyxel.frame_count % 16)
-        pyxel.text(70, 120, "Press ENTER/SPACE to try again", 7)
+        # Fundo gradiente suave - tons aquáticos melancólicos
+        for y in range(220):
+            if y < 73:
+                color = 1   # Azul escuro
+            elif y < 146:
+                color = 5   # Azul médio/cinza
+            else:
+                color = 6   # Cinza claro
+            pyxel.line(0, y, 250, y, color)
+        
+        # Título principal melancólico mas elegante
+        title_text = "OH NO!"
+        subtitle_text = "You got lost in the maze..."
+        
+        title_x = 95
+        title_y = 50
+        subtitle_x = 45
+        subtitle_y = 70
+        
+        # Título principal
+        pyxel.text(title_x + 1, title_y + 1, title_text, 0)  # Sombra
+        pyxel.text(title_x, title_y, title_text, 8)  # Vermelho suave
+        
+        # Subtítulo explicativo
+        pyxel.text(subtitle_x + 1, subtitle_y + 1, subtitle_text, 0)  # Sombra
+        pyxel.text(subtitle_x, subtitle_y, subtitle_text, 6)  # Cinza claro
+        
+        # Personagem "triste" no centro
+        char_x = 118
+        char_y = 90
+        
+        # Personagem base
+        pyxel.blt(char_x, char_y, 1, 0, 0, 14, 18, 7)
+        
+        # Efeito sutil de "submerso" - apenas uma sobreposição azul clara
+        if self.animation_timer % 40 < 20:  # Pisca suavemente
+            pyxel.rect(char_x + 2, char_y + 2, 10, 14, 12)  # Azul claro transparente
+        
+        # Corações perdidos (mais limpo)
+        heart_y = 120
+        for i in range(3):
+            heart_x = 95 + i * 20
+            
+            # Coração base
+            pyxel.blt(heart_x, heart_y, 1, 139, 9, 10, 7, 7)
+            
+            # Efeito simples de "quebrado" - apenas uma linha
+            pyxel.line(heart_x + 2, heart_y + 3, heart_x + 7, heart_y + 3, 0)  # Rachadura
+            pyxel.rect(heart_x + 1, heart_y + 1, 8, 5, 5)  # Overlay cinza suave
+        
+        # Uma formiga solitária no canto (menos poluído)
+        formiga_x = 200 + math.sin(self.animation_timer * 0.05) * 5
+        formiga_y = 140
+        pyxel.blt(int(formiga_x), formiga_y, 1, 197, 0, 18, 11, 7)
+        
+        # Algumas gotas de "lágrima" minimalistas
+        if self.animation_timer > 40:
+            for i in range(2):  # Apenas 2 lágrimas
+                tear_x = char_x + 4 + i * 6
+                tear_y = (char_y + 15 + (self.animation_timer - 40 + i * 20) * 1.5) % 100 + char_y + 20
+                if tear_y < 200:
+                    pyxel.pset(int(tear_x), int(tear_y), 12)  # Gota azul clara
+        
+        # Mensagem encorajadora em vez de apenas "try again"
+        instruction_text = "Don't give up! Press ENTER to retry"
+        text_x = 40
+        text_y = 180
+        
+        # Efeito de piscar gentil
+        if self.animation_timer % 120 < 90:  # Mais tempo visível
+            pyxel.text(text_x + 1, text_y + 1, instruction_text, 0)  # Sombra
+            pyxel.text(text_x, text_y, instruction_text, 7)  # Texto branco esperançoso
+        
+        # Moldura melancólica simples
+        pyxel.line(0, 5, 250, 5, 2)   # Linha roxa escura
+        pyxel.line(0, 215, 250, 215, 2)
+        
+        # Cantos simples
+        pyxel.rect(10, 10, 2, 2, 2)
+        pyxel.rect(238, 10, 2, 2, 2)
+        pyxel.rect(10, 208, 2, 2, 2)
+        pyxel.rect(238, 208, 2, 2, 2)
+        
         pyxel.mouse(False)
 #----------------- Personagem ---------------------------------------------------------------------------------------#
 
@@ -890,8 +1400,9 @@ class CandyMazeGame:
         self.state = "start"  # start, game, victory
         self.start_screen = Start()
         self.fase1 = Fase1()
-        self.victory_screen = VictoryScreen()
-        self.lose_screen = LoseScreen()
+        self.victory_screen = None  # Será criado quando necessário
+        self.lose_screen = None     # Será criado quando necessário
+        self.transition_played = False  # Controla se a transição já foi tocada
 
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
@@ -906,7 +1417,7 @@ class CandyMazeGame:
     def setup_audio(self):
         """Configura os sons do jogo usando Pyxel"""
         
-        # Som de pulo (canal 0) - Volume muito baixo e suave
+        # Som de pulo 
         pyxel.sounds[0].set(
             notes="C3E3G3", 
             tones="TTT", 
@@ -915,7 +1426,7 @@ class CandyMazeGame:
             speed=25
         )
         
-        # Som de dano/colisão com formiga (canal 1) - Mais suave
+        # Som de dano/colisão com formiga
         pyxel.sounds[1].set(
             notes="F2E2D2C2", 
             tones="TTTT", 
@@ -924,7 +1435,7 @@ class CandyMazeGame:
             speed=15
         )
         
-        # Som de morte/afogamento (canal 2) - Melancólico mas suave
+        # Som de morte/afogamento 
         pyxel.sounds[2].set(
             notes="G3F3E3D3C3", 
             tones="TTTTT", 
@@ -933,7 +1444,7 @@ class CandyMazeGame:
             speed=20
         )
         
-        # Som de vitória (canal 3) - Alegre mas não agressivo
+        # Som de vitória 
         pyxel.sounds[3].set(
             notes="C3E3G3C4G3E3C3", 
             tones="TTTTTTT", 
@@ -942,7 +1453,7 @@ class CandyMazeGame:
             speed=20
         )
         
-        # Som de menu/click (canal 4) - Muito sutil
+        # Som de menu/click 
         pyxel.sounds[4].set(
             notes="E3", 
             tones="T", 
@@ -951,16 +1462,16 @@ class CandyMazeGame:
             speed=40
         )
         
-        # Som ambiente do jogo (canal 5) - Calmo e tranquilo
+        # Som ambiente da fase 1 - MELODIA VARIADA (menos enjoativa)
         pyxel.sounds[5].set(
-            notes="C3G3A3F3E3G3C3E3", 
-            tones="TTTTTTTT", 
-            volumes="22222222", 
-            effects="NNNNNNNN", 
-            speed=80
+            notes="C3E3G3C3F3A2D3F3E3G3C3E3G2A2F2G2C3D3F3E3C3G2", 
+            tones="TTTTTTSSTTTTSSSSTTSSTTTT", 
+            volumes="2321232123212321232123", 
+            effects="NNNNNNNNNNNNNNNNNNNNNN", 
+            speed=22  # Um pouco mais lento para ser menos cansativo
         )
         
-        # Som ambiente do menu (canal 6) - Muito relaxante e grave
+        # Som ambiente do menu 
         pyxel.sounds[6].set(
             notes="C2E2G2F2E2D2C2G2", 
             tones="SSSSSSSS", 
@@ -969,7 +1480,7 @@ class CandyMazeGame:
             speed=120
         )
         
-        # Som de toque na água (canal 7) - Suave aviso
+        # Som de toque na água 
         pyxel.sounds[7].set(
             notes="G3F3E3", 
             tones="SSS", 
@@ -978,13 +1489,31 @@ class CandyMazeGame:
             speed=25
         )
         
-        # Som de hover no menu (canal 8) - Muito sutil
+        # Som de hover no menu 
         pyxel.sounds[8].set(
             notes="C4", 
             tones="T", 
             volumes="1", 
             effects="N", 
             speed=50
+        )
+        
+        # Trilha de apoio 
+        pyxel.sounds[9].set(
+            notes="C2R R G1R R F1R R C2R R G1R R ", 
+            tones="SNSNSNSNSNSNSN", 
+            volumes="10101010101010", 
+            effects="NNNNNNNNNNNNNN", 
+            speed=24  # Batida mais espaçada e suave
+        )
+        
+        # Som de transição menu -> fase 
+        pyxel.sounds[10].set(
+            notes="C3G3C4E4G4C4", 
+            tones="TTTTTT", 
+            volumes="234543", 
+            effects="NNNNNN", 
+            speed=30 
         )
 
     def play_sound(self, sound_id, channel=0):
@@ -1000,38 +1529,62 @@ class CandyMazeGame:
             # Aguarda Enter ou Espaço para começar
             if not self.start_screen.update_conect():
                 pyxel.stop(0)  # Para o som do menu
+                # Toca som de transição antes de iniciar a fase
+                pyxel.play(0, 10)  # Fanfarra de início
+                self.transition_played = False  # Reset para próxima transição
                 self.state = "game"
                 GameLogger.game_start_log()  # Log aparente de início do jogo
             return
         elif self.state == "game":
-            # Som ambiente calmo de fundo (toca em loop)
-            if not pyxel.play_pos(0):  # Se não há som tocando no canal 0
-                pyxel.play(0, 5, loop=True)  # Toca som ambiente tranquilo em loop
+            # Aguarda a transição terminar antes de tocar a música da fase
+            if not pyxel.play_pos(0) and not self.transition_played:
+                # Transição terminou, agora toca a música da fase
+                pyxel.play(0, 5, loop=True)  # Melodia principal variada
+                pyxel.play(1, 9, loop=True)  # Trilha rítmica suave
+                self.transition_played = True
+            elif not pyxel.play_pos(0) and self.transition_played:
+                # Se a música parou, reinicia (só acontece se necessário)
+                pyxel.play(0, 5, loop=True)
+            if not pyxel.play_pos(1) and self.transition_played:
+                pyxel.play(1, 9, loop=True)
                 
             self.fase1.update_fase1()
             if self.fase1.win:
+                # Para todas as trilhas da fase
+                pyxel.stop(0)
+                pyxel.stop(1) 
+                # Cria nova tela de vitória a cada vitória
+                self.victory_screen = VictoryScreen()
                 self.state = "victory"
                 return
             if self.fase1.lose:
+                # Para todas as trilhas da fase
+                pyxel.stop(0)
+                pyxel.stop(1)
+                # Cria nova tela de derrota a cada derrota
+                self.lose_screen = LoseScreen()
                 self.state = "lose"
                 return
             # -------- se clicar em ESC volta pra tela inicial -------------------#
             if pyxel.btnp(pyxel.KEY_ESCAPE):
                 pyxel.stop(0)  # Para o som do jogo
+                pyxel.stop(1)  # Para a trilha de apoio
                 self.state = "start"
                 return
         elif self.state == "victory":
             pyxel.stop(0)  # Para qualquer som de fundo
-            if self.victory_screen.update():
+            if self.victory_screen and self.victory_screen.update():
                 # Reinicia a fase e volta ao menu inicial
                 self.fase1 = Fase1()
+                self.victory_screen = None  # Remove a tela de vitória usada
                 self.state = "start"
                 return
         elif self.state == "lose":
             pyxel.stop(0)  # Para qualquer som de fundo
-            if self.lose_screen.update():
+            if self.lose_screen and self.lose_screen.update():
                 # Reinicia a fase e volta ao menu inicial
                 self.fase1 = Fase1()
+                self.lose_screen = None  # Remove a tela de derrota usada
                 self.state = "start"
                 return
 
@@ -1041,9 +1594,11 @@ class CandyMazeGame:
         elif self.state == "game":
             self.fase1.draw_fase1()
         elif self.state == "victory":
-            self.victory_screen.draw()
+            if self.victory_screen:
+                self.victory_screen.draw()
         elif self.state == "lose":
-            self.lose_screen.draw()
+            if self.lose_screen:
+                self.lose_screen.draw()
 
 
 CandyMazeGame()
