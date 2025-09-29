@@ -193,7 +193,22 @@ class Plataforma2:
     def draw(self):
         pyxel.blt(self.x, self.y, 1, 56, 8, 50, 8, 7)
 
+class tempo:
+    def __init__(self):
+        self.tempo = 0 and True
+        self.lose = False
+        self.tempo_limite = 500 # dividir por 20 fps = 25 segundos
+    def update(self):
+        self.tempo += 1
+        if self.tempo > self.tempo_limite:
+            return True
+        return False
+        
 
+    def draw(self):
+
+        tempo_restante = max(0, (self.tempo_limite - self.tempo) // 20)
+        pyxel.text(195, 5, f"TEMPO: {tempo_restante:02}s", 7)
 class formiga:
     def __init__(self):
 
@@ -256,7 +271,7 @@ class Fase1:
         y_chao = altura_tela - altura_chao
 
 
-
+        self.tempo = tempo()
         self.formiga = formiga()
 
         self.personagem = Personagem(2, y_chao - altura_personagem)
@@ -301,6 +316,7 @@ class Fase1:
         self.invencibilidade_timer = 0
         
     def update_fase1(self):
+
 
         #---------------------- Personagem não sumir da tela ----------------------#
         if self.colisao == True:
@@ -356,6 +372,12 @@ class Fase1:
         if pyxel.btnp(pyxel.KEY_ESCAPE)*2:
             self.personagem.x = 2
             self.personagem.y = 194
+
+        if self.tempo.update():
+            GameLogger.death_log("💀 GAME OVER! Tempo esgotado! 💀")
+            pyxel.play(3, 2)
+            self.lose = True
+            return
 
 
         # Checa colisão do personagem com a porta final
@@ -570,11 +592,6 @@ class Fase1:
                 if self.personagem.vy < 0:
                     self.personagem.vy = 1  
                 self.personagem.no_chao = False
-
-        
-
-        
-    # ...existing code... (resto do método continua com a formiga e outros elementos)
         
         
         self.formiga.update() 
@@ -703,10 +720,12 @@ class Fase1:
         pyxel.blt(0, 0, 2, 0, 0, 250, 220)
         pyxel.mouse(False) # mouse desativado
 
+        
+
         # Verifica se perdeu todas as vidas
         if self.vidas.sistema_vidas():
             self.lose = True
-
+        self.tempo.draw()
         # Checa colisão do personagem com a porta final
         if (
             self.personagem.x < self.porta_x + self.porta_w and
@@ -852,6 +871,7 @@ class VictoryScreen:
         return False
 
     def draw(self):
+        pyxel.cls(0)
         # Fundo gradiente (mantém o original)
         for y in range(220):
             if y < 73:
@@ -1307,15 +1327,16 @@ class LoseScreen:
     
 
     def draw(self):
-        
+        pyxel.cls(0)  # Fundo preto 
         for y in range(220):
             if y < 73:
-                color = pyxel.COLOR_DARK_BLUE
+                color = pyxel.COLOR_DARK_BLUE  # Céu azul claro
             elif y < 146:
                 color = pyxel.COLOR_NAVY
             else:
-                color = pyxel.COLOR_DARK_BLUE   
+                color = pyxel.COLOR_DARK_BLUE
             pyxel.line(0, y, 250, y, color)
+               
         
         # Título principal melancólico mas elegante
         title_text = "OH NO!"
