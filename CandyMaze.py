@@ -155,9 +155,10 @@ class Start:
         pyxel.mouse(True)
 
 
-class Plataforma:
+class Plataforma1:
     def __init__(self):
         self.x = 87
+        self.y = 42
         self.direita = True
     def update(self):
         if self.x == 87:
@@ -171,7 +172,27 @@ class Plataforma:
             self.x -= 2
             self.direita = False
     def draw(self):
-        pyxel.blt(self.x, 42, 1, 56, 32, 24, 8,7)
+        pyxel.blt(self.x, self.y, 1, 56, 32, 24, 8,7)
+
+class Plataforma2:
+    def __init__(self):
+        self.x = 100
+        self.y = 116
+        self.direita = True
+    def update(self):
+        if self.x == 100:
+            self.direita = True
+        if self.x == 190:
+            self.direita = False
+        if self.direita == True:
+            self.x += 2
+            self.direita = True
+        if self.direita == False:
+            self.x -= 2
+            self.direita = False
+    def draw(self):
+        pyxel.blt(self.x, self.y, 1, 56, 8, 50, 8, 7)
+
 
 class formiga:
     def __init__(self):
@@ -270,7 +291,8 @@ class Fase1:
         self.mx_inicial_lago3 = 30
         self.mlargura_total_lago3 = 35 
 
-        self.plataforma = Plataforma()
+        self.plataforma1 = Plataforma1()
+        self.plataforma2 = Plataforma2()
         
         # Cooldown para colisão com formiga
         self.formiga_collision_cooldown = 0
@@ -392,7 +414,7 @@ class Fase1:
             self.mx_lago3 = 50  
 
         # Função auxiliar para verificar colisão com retângulo (lago)
-        def colide_com_lago(lago_x,lago_y,lago_w,lago_h):
+        def colide_com_lago(lago_x,lago_y,lago_w):
 # ------------------- Detecta se personagem está sobre a água dos lagos (APÓS movimento) -------------------#
             px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
             self.pdir = px + pl - 7  # lado direito do personagem
@@ -403,7 +425,7 @@ class Fase1:
             lago_esq = lago_x           # Limites do lago
             lago_dir = lago_x + lago_w
             lago_top = lago_y 
-            lago_dow = lago_y + lago_h   
+            lago_dow = lago_y + 7
 
             if (self.pdir >= lago_esq and 
                 self.pesq <= lago_dir and
@@ -414,7 +436,7 @@ class Fase1:
             return False
 
         # Verifica colisão com qualquer lago
-        if colide_com_lago(self.mx_inicial_lago1,self.my_lago1,self.mlargura_total_lago1,self.maltura_lago1): 
+        if colide_com_lago(self.mx_inicial_lago1,self.my_lago1,self.mlargura_total_lago1): 
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
@@ -423,7 +445,7 @@ class Fase1:
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 1!")
-        elif colide_com_lago(self.mx_inicial_lago3,self.my_lago3,self.mlargura_total_lago3,self.maltura_lago3):
+        elif colide_com_lago(self.mx_inicial_lago3,self.my_lago3,self.mlargura_total_lago3):
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
@@ -432,7 +454,7 @@ class Fase1:
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 2!")
-        elif colide_com_lago(self.mx_inicial_lago2,self.my_lago2,self.mlargura_total_lago2,self.maltura_lago2):
+        elif colide_com_lago(self.mx_inicial_lago2,self.my_lago2,self.mlargura_total_lago2):
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
@@ -447,6 +469,7 @@ class Fase1:
             tempo_restante = (40 - self.afogar_timer) / 20  # Converte frames para segundos (fps=20)
             self.personagem.x_mem = 56   #muda a animacão
             self.personagem.y_mem = 48
+            
             
             # Avisos progressivos durante o afogamento
             if self.afogar_timer == 10:  # 0.5 segundos
@@ -467,22 +490,93 @@ class Fase1:
 
 
         # ---------- plataforma movimento ---------------------------------
-        self.plataforma.update() 
-        if self.plataforma.x < self.personagem.x + self.personagem.largura/2 and self.plataforma.x + 24 > self.personagem.x:
+        self.plataforma1.update() 
+    
+        # Colisão com TOPO da plataforma 1 (personagem em cima)
+        if self.plataforma1.x < self.personagem.x + self.personagem.largura/2 and self.plataforma1.x + 24 > self.personagem.x:
             if self.personagem.y + self.personagem.altura <= 50 and self.personagem.y + self.personagem.altura >= 42:
                 self.personagem.y = 42 - self.personagem.altura
                 self.personagem.no_chao = True
                 self.personagem.vy = 0
                 # Move o personagem junto com a plataforma na direção correta
-                if self.plataforma.direita:
+                if self.plataforma1.direita:
                     self.personagem.x += 2  # Move para a direita
                 else:
                     self.personagem.x -= 2  # Move para a esquerda
-            else:
-                pass  # Não faz nada se o personagem não estiver em cima da plataforma
-        else:
-            pass  # Não faz nada se não houver colisão
 
+        # COLISÃO COM PARTE DE BAIXO da plataforma 1 (bater a cabeça)
+        if (self.plataforma1.x < self.personagem.x + self.personagem.largura and 
+            self.plataforma1.x + 24 > self.personagem.x):
+            # Verifica se o personagem está subindo (vy negativo) e vai bater a cabeça
+            if (self.personagem.y >= self.plataforma1.y + 8 and  # Personagem abaixo da plataforma
+                self.personagem.y <= self.plataforma1.y + 8 + 5 and  # Margem de 5px para detecção
+                self.personagem.vy < 0):  # Personagem subindo
+                # Bate a cabeça na parte de baixo da plataforma
+                self.personagem.y = self.plataforma1.y + 8  # Posiciona logo abaixo da plataforma
+                self.personagem.vy = 2  # Força para baixo (efeito de "rebote")
+                self.personagem.no_chao = False
+                # Som de batida na cabeça (opcional)
+                pyxel.play(2, 1)  # Usa o som de dano
+                GameLogger.warning_log("💥 Bateu a cabeça na plataforma móvel!")
+
+                # PLATAFORMA 2 - Atualização e colisões
+                # PLATAFORMA 2 - Atualização e colisões
+        self.plataforma2.update()
+        
+        # Colisão com TOPO da plataforma 2 (personagem em cima)
+        if self.plataforma2.x < self.personagem.x + self.personagem.largura/2 and self.plataforma2.x + 50 > self.personagem.x:
+            if self.personagem.y + self.personagem.altura <= 124 and self.personagem.y + self.personagem.altura >= 116:
+                self.personagem.y = 116 - self.personagem.altura
+                
+                # Verifica se está na posição específica para parar de mover junto
+                if self.personagem.y == 98 and self.personagem.x >= 152:  # y = 116 - 18 (altura do personagem) = 98
+                    # Personagem para de se mover junto com a plataforma
+                    self.personagem.no_chao = True
+                    self.personagem.vy = 0
+                    # NÃO move o personagem junto com a plataforma
+                else:
+                    # Comportamento normal - move junto com a plataforma
+                    if self.personagem.x >= 152 and self.personagem.x <= 90: 
+                        self.personagem.no_chao = False
+                    else:
+                        self.personagem.no_chao = True
+                    self.personagem.vy = 0
+                    # Move o personagem junto com a plataforma na direção correta
+                    if self.plataforma2.direita:
+                        self.personagem.x += 2  # Move para a direita
+                    else:
+                        self.personagem.x -= 2  # Move para a esquerda
+        
+
+        # COLISÃO COM PARTE DE BAIXO da plataforma 2
+        if (self.plataforma2.x < self.personagem.x + self.personagem.largura and 
+            self.plataforma2.x + 50 > self.personagem.x):  
+            
+            if (self.personagem.y >= self.plataforma2.y + 8 and  
+                self.personagem.y <= self.plataforma2.y + 8 + 5 and  
+                self.personagem.vy < 0):  
+                
+                self.personagem.y = self.plataforma2.y + 8  
+                self.personagem.vy = 2  
+                self.personagem.no_chao = False
+                
+                GameLogger.warning_log("💥 Bateu a cabeça na plataforma móvel grande!")
+
+            elif (self.personagem.y > self.plataforma2.y + 8 and  
+                  self.personagem.y < self.plataforma2.y + 8 + 15 and  
+                  self.personagem.vy <= 0):  
+                
+                self.personagem.y = self.plataforma2.y + 8 + 2  
+                if self.personagem.vy < 0:
+                    self.personagem.vy = 1  
+                self.personagem.no_chao = False
+
+        
+
+        
+    # ...existing code... (resto do método continua com a formiga e outros elementos)
+        
+        
         self.formiga.update() 
 
         # ---------- Colisão formiga - Sistema de perda de vida ---------------------------------
@@ -528,13 +622,13 @@ class Fase1:
             
             if lado_tocado:
                 self.personagem.vidas -= 1
-                self.formiga_collision_cooldown = 30  # 1.5 segundos de cooldown (30 frames a 20fps)
-                self.invencibilidade_timer = 30  # Efeito visual de invencibilidade
+                self.formiga_collision_cooldown = 30  
+                self.invencibilidade_timer = 30 
                 
                 pyxel.play(2, 1)  # Som de dano/colisão com formiga
                 GameLogger.danger_log(f"🐜 FORMIGA ATACOU! {lado_tocado} encostou na formiga! Vidas restantes: {self.personagem.vidas}")
                 
-                # Empurrar o personagem para trás com mais força (knockback)
+                # Empurrar o personagem para trás
                 knockback_distance = 20  # Distância maior de empurrão
                 
                 if lado_tocado == "esquerda do personagem":
@@ -585,7 +679,6 @@ class Fase1:
             self.invencibilidade_timer -= 1
 
 
-
         if self.win or self.lose:
             return
 
@@ -597,8 +690,13 @@ class Fase1:
         self.parede4 = pyxel.blt(150, 116, 1, 150, 72, 100, 8)  # parede horizontal 3
         self.parede5 = pyxel.blt(40, 68, 1, 0, 80, 210, 8,7)   # parede horizontal 4
         
+    def balas(self):
+        pyxel.blt(145, 199, 1, 130, 0, 9, 9,7) #bala (amarela escura)
+        pyxel.blt(110, 199, 1, 121, 0, 9, 9, 7 ) #bala (rosa escura)
+        pyxel.blt(145,30,1,139,0, 9, 9, 7) #bala (amarela clara)
+        pyxel.blt(10,100,1,118,8,12,20, 7) #bala azul
 
-
+        pyxel.blt(210, 99, 1, 96, 16, 9,12,7) #sorvete
 
     def draw_fase1(self):
         pyxel.cls(6)
@@ -642,14 +740,42 @@ class Fase1:
         pyxel.blt(self.mx_lago3 - 40, self.my_lago3, 1, 56, 24, 20, self.maltura_lago3,7) 
 
         self.formiga.draw()
-
+        self.balas()
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
         pyxel.blt(0, 212, 1, 0, 88, 250, 8,7) # chão
-        pyxel.blt(self.plataforma.x,42,1,56,32,24,8) #plataforma móvel
+        pyxel.blt(self.plataforma1.x,42,1,56,32,24,8,7) #plataforma móvel
+        pyxel.blt(self.plataforma2.x,116,1, 56, 8, 50, 8, 7) #plataforma móvel
+        
         self.paredes()
 
-        pyxel.blt(145, 199, 1, 121, 0, 7, 7,7)
+
+        
+
+#----------------- Recompensas ---------------------------------------------------------------------------------------#
+
+class recompensas:
+    def __init__(self):
+        self.personagem = Personagem
+        self.pdir = self.personagem.x + self.personagem.largura   # lado direito do personagem
+        self.pesq = self.personagem.x # lado esquerdo do personagem
+
+
+    def update_recompensas(self):
+        if self.bala == 3:
+            pyxel.blt(145, 5, 1, 132, 0, 7, 7,7) #bala
+            pyxel.blt(155, 5, 1, 131, 0, 7, 7,7) #bala
+            pyxel.blt(165, 5, 1, 131, 0, 7, 7,7) #bala
+        elif self.bala == 2:
+            pyxel.blt(145, 5, 1, 132, 0, 7, 7,7) #bala
+            pyxel.blt(155, 5, 1, 131, 0, 7, 7,7) #bala
+        elif self.bala == 1:
+            pyxel.blt(145, 5, 1, 132, 0, 7, 7,7) #bala
+        elif self.bala == 0:
+            pass
+
+    
+        
         
 #----------------- Vidas ---------------------------------------------------------------------------------------#
 class Vidas:
@@ -1538,7 +1664,8 @@ class Personagem:
             ):
                 return True
         return False
-    # Função utilitária para colisão de retângulos
+
+
     def colide_retangulo(self, px, py, pl, pa, rx, ry, rl, ra):
         return (
             px < rx + rl and
