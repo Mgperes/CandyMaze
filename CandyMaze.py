@@ -253,8 +253,7 @@ class Fase1:
         self.mlargura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
         self.maltura_lago1 = 8
         self.mx_inicial_lago1 = 184
-        self.mx_final_lago1 = 219
-        self.my_final_lago1 = 220
+        self.mlargura_total_lago1 = 35
         self.afogando = False
         self.lose = False
         self.afogar_timer = 0
@@ -263,15 +262,13 @@ class Fase1:
         self.mlargura_lago2 = 40   #posicão inicial e tamanho do segundo lago
         self.maltura_lago2 = 8
         self.mx_inicial_lago2 = 86
-        self.mx_final_lago2 = 176
-        self.my_final_lago2 = 76
+        self.mlargura_total_lago2 = 90 
         self.mx_lago3 = 50
         self.my_lago3 = 116
         self.mlargura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
         self.maltura_lago3 = 8
         self.mx_inicial_lago3 = 30
-        self.mx_final_lago3 = 65
-        self.my_final_lago3 = 124
+        self.mlargura_total_lago3 = 35 
 
         self.plataforma = Plataforma()
         
@@ -392,48 +389,50 @@ class Fase1:
             self.mlargura_lago3 -= 0.5
         else:                #quando chega no limite imposto ele volta para a posicão inicial para reiniciar o movimento
             self.mlargura_lago3 = 20
-            self.mx_lago3 = 50
-
-
-
-        # ------------------- Detecta se personagem está sobre a água dos lagos (APÓS movimento) -------------------#
-        px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
-        self.pdir = px + pl  # lado direito do personagem
-        self.pesq = px       # lado esquerdo do personagem
-        self.ptop = py       # topo do personagem
-        self.pbottom = py + pa  # base do personagem
-        
-        
+            self.mx_lago3 = 50  
 
         # Função auxiliar para verificar colisão com retângulo (lago)
-        def colide_com_lago(xi,xf,yi,yf,lago_w,lago_h):
-            for i in range(xi,xf):
-                x = i
-                for j in range(yi -1,yf):
-                    y = j
-                    return (self.pdir > x and self.pesq < x + lago_w and
-                            self.pbottom > y and self.ptop < y + lago_h) 
-            
+        def colide_com_lago(lago_x,lago_y,lago_w,lago_h):
+# ------------------- Detecta se personagem está sobre a água dos lagos (APÓS movimento) -------------------#
+            px, py, pl, pa = self.personagem.x, self.personagem.y, self.personagem.largura, self.personagem.altura
+            self.pdir = px + pl - 7  # lado direito do personagem
+            self.pesq = px + 7   # lado esquerdo do personagem
+            self.ptop = py      # topo do personagem
+            self.pbottom = py + pa  # base do personagem
+
+            lago_esq = lago_x           # Limites do lago
+            lago_dir = lago_x + lago_w
+            lago_top = lago_y 
+            lago_dow = lago_y + lago_h   
+
+            if (self.pdir >= lago_esq and 
+                self.pesq <= lago_dir and
+                self.ptop <= lago_dow and
+                self.pbottom >= lago_top):  
+                return True
+
+            return False
 
         # Verifica colisão com qualquer lago
-        if colide_com_lago(self.mx_inicial_lago1,self.mx_final_lago1,self.my_lago1,self.my_final_lago1,self.mlargura_lago1,self.maltura_lago1): 
+        if colide_com_lago(self.mx_inicial_lago1,self.my_lago1,self.mlargura_total_lago1,self.maltura_lago1): 
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
-                self.personagem.x = 194  
+                self.personagem.x = 196  #personagem centraliza no lago
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 1!")
-        elif colide_com_lago(self.mx_inicial_lago3,self.mx_final_lago3,self.my_lago3,self.my_final_lago3,self.mlargura_lago3,self.maltura_lago3):
+        elif colide_com_lago(self.mx_inicial_lago3,self.my_lago3,self.mlargura_total_lago3,self.maltura_lago3):
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
+                self.personagem.x = 41   #personagem centraliza no lago
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 2!")
-        elif colide_com_lago(self.mx_inicial_lago2,self.mx_final_lago2,self.my_lago2,self.my_final_lago2,self.mlargura_lago2,self.maltura_lago2):
+        elif colide_com_lago(self.mx_inicial_lago2,self.my_lago2,self.mlargura_total_lago2,self.maltura_lago2):
             if not self.afogando:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
@@ -446,6 +445,8 @@ class Fase1:
         if self.afogando:
             self.afogar_timer += 1
             tempo_restante = (40 - self.afogar_timer) / 20  # Converte frames para segundos (fps=20)
+            self.personagem.x_mem = 56   #muda a animacão
+            self.personagem.y_mem = 48
             
             # Avisos progressivos durante o afogamento
             if self.afogar_timer == 10:  # 0.5 segundos
