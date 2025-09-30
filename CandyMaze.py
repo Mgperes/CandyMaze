@@ -154,6 +154,45 @@ class Start:
         self.draw_gradient_text(" (Q)UIT", 118, 130)
         pyxel.mouse(True)
 
+class pause:
+    def __init__ (self):
+        self.tempo_pause = 0
+        self.pausado = False
+
+    def update_pause(self):
+        if pyxel.btnp(pyxel.KEY_F):
+            print(f"Tecla F pressionada! tempo_pause: {self.tempo_pause}")
+            self.tempo_pause += 1
+            if self.tempo_pause % 2 == 1:
+                self.pausado = True
+                print("PAUSADO!")
+                pyxel.stop(0)
+                pyxel.stop(1)
+                pyxel.stop(2)
+                pyxel.stop(3)
+            else:
+                self.pausado = False
+                print("DESPAUSADO!")
+        return self.pausado
+    
+    def draw_pause_overlay(self):
+        if self.pausado:
+            for y in range(0, 220, 2):
+                    pyxel.line(0, y, 250, y, 0)
+            
+            pause_text = "PAUSE"
+            text2 = "- Press F para continuar -"
+
+            # Calcula posição central
+            text_x = (250 - len(pause_text) * 4) // 2
+            inst_x = (250 - len(text2) * 4) // 2
+
+            # Desenha com sombra
+            pyxel.text(text_x + 1, 101, pause_text, 0)  # Sombra
+            pyxel.text(text_x, 100, pause_text, 7)      # Texto principal
+
+            pyxel.text(inst_x + 1, 121, text2, 0)  # Sombra
+            pyxel.text(inst_x, 120, text2, 6)      # Texto secundário
 
 class Plataforma1:
     def __init__(self):
@@ -319,6 +358,16 @@ class Fase1:
     def update_fase1(self):
 
 
+        if not hasattr(self, 'pause_system'):
+            self.pause_system = pause()
+
+        # Sempre atualiza o sistema de pause (para detectar F)
+        self.pause_system.update_pause()
+        
+        # Se está pausado, não executa o resto do gameplay
+        if self.pause_system.pausado:
+            return
+    
         #---------------------- Personagem não sumir da tela ----------------------#
         if self.colisao == True:
             self.x = self.x - dx
@@ -775,6 +824,8 @@ class Fase1:
         
         self.paredes()
 
+        if hasattr(self, 'pause_system'):
+            self.pause_system.draw_pause_overlay()
 
         
 
@@ -1985,6 +2036,16 @@ class CandyMazeGame:
                 GameLogger.game_start_log()  # Log aparente de início do jogo
             return
         elif self.state == "game":
+            # Sempre atualiza a fase1 para permitir pause/unpause
+            self.fase1.update_fase1()
+            
+            # Verifica se a fase está pausada para controlar música
+            if hasattr(self.fase1, 'pause_system') and self.fase1.pause_system.pausado:
+                # Se está pausado, para a música mas continua permitindo input
+                pyxel.stop(0)
+                pyxel.stop(1)
+                return
+                
             # Aguarda a transição terminar antes de tocar a música da fase
             if not pyxel.play_pos(0) and not self.transition_played:
                 # Transição terminou, agora toca a música da fase
@@ -1996,8 +2057,6 @@ class CandyMazeGame:
                 pyxel.play(0, 5, loop=True)
             if not pyxel.play_pos(1) and self.transition_played:
                 pyxel.play(1, 9, loop=True)
-                
-            self.fase1.update_fase1()
             if self.fase1.win:
                 # Para todas as trilhas da fase
                 pyxel.stop(0)
