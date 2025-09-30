@@ -82,20 +82,17 @@ class Start:
         self.y = 0
         self.width = 250
         self.height = 180
-        # Variáveis para efeitos de cor
         self.color_timer = 0
         self.rainbow_offset = 0
-        # Controle de hover sound
         self.last_hover_start = False
         self.last_hover_quit = False
 
 
     def update_conect(self):
-        # Atualiza timer para efeitos de cor
         self.color_timer += 1
         self.rainbow_offset += 0.1
 
-        # Área do botão Start (ajuste conforme o texto)
+        # Área do botão Start (
         start_x = 97
         start_y = 130
         start_w = 110
@@ -109,11 +106,11 @@ class Start:
                            130 <= pyxel.mouse_y <= 130 + 10
                            )
         
-        # Som sutil de hover nos botões
+        # Som de hover nos botões
         if mouse_over_start and not self.last_hover_start:
-            pyxel.play(1, 8)  # Som muito sutil de hover
+            pyxel.play(1, 8)  
         if mouse_over_quit and not self.last_hover_quit:
-            pyxel.play(1, 8)  # Som muito sutil de hover
+            pyxel.play(1, 8)  
             
         self.last_hover_start = mouse_over_start
         self.last_hover_quit = mouse_over_quit
@@ -123,7 +120,7 @@ class Start:
             pyxel.quit()
         # Clique em ENTER ou ESPAÇO para iniciar
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
-            pyxel.play(0, 4)  # Som de menu/click
+            pyxel.play(0, 4)  
             return False
     
         # Clique do mouse inicia o jogo se estiver sobre o texto Start
@@ -401,7 +398,7 @@ class Fase1:
 
 
         #----------------- Personagem pulando -------------------#
-        # --- Lógica de duplo pulo --- #
+        
         if not hasattr(self.personagem, 'pulos_restantes'):
             self.personagem.pulos_restantes = 2
             self.personagem.ultimo_pulo_tick = 0
@@ -437,20 +434,20 @@ class Fase1:
             self.personagem.y < self.porta_y + self.porta_h and
             self.personagem.y + self.personagem.altura > self.porta_y
         ):
-            self.win_counter += 1  # Incrementa contador se estiver na porta
-            if self.win_counter == 1:  # Primeira vez na porta
+            self.win_counter += 1 
+            if self.win_counter == 1:  
                 GameLogger.info_log("Personagem chegou na porta final!")
-            elif self.win_counter == 10:  # Meio caminho
+            elif self.win_counter == 10:  
                 GameLogger.warning_log("Aguardando confirmação de vitória...")
-            elif self.win_counter > 20:  # Espera 20 frames (~1 segundo a 30fps)
-                if not self.win:  # Só mostra uma vez
+            elif self.win_counter > 20: 
+                if not self.win:  
                     GameLogger.success_log("🎉 PARABÉNS! VOCÊ VENCEU O CANDY MAZE! 🎉")
-                    pyxel.play(2, 3)  # Som de vitória
+                    pyxel.play(2, 3)  
                 self.win = True
             else:
                 self.win = False
         else:
-            if self.win_counter > 0:  # Saiu da porta antes de ganhar
+            if self.win_counter > 0:  # Saiu da porta 
                 GameLogger.warning_log("Saiu da porta! Volte para vencer essa fase!")
             self.win_counter = 0  # Reseta contador se sair da porta
             self.win = False
@@ -523,12 +520,12 @@ class Fase1:
                 self.afogando = True
                 self.afogar_timer = 0
                 self.personagem.x = 41   #personagem centraliza no lago
-                pyxel.play(3, 7)  # Som suave de toque na água
+                pyxel.play(3, 7)  # Som de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 2!")
         elif colide_com_lago(self.mx_inicial_lago2,self.my_lago2,self.mlargura_total_lago2):
             if not self.afogando:
-                # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
+                # Primeira vez tocando na água 
                 self.afogando = True
                 self.afogar_timer = 0
                 pyxel.play(3, 7)  # Som suave de toque na água
@@ -591,8 +588,6 @@ class Fase1:
                 pyxel.play(2, 1)  # Usa o som de dano
                 GameLogger.warning_log("💥 Bateu a cabeça na plataforma móvel!")
 
-                # PLATAFORMA 2 - Atualização e colisões
-                # PLATAFORMA 2 - Atualização e colisões
         self.plataforma2.update()
         
         # Colisão com TOPO da plataforma 2 (personagem em cima)
@@ -643,10 +638,10 @@ class Fase1:
                     self.personagem.vy = 1  
                 self.personagem.no_chao = False
         
+        # ---------- Colisão formiga - Sistema de perda de vida ---------------------------------
         
         self.formiga.update() 
 
-        # ---------- Colisão formiga - Sistema de perda de vida ---------------------------------
         # Verificar se o personagem encostar em qualquer lado da formiga
         formiga_esquerda = self.formiga.x
         formiga_direita = self.formiga.x + self.formiga.largura
@@ -899,32 +894,26 @@ class VictoryScreen:
                 pyxel.play(0, 4)  # Som de menu/click
                 self.som_tocado = True
             self.animacao_ativa = True
-            self.dy = 2  # Velocidade de queda mais lenta para ver a animação melhor
-            self.posicao_inicial_y = self.personagem.y  # Salva posição inicial
+            self.dy = 2 
+            self.posicao_inicial_y = self.personagem.y 
             return False
         
-        # Se a animação está ativa, move o personagem gradualmente
         if self.animacao_ativa:
-            # Move o personagem para baixo
             self.personagem.y += self.dy
             
-            # Força a animação de caminhada para baixo
-            # A cada 6 frames muda o sprite (velocidade boa para visualizar)
-            frame_cycle = (self.animation_timer // 6) % 4  # Ciclo de 4 frames a cada 6 ticks
+            frame_cycle = (self.animation_timer // 6) % 4  
             
-            # Atualiza as variáveis de sprite do personagem
             self.personagem.contX = frame_cycle
-            self.personagem.contY = 0  # Linha 0 = movimento para baixo
+            self.personagem.contY = 0  
             
             # Calcula as posições na sprite sheet
             self.personagem.x_mem = self.personagem.contX * self.personagem.largura  # 0, 14, 28, 42
             self.personagem.y_mem = self.personagem.contY * self.personagem.altura   # 0 (primeira linha)
             
-            # Verifica se o personagem chegou ao final dos lagos (1 pixel antes do fim)
-            if self.personagem.y >= 188:  # Lagos terminam em Y=200, para 1 pixel antes
-                return True  # Retorna à tela inicial
+            if self.personagem.y >= 188:  
+                return True  
             else:
-                return False  # Continua na animação
+                return False  
         
         return False
 
@@ -948,7 +937,7 @@ class VictoryScreen:
         
         # Lago 1 - Lado esquerdo
         if not hasattr(self, 'mx_lago1'):
-            self.mx_lago1 = -5  # Começa 5px mais à esquerda
+            self.mx_lago1 = -5  
             self.mlargura_lago1 = 20
         
         self.mx_lago1 += 0.3 
@@ -956,10 +945,8 @@ class VictoryScreen:
             self.mlargura_lago1 -= 0.3
         else:
             self.mlargura_lago1 = 20
-            self.mx_lago1 = -5  # Reposiciona 5px mais à esquerda
-        
-        # Desenha lago 1 com sobreposição de 4px (24px em vez de 28px de distância) e 2 fileiras a menos
-        for offset_y in range(0, 56, 6):  # y=144 até y=200 (56 pixels de altura) com 2px mais juntas
+            self.mx_lago1 = -5  
+        for offset_y in range(0, 56, 6):  
             pyxel.blt(int(self.mx_lago1), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago1), 8, 7)
             pyxel.blt(int(self.mx_lago1) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago1) - 48, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
@@ -983,10 +970,8 @@ class VictoryScreen:
             self.mlargura_lago2 -= 0.4
         else:
             self.mlargura_lago2 = 20
-            self.mx_lago2 = 55  # Reposiciona 5px mais à esquerda
-        
-        # Desenha lago 2 com sobreposição de 4px e 2 fileiras a menos
-        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+            self.mx_lago2 = 55  
+        for offset_y in range(0, 56, 6):  
             pyxel.blt(int(self.mx_lago2), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago2), 8, 7)
             pyxel.blt(int(self.mx_lago2) - 29, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -29 para sobreposição de 4px
             pyxel.blt(int(self.mx_lago2) - 58, 144 + offset_y, 1, 56, 16, 20, 8, 7)
@@ -1009,8 +994,7 @@ class VictoryScreen:
             self.mlargura_lago3 = 20
             self.mx_lago3 = 115  
         
-        # Desenha lago 3 com sobreposição de 4px e 2 fileiras a menos
-        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+        for offset_y in range(0, 56, 6):  
             pyxel.blt(int(self.mx_lago3), 144 + offset_y, 1, 101, 0, int(self.mlargura_lago3), 8, 7)
             pyxel.blt(int(self.mx_lago3) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago3) - 42, 144 + offset_y, 1, 101, 0, 20, 8, 7)
@@ -1024,22 +1008,21 @@ class VictoryScreen:
             pyxel.blt(int(self.mx_lago3) - 210, 144 + offset_y, 1, 101, 0, 20, 8, 7)
             pyxel.blt(int(self.mx_lago3) - 231, 144 + offset_y, 1, 101, 0, 20, 8, 7)  
 
-        # Lago 4 - Continuação do lado direito
+       
         if not hasattr(self, 'mx_lago4'):
-            self.mx_lago4 = 135  # Começa mais próximo ao lago 3
+            self.mx_lago4 = 135  
             self.mlargura_lago4 = 20
         
-        self.mx_lago4 += 0.32  # Velocidade ligeiramente diferente
-        if self.mlargura_lago4 > 0 and self.mx_lago4 < 155:  # Limite ajustado
+        self.mx_lago4 += 0.32 
+        if self.mlargura_lago4 > 0 and self.mx_lago4 < 155:  
             self.mlargura_lago4 -= 0.32
         else:
             self.mlargura_lago4 = 20
-            self.mx_lago4 = 135  # Reset correto
+            self.mx_lago4 = 135  
         
-        # Desenha lago 4 com sobreposição de 4px (seguindo padrão dos outros)
-        for offset_y in range(0, 56, 6):  # Mesma altura e espaçamento dos outros lagos
+        for offset_y in range(0, 56, 6):  
             pyxel.blt(int(self.mx_lago4), 144 + offset_y, 1, 101, 0, int(self.mlargura_lago4), 8, 7)
-            pyxel.blt(int(self.mx_lago4) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  # -21 para sobreposição de 4px (igual lago 3)
+            pyxel.blt(int(self.mx_lago4) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7) 
             pyxel.blt(int(self.mx_lago4) - 42, 144 + offset_y, 1, 101, 0, 20, 8, 7)
             pyxel.blt(int(self.mx_lago4) - 63, 144 + offset_y, 1, 101, 0, 20, 8, 7)
             pyxel.blt(int(self.mx_lago4) - 84, 144 + offset_y, 1, 101, 0, 20, 8, 7)
@@ -1051,22 +1034,22 @@ class VictoryScreen:
             pyxel.blt(int(self.mx_lago4) - 210, 144 + offset_y, 1, 101, 0, 20, 8, 7)
             pyxel.blt(int(self.mx_lago4) - 231, 144 + offset_y, 1, 101, 0, 20, 8, 7)
 
-        # Lago 5 - Continuação mais à direita
+        
         if not hasattr(self, 'mx_lago5'):
-            self.mx_lago5 = 155  # Começa onde o lago 4 termina
+            self.mx_lago5 = 155  
             self.mlargura_lago5 = 20
 
-        self.mx_lago5 += 0.38  # Velocidade ligeiramente maior
-        if self.mlargura_lago5 > 0 and self.mx_lago5 < 175:  # Limite adequado
+        self.mx_lago5 += 0.38  
+        if self.mlargura_lago5 > 0 and self.mx_lago5 < 175:  
             self.mlargura_lago5 -= 0.38
         else:
             self.mlargura_lago5 = 20
-            self.mx_lago5 = 155  # Reset correto
-
+            self.mx_lago5 = 155  
+ 
         # Desenha lago 5 com sobreposição de 4px
         for offset_y in range(0, 56, 6):
             pyxel.blt(int(self.mx_lago5), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago5), 8, 7)
-            pyxel.blt(int(self.mx_lago5) - 29, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -29 para sobreposição de 4px (igual lago 2)
+            pyxel.blt(int(self.mx_lago5) - 29, 144 + offset_y, 1, 56, 16, 20, 8, 7) 
             pyxel.blt(int(self.mx_lago5) - 58, 144 + offset_y, 1, 56, 16, 20, 8, 7)
             pyxel.blt(int(self.mx_lago5) - 87, 144 + offset_y, 1, 56, 16, 20, 8, 7)
             pyxel.blt(int(self.mx_lago5) - 116, 144 + offset_y, 1, 56, 16, 20, 8, 7)
@@ -1075,9 +1058,8 @@ class VictoryScreen:
             pyxel.blt(int(self.mx_lago5) - 203, 144 + offset_y, 1, 56, 16, 20, 8, 7)
             pyxel.blt(int(self.mx_lago5) - 232, 144 + offset_y, 1, 56, 16, 20, 8, 7)
 
-        # Lago 6 - Continuação da sequência
         if not hasattr(self, 'mx_lago6'):
-            self.mx_lago6 = 175  # Começa onde o lago 5 termina
+            self.mx_lago6 = 175  
             self.mlargura_lago6 = 20
 
         self.mx_lago6 += 0.36  # Velocidade intermediária
@@ -1085,12 +1067,10 @@ class VictoryScreen:
             self.mlargura_lago6 -= 0.36
         else:
             self.mlargura_lago6 = 20
-            self.mx_lago6 = 175  # Reset correto
-
-        # Desenha lago 6 com sobreposição de 4px
+            self.mx_lago6 = 175  
         for offset_y in range(0, 56, 6):
             pyxel.blt(int(self.mx_lago6), 144 + offset_y, 1, 101, 0, int(self.mlargura_lago6), 8, 7)
-            pyxel.blt(int(self.mx_lago6) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  # -21 para sobreposição de 4px (igual lago 3)
+            pyxel.blt(int(self.mx_lago6) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago6) - 42, 144 + offset_y, 1, 101, 0, 20, 8, 7)
             pyxel.blt(int(self.mx_lago6) - 63, 144 + offset_y, 1, 101, 0, 20, 8, 7)
             pyxel.blt(int(self.mx_lago6) - 84, 144 + offset_y, 1, 101, 0, 20, 8, 7)
@@ -1102,22 +1082,19 @@ class VictoryScreen:
             pyxel.blt(int(self.mx_lago6) - 210, 144 + offset_y, 1, 101, 0, 20, 8, 7)
             pyxel.blt(int(self.mx_lago6) - 231, 144 + offset_y, 1, 101, 0, 20, 8, 7)
 
-        # Lago 7 - Continuação seguindo padrão do lago 1
         if not hasattr(self, 'mx_lago7'):
-            self.mx_lago7 = 195  # Começa onde o lago 6 termina
+            self.mx_lago7 = 195  
             self.mlargura_lago7 = 20
         
-        self.mx_lago7 += 0.3  # Mesma velocidade do lago 1
-        if self.mlargura_lago7 > 0 and self.mx_lago7 < 215:  # Limite de 20 pixels
+        self.mx_lago7 += 0.3  
+        if self.mlargura_lago7 > 0 and self.mx_lago7 < 215:  
             self.mlargura_lago7 -= 0.3
         else:
             self.mlargura_lago7 = 20
-            self.mx_lago7 = 195  # Reset correto
-        
-        # Desenha lago 7 com padrão do lago 1 (sprite 56, 16 e sobreposição -24)
-        for offset_y in range(0, 56, 6):  # y=144 até y=200 (56 pixels de altura) com 2px mais juntas
+            self.mx_lago7 = 195  
+        for offset_y in range(0, 56, 6):  
             pyxel.blt(int(self.mx_lago7), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago7), 8, 7)
-            pyxel.blt(int(self.mx_lago7) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -24 igual lago 1
+            pyxel.blt(int(self.mx_lago7) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago7) - 48, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago7) - 72, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago7) - 96, 144 + offset_y, 1, 56, 16, 20, 8, 7)
@@ -1129,22 +1106,20 @@ class VictoryScreen:
             pyxel.blt(int(self.mx_lago7) - 240, 144 + offset_y, 1, 56, 16, 20, 8, 7)
             pyxel.blt(int(self.mx_lago7) - 264, 144 + offset_y, 1, 56, 16, 20, 8, 7)
 
-        # Lago 8 - Continuação seguindo padrão do lago 2
+       
         if not hasattr(self, 'mx_lago8'):
-            self.mx_lago8 = 215  # Começa onde o lago 7 termina
+            self.mx_lago8 = 215  
             self.mlargura_lago8 = 20
         
-        self.mx_lago8 += 0.4  # Mesma velocidade do lago 2
-        if self.mlargura_lago8 > 0 and self.mx_lago8 < 240:  # Limite ajustado
+        self.mx_lago8 += 0.4 
+        if self.mlargura_lago8 > 0 and self.mx_lago8 < 240: 
             self.mlargura_lago8 -= 0.4
         else:
             self.mlargura_lago8 = 20
-            self.mx_lago8 = 215  # Reset correto
-        
-        # Desenha lago 8 com padrão do lago 2 (sprite 56, 16 e sobreposição -29)
-        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+            self.mx_lago8 = 215  
+        for offset_y in range(0, 56, 6):  
             pyxel.blt(int(self.mx_lago8), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago8), 8, 7)
-            pyxel.blt(int(self.mx_lago8) - 29, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -29 igual lago 2
+            pyxel.blt(int(self.mx_lago8) - 29, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago8) - 58, 144 + offset_y, 1, 56, 16, 20, 8, 7)
             pyxel.blt(int(self.mx_lago8) - 87, 144 + offset_y, 1, 56, 16, 20, 8, 7)
             pyxel.blt(int(self.mx_lago8) - 116, 144 + offset_y, 1, 56, 16, 20, 8, 7)
@@ -1153,20 +1128,19 @@ class VictoryScreen:
             pyxel.blt(int(self.mx_lago8) - 203, 144 + offset_y, 1, 56, 16, 20, 8, 7)
             pyxel.blt(int(self.mx_lago8) - 232, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
 
-        # Lago 9 - Continuação final seguindo padrão do lago 3
+        
         if not hasattr(self, 'mx_lago9'):
-            self.mx_lago9 = 240  # Começa onde o lago 8 termina
+            self.mx_lago9 = 240  
             self.mlargura_lago9 = 20
         
-        self.mx_lago9 += 0.35  # Mesma velocidade do lago 3
-        if self.mlargura_lago9 > 0 and self.mx_lago9 < 265:  # Limite até 265px
+        self.mx_lago9 += 0.35 
+        if self.mlargura_lago9 > 0 and self.mx_lago9 < 265:  
             self.mlargura_lago9 -= 0.35
         else:
             self.mlargura_lago9 = 20
-            self.mx_lago9 = 240  # Reset correto
+            self.mx_lago9 = 240  
         
-        # Desenha lago 9 com padrão do lago 3 (sprite 101, 0 e sobreposição -21)
-        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+        for offset_y in range(0, 56, 6):  
             pyxel.blt(int(self.mx_lago9), 144 + offset_y, 1, 101, 0, int(self.mlargura_lago9), 8, 7)
             pyxel.blt(int(self.mx_lago9) - 21, 144 + offset_y, 1, 101, 0, 20, 8, 7)  # -21 igual lago 3
             pyxel.blt(int(self.mx_lago9) - 42, 144 + offset_y, 1, 101, 0, 20, 8, 7)
@@ -1190,12 +1164,10 @@ class VictoryScreen:
             self.mlargura_lago10 -= 0.3
         else:
             self.mlargura_lago10 = 20
-            self.mx_lago10 = 265  # Reset correto
-        
-        # Desenha lago 10 com padrão do lago 1 (sprite 56, 16 e sobreposição -24)
-        for offset_y in range(0, 56, 6):  # y=144 até y=200 com 2px mais juntas
+            self.mx_lago10 = 265 
+        for offset_y in range(0, 56, 6): 
             pyxel.blt(int(self.mx_lago10), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago10), 8, 7)
-            pyxel.blt(int(self.mx_lago10) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # -24 igual lago 1
+            pyxel.blt(int(self.mx_lago10) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago10) - 48, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago10) - 72, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago10) - 96, 144 + offset_y, 1, 56, 16, 20, 8, 7)
@@ -1240,7 +1212,7 @@ class VictoryScreen:
         pyxel.text(title_x + 2, title_y + 2, title_text, 5)  # Sombra cinza
         pyxel.text(title_x, title_y, title_text, 8)  # Vermelho 
         
-        # Coração grande central pulsante
+        # Coração grande central 
         heart_x = 120
         heart_y = 90
         pyxel.blt(heart_x, heart_y, 1, 139, 9, 10, 7, 7)
@@ -1258,9 +1230,7 @@ class VictoryScreen:
             char_x = 117
             char_y = 135
             
-            # Efeitos de brilho ao redor do personagem (na parte rosa claro)
-            if char_y >= 73 and char_y <= 146:  # Só na zona rosa claro
-                # Brilhos pequenos ao redor do personagem
+            if char_y >= 73 and char_y <= 146: 
                 brilho_offsets = [
                     (-10, -8), (20, -6), (-7, 12), (18, 14),  # Cantos
                     (7, -10), (-5, 24), (22, 10), (0, -12)    # Meio
@@ -1281,26 +1251,21 @@ class VictoryScreen:
             else:
                 pyxel.blt(char_x, char_y, 1, 0, 0, 14, 18, 7)  # Pose padrão
         else:
-            # Durante a animação - personagem se movendo para o final da janela usando os sprites animados
-            # Efeitos de brilho ao redor do personagem durante a animação (na parte rosa claro)
             if self.personagem.y >= 73 and self.personagem.y <= 146:  # Só na zona rosa claro
                 # Brilhos pequenos ao redor do personagem em movimento
                 brilho_offsets = [
-                    (-8, -6), (18, -4), (-5, 10), (20, 12),  # Cantos
-                    (7, -8), (-3, 22), (22, 8), (2, -10)     # Meio
+                    (-8, -6), (18, -4), (-5, 10), (20, 12),  
+                    (7, -8), (-3, 22), (22, 8), (2, -10)     
                 ]
                 for i, (offset_x, offset_y) in enumerate(brilho_offsets):
-                    # Movimento mais rápido durante a animação
                     brilho_x = self.personagem.x + offset_x + math.sin(self.animation_timer * 0.15 + i * 0.6) * 5
                     brilho_y = self.personagem.y + offset_y + math.cos(self.animation_timer * 0.12 + i * 1.0) * 4
                     
-                    # Brilho mais intenso durante movimento
                     if (self.animation_timer + i * 8) % 35 < 28:  # Mais frequente e duradouro
                         pyxel.pset(int(brilho_x), int(brilho_y), 7)        # Pixel branco
                         pyxel.pset(int(brilho_x + 1), int(brilho_y), 15)   # Pixel pêssego claro
                         pyxel.pset(int(brilho_x), int(brilho_y + 1), 10)   # Pixel amarelo
                         
-            # Usa as coordenadas reais do personagem (que foram atualizadas no update())
             pyxel.blt(self.personagem.x, self.personagem.y, 1, self.personagem.x_mem, self.personagem.y_mem, 
                      self.personagem.largura, self.personagem.altura, 7)
         
@@ -1334,8 +1299,8 @@ class LoseScreen:
         self.width = 250
         self.height = 220
         self.animation_timer = 0
-        self.char_x = 20.0  # Posição inicial centralizada (float para movimento mais suave)
-        self.char_y = 140.0  # Posição inicial centralizada (float para movimento mais suave)
+        self.char_x = 20.0  # Posição inicial 
+        self.char_y = 140.0  # Posição inicial 
         self.velocity_x = 0.0  # Velocidade horizontal
         self.velocity_y = 0.0  # Velocidade vertical
         self.target_x = 20.0  # Posição alvo X
@@ -1354,8 +1319,7 @@ class LoseScreen:
             self.target_y = random.uniform(150, 155)  # Entre Y=150 e Y=155
             self.direction_timer = 0
         
-        # Movimento suave em direção ao alvo (interpolação)
-        lerp_speed = 0.02  # Velocidade de interpolação (quanto menor, mais suave)
+        lerp_speed = 0.02 
         
         # Calcula a diferença entre posição atual e alvo
         diff_x = self.target_x - self.char_x
@@ -2088,7 +2052,7 @@ class CandyMazeGame:
                 self.state = "start"
                 return
         elif self.state == "lose":
-            pyxel.stop(0)  # Para qualquer som de fundo
+            pyxel.stop(0)  
             if self.lose_screen and self.lose_screen.update():
                 # Reinicia a fase e volta ao menu inicial
                 self.fase1 = Fase1()
