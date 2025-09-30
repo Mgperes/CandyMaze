@@ -208,7 +208,8 @@ class tempo:
     def draw(self):
 
         tempo_restante = max(0, (self.tempo_limite - self.tempo) // 20)
-        pyxel.text(195, 5, f"TEMPO: {tempo_restante:02}s", 7)
+        pyxel.text(195+0.5, 5+0.5, f"TEMPO: {tempo_restante:02}s", 7)
+        pyxel.text(195, 5, f"TEMPO: {tempo_restante:02}s", 0)
 class formiga:
     def __init__(self):
 
@@ -700,7 +701,6 @@ class Fase1:
             return
 
     def paredes(self):
-        
         self.parede1 = pyxel.blt(122, 172, 1, 191, 0, 6, 40)  # parede vertical
         self.parede2 = pyxel.blt(35, 164, 1, 56, 40, 180, 8)  # parede horizontal 1
         self.parede3 = pyxel.blt(0, 116, 1, 0, 72, 100, 8,7)  # parede horizontal 2
@@ -708,12 +708,19 @@ class Fase1:
         self.parede5 = pyxel.blt(40, 68, 1, 0, 80, 210, 8,7)   # parede horizontal 4
         
     def balas(self):
-        pyxel.blt(145, 199, 1, 130, 0, 9, 9,7) #bala (amarela escura)
+        pyxel.blt(130, 199, 1, 130, 0, 9, 9,7) #bala (amarela escura)
+        pyxel.blt(130, 189, 1, 130, 0, 9, 9,7) #bala (amarela escura)
         pyxel.blt(110, 199, 1, 121, 0, 9, 9, 7 ) #bala (rosa escura)
-        pyxel.blt(145,30,1,139,0, 9, 9, 7) #bala (amarela clara)
-        pyxel.blt(10,100,1,118,8,12,20, 7) #bala azul
-
-        pyxel.blt(210, 99, 1, 96, 16, 9,12,7) #sorvete
+        #pyxel.blt(145,30,1,139,0, 9, 9, 7) #bala (amarela clara)
+        pyxel.blt(10, 100, 1, 118, 8, 12, 20, 7) #bala azul
+        pyxel.blt(230, 99, 1, 96, 16, 9, 12, 7) #sorvete
+        pyxel.blt(210, 99, 1, 96, 16, 9, 12, 7) #sorvete
+        pyxel.blt(190, 99, 1, 96, 16, 9, 12, 7) #sorvete
+        pyxel.blt(170, 99, 1, 96, 16, 9, 12, 7) #sorvete
+        pyxel.blt(145, 28, 1, 106, 8, 12, 20, 7) #bala rosa grande
+        pyxel.blt(125, 28, 1, 106, 8, 12, 20, 7) #bala rosa grande
+        pyxel.blt(105, 28, 1, 106, 8, 12, 20, 7) #bala rosa grande
+        pyxel.blt(10, 30, 1, 121, 0, 9, 9, 7 ) #bala (rosa escura)
 
     def draw_fase1(self):
         pyxel.cls(6)
