@@ -510,7 +510,12 @@ class Fase1:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
-                self.personagem.x = 196  #personagem centraliza no lago
+                self.personagem.y += 6
+                self.personagem.altura -= 6
+                if self.personagem.x < 192:
+                    self.personagem.x += 7
+                if self.personagem.x > 208:
+                    self.personagem.x -= 7 
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 1!")
@@ -519,7 +524,12 @@ class Fase1:
                 # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
-                self.personagem.x = 41   #personagem centraliza no lago
+                self.personagem.y += 6
+                self.personagem.altura -= 6
+                if self.personagem.x < 38:
+                    self.personagem.x += 7
+                if self.personagem.x > 55:
+                    self.personagem.x -= 7 
                 pyxel.play(3, 7)  # Som de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 2!")
@@ -528,6 +538,12 @@ class Fase1:
                 # Primeira vez tocando na água 
                 self.afogando = True
                 self.afogar_timer = 0
+                self.personagem.y += 6
+                self.personagem.altura -= 6
+                if self.personagem.x < 96:
+                    self.personagem.x += 7
+                if self.personagem.x > 165 :
+                    self.personagem.x -= 7 
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 3!")
