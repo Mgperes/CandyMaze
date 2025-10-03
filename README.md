@@ -7,11 +7,12 @@ CandyMaze é um jogo simples feito em Python usando a biblioteca Pyxel. O objeti
 ## Como jogar 🍫
 
 - **Setas Esquerda/Direita:** Movimentam o personagem para os lados
-- **Espaço:** Pula (se implementado)
+- **Espaço:** Pula 
 - **Enter ou Espaço (na tela inicial):** Inicia o jogo
 - **Q ou clique em (Q)UIT:** Sai do jogo
 - **ESC:** Volta para o menu inicial
 - **Mouse:** Clique em "START" para começar
+- - **Tecla F:** Pause o jogo
 
 ## Requisitos
 - Python 3.7+
