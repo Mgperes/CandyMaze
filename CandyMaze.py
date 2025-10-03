@@ -508,7 +508,6 @@ class Fase1:
         # Verifica colisão com qualquer lago
         if colide_com_lago(self.mx_inicial_lago1,self.my_lago1,self.mlargura_total_lago1): 
             if not self.afogando:
-                # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
                 self.personagem.y += 6
@@ -520,9 +519,9 @@ class Fase1:
                 pyxel.play(3, 7)  # Som suave de toque na água
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 1!")
+
         elif colide_com_lago(self.mx_inicial_lago3,self.my_lago3,self.mlargura_total_lago3):
             if not self.afogando:
-                # Primeira vez tocando na água - MORTE INEVITÁVEL iniciada
                 self.afogando = True
                 self.afogar_timer = 0
                 self.personagem.y += 6
@@ -531,12 +530,13 @@ class Fase1:
                     self.personagem.x += 7
                 if self.personagem.x > 55:
                     self.personagem.x -= 7 
-                pyxel.play(3, 7)  # Som de toque na água
+                pyxel.play(3, 7)  
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 2!")
+
         elif colide_com_lago(self.mx_inicial_lago2,self.my_lago2,self.mlargura_total_lago2):
             if not self.afogando:
-                # Primeira vez tocando na água 
+                
                 self.afogando = True
                 self.afogar_timer = 0
                 self.personagem.y += 6
@@ -545,11 +545,11 @@ class Fase1:
                     self.personagem.x += 7
                 if self.personagem.x > 165 :
                     self.personagem.x -= 7 
-                pyxel.play(3, 7)  # Som suave de toque na água
+                pyxel.play(3, 7)  
                 GameLogger.death_log("💀 TOCOU NA ÁGUA! O personagem está se afogando... 💀")
                 print("COLISÃO DETECTADA COM LAGO 3!")
 
-        # Sistema de morte lenta e inevitável (2 segundos)
+        # Sistema de morte lenta e inevitável 
         if self.afogando:
             self.afogar_timer += 1
             tempo_restante = (40 - self.afogar_timer) / 20  # Converte frames para segundos (fps=20)
@@ -603,7 +603,7 @@ class Fase1:
                 self.personagem.no_chao = False
                 # Som de batida na cabeça (opcional)
                 pyxel.play(2, 1)  # Usa o som de dano
-                GameLogger.warning_log("💥 Bateu a cabeça na plataforma móvel!")
+                
 
         self.plataforma2.update()
         
@@ -1278,7 +1278,7 @@ class VictoryScreen:
                     brilho_x = self.personagem.x + offset_x + math.sin(self.animation_timer * 0.15 + i * 0.6) * 5
                     brilho_y = self.personagem.y + offset_y + math.cos(self.animation_timer * 0.12 + i * 1.0) * 4
                     
-                    if (self.animation_timer + i * 8) % 35 < 28:  # Mais frequente e duradouro
+                    if (self.animation_timer + i * 8) % 35 < 28:  
                         pyxel.pset(int(brilho_x), int(brilho_y), 7)        # Pixel branco
                         pyxel.pset(int(brilho_x + 1), int(brilho_y), 15)   # Pixel pêssego claro
                         pyxel.pset(int(brilho_x), int(brilho_y + 1), 10)   # Pixel amarelo
@@ -1316,13 +1316,13 @@ class LoseScreen:
         self.width = 250
         self.height = 220
         self.animation_timer = 0
-        self.char_x = 20.0  # Posição inicial 
-        self.char_y = 140.0  # Posição inicial 
-        self.velocity_x = 0.0  # Velocidade horizontal
-        self.velocity_y = 0.0  # Velocidade vertical
-        self.target_x = 20.0  # Posição alvo X
-        self.target_y = 140.0  # Posição alvo Y
-        self.direction_timer = 0  # Timer para mudança de direção
+        self.char_x = 20.0  
+        self.char_y = 140.0
+        self.velocity_x = 0.0  
+        self.velocity_y = 0.0  
+        self.target_x = 20.0  
+        self.target_y = 140.0  
+        self.direction_timer = 0  
 
     def update(self):
 
@@ -1897,7 +1897,7 @@ class CandyMazeGame:
 
     def setup_audio(self):
         
-        # caso o personagem for ter a função de atirar
+        # caso o personagem for ter a função de atirar:
         """pyxel.sounds[0].set(
             notes="A4 G#4 G4 F#4 F4 E4 D#4 D4 C#4 C4 B3 A#3 A3 G3 F#3 F3",  
             tones="TTTTTTTTTTTTTTTT",   # onda quadrada para todas
@@ -1905,7 +1905,7 @@ class CandyMazeGame:
             effects="NNNNNNNNNNNNNNNN", # sem efeitos especiais
             speed=3                     # mais rápido (nota curtinha cada)
         )""" 
-
+        # Som de pulo
         pyxel.sounds[0].set(
             notes="A3 G#3 G3 F#3 F3 E3 D#3 D3 C#3 C3 B2 A#2 A2 G2 F#2 F2",  
             tones="TTTTTTTTTTTTTTTT",   
@@ -2018,18 +2018,18 @@ class CandyMazeGame:
             if not self.start_screen.update_conect():
                 pyxel.stop(0)  # Para o som do menu
                 # Toca som de transição antes de iniciar a fase
-                pyxel.play(0, 10)  # Fanfarra de início
-                self.transition_played = False  # Reset para próxima transição
+                pyxel.play(0, 10)  
+                self.transition_played = False  
                 self.state = "game"
-                GameLogger.game_start_log()  # Log aparente de início do jogo
+                GameLogger.game_start_log()  
             return
         elif self.state == "game":
-            # Sempre atualiza a fase1 para permitir pause/unpause
+            
             self.fase1.update_fase1()
             
-            # Verifica se a fase está pausada para controlar música
+            
             if hasattr(self.fase1, 'pause_system') and self.fase1.pause_system.pausado:
-                # Se está pausado, para a música mas continua permitindo input
+                # Se o jogo está pausado, para todas as trilhas da fase
                 pyxel.stop(0)
                 pyxel.stop(1)
                 return
