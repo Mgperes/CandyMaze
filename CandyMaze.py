@@ -414,6 +414,7 @@ class Fase1:
             self.personagem.no_chao = False
             self.personagem.pulos_restantes -= 1
             self.personagem.ultimo_pulo_tick = agora
+            pyxel.play(2, 0)  # Som de pulo
         self.personagem.atualizar_pulo()
 
         if pyxel.btnp(pyxel.KEY_ESCAPE)*2:
@@ -1895,17 +1896,24 @@ class CandyMazeGame:
         pyxel.run(self.update, self.draw)
 
     def setup_audio(self):
-        """Configura os sons do jogo usando Pyxel"""
-        
-        # Som de pulo 
+        # Configura os sons do jogo usando Pyxel
+       
+        """pyxel.sounds[0].set(
+            notes="A4 G#4 G4 F#4 F4 E4 D#4 D4 C#4 C4 B3 A#3 A3 G3 F#3 F3",  
+            tones="TTTTTTTTTTTTTTTT",   # onda quadrada para todas
+            volumes="6666555544443333", # volume vai diminuindo levemente
+            effects="NNNNNNNNNNNNNNNN", # sem efeitos especiais
+            speed=3                     # mais rápido (nota curtinha cada)
+        )""" 
+
         pyxel.sounds[0].set(
-            notes="C3E3G3", 
-            tones="TTT", 
-            volumes="121", 
-            effects="NNN", 
-            speed=25
+            notes="A3 G#3 G3 F#3 F3 E3 D#3 D3 C#3 C3 B2 A#2 A2 G2 F#2 F2",  
+            tones="TTTTTTTTTTTTTTTT",   
+            volumes="6666555544443333", 
+            effects="NNNNNNNNNNNNNNNN", 
+            speed=3
         )
-        
+
         # Som de dano/colisão com formiga
         pyxel.sounds[1].set(
             notes="F2E2D2C2", 
