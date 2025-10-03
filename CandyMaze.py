@@ -1896,8 +1896,8 @@ class CandyMazeGame:
         pyxel.run(self.update, self.draw)
 
     def setup_audio(self):
-        # Configura os sons do jogo usando Pyxel
-       
+        
+        # caso o personagem for ter a função de atirar
         """pyxel.sounds[0].set(
             notes="A4 G#4 G4 F#4 F4 E4 D#4 D4 C#4 C4 B3 A#3 A3 G3 F#3 F3",  
             tones="TTTTTTTTTTTTTTTT",   # onda quadrada para todas
