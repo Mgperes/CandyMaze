@@ -233,8 +233,8 @@ class tempo:
     def __init__(self):
         self.tempo = 0 and True
         self.lose = False
-        self.tempo_limite = 500 # dividir por 20 fps = 25 segundos
-    def update(self):
+        self.tempo_limite = 1000 # dividir por 20 fps = 50 segundos
+    def update(self):  
         self.tempo += 1
         if self.tempo > self.tempo_limite:
             return True
@@ -294,6 +294,62 @@ class formiga:
     def draw(self):
         pyxel.blt(self.x, self.y, 1, self.x_mem, self.y_mem, 18, 11,7)
 
+class Balas:
+    def __init__(self):
+        self.score = 0
+        self.balas = [[130,9,121,128,9,9,False],   # Lista de Balas: [x_mem, y_mem, x, y, largura, altura, coletada]
+                      [130,9,44,84,9,9,False],
+                      [130,9,175,103,9,9,False],
+                      [130,9,225,103,9,9,False],
+                      [121,0,100,199,9,9,False],
+                      [121,0,196,180,9,9,False],
+                      [121,0,127,28,9,9,False],
+                      [121,0,50,199,9,9,False],
+                      [121,0,140,199,9,9,False],
+                      [121,0,91,28,9,9,False],
+                      [121,0,161,28,9,9,False],
+                      [96,16,70,150,9,12,False],
+                      [96,16,121,80,9,12,False],
+                      [96,16,180,150,9,12,False],
+                      [96,16,10,25,9,12,False],
+                      [130,0,121,141,9,9,False],
+                      [130,0,10,135,9,9,False],
+                      [130,0,231,135,9,9,False]
+                      ]
+        
+    def update(self,x_personagem,y_personagem):
+        for i in range(len(self.balas)):  # Itera sobre a lista, que agora tem 7 elementos por item
+            self.bala_xmem = self.balas[i][0]
+            self.bala_ymem = self.balas[i][1]
+            self.bala_x = self.balas[i][2]
+            self.bala_y = self.balas[i][3]
+            self.bala_w = self.balas[i][4] 
+            self.bala_h = self.balas[i][5]  
+            self.coletada = self.balas[i][6]
+            if not self.coletada:
+                self.colisao = (x_personagem + 14 >= self.bala_x and     
+                          x_personagem <= self.bala_x + self.bala_w and 
+                          y_personagem <= self.bala_y + self.bala_h and     
+                          y_personagem + 18 >= self.bala_y)    
+                if self.colisao:
+                        # 1. Faz a bala sumir (muda o estado na lista: índice 6)
+                        self.balas[i][6] = True 
+                        if i == 11 or i == 12 or i == 13 or i == 14: 
+                            self.score += 75
+                        else:
+                            self.score += 50
+
+    def draw(self):
+        score_text = f"SCORE: {self.score}"
+        pyxel.text(125+0.5, 5+0.5, score_text, 7)
+        pyxel.text(125, 5, score_text, 0) 
+        pyxel.blt(112,3,1,106,8,9,9,7)
+        # Desenha APENAS as balas que têm o estado 'coletada' como False
+        for self.bala_xmem, self.bala_ymem, self.bala_x, self.bala_y, self.bala_w, self.bala_h, self.coletada in self.balas:
+            if not self.coletada:
+                # desenha cada bala
+                pyxel.blt(self.bala_x, self.bala_y, 1, self.bala_xmem, self.bala_ymem, self.bala_w, self.bala_h, 7)
+
 
 #----------------- FASE 1 ----------------------------------------------------------------------------------------#
 
@@ -310,6 +366,7 @@ class Fase1:
 
         self.tempo = tempo()
         self.formiga = formiga()
+        self.balas = Balas()
 
         self.personagem = Personagem(2, y_chao - altura_personagem)
         self.vidas = Vidas(self.personagem)
@@ -453,9 +510,8 @@ class Fase1:
             self.win_counter = 0  # Reseta contador se sair da porta
             self.win = False
 
-
-
-
+        #----TESTA COLISAO COM BALA------
+        self.balas.update(self.personagem.x,self.personagem.y)  
 
 
     #-------------LAGO 1--------------
@@ -767,21 +823,6 @@ class Fase1:
         self.parede3 = pyxel.blt(0, 116, 1, 0, 72, 100, 8,7)  # parede horizontal 2
         self.parede4 = pyxel.blt(150, 116, 1, 150, 72, 100, 8)  # parede horizontal 3
         self.parede5 = pyxel.blt(40, 68, 1, 0, 80, 210, 8,7)   # parede horizontal 4
-        
-    def balas(self):
-        pyxel.blt(130, 199, 1, 130, 0, 9, 9,7) #bala (amarela escura)
-        pyxel.blt(130, 189, 1, 130, 0, 9, 9,7) #bala (amarela escura)
-        pyxel.blt(110, 199, 1, 121, 0, 9, 9, 7 ) #bala (rosa escura)
-        #pyxel.blt(145,30,1,139,0, 9, 9, 7) #bala (amarela clara)
-        pyxel.blt(10, 100, 1, 118, 8, 12, 20, 7) #bala azul
-        pyxel.blt(230, 99, 1, 96, 16, 9, 12, 7) #sorvete
-        pyxel.blt(210, 99, 1, 96, 16, 9, 12, 7) #sorvete
-        pyxel.blt(190, 99, 1, 96, 16, 9, 12, 7) #sorvete
-        pyxel.blt(170, 99, 1, 96, 16, 9, 12, 7) #sorvete
-        pyxel.blt(145, 28, 1, 106, 8, 12, 20, 7) #bala rosa grande
-        pyxel.blt(125, 28, 1, 106, 8, 12, 20, 7) #bala rosa grande
-        pyxel.blt(105, 28, 1, 106, 8, 12, 20, 7) #bala rosa grande
-        pyxel.blt(10, 30, 1, 121, 0, 9, 9, 7 ) #bala (rosa escura)
 
     def draw_fase1(self):
         pyxel.cls(6)
@@ -825,9 +866,10 @@ class Fase1:
         pyxel.blt(self.mx_lago3, self.my_lago3, 1, 56, 24, self.mlargura_lago3, self.maltura_lago3,7) 
         pyxel.blt(self.mx_lago3 - 20, self.my_lago3, 1, 56, 24, 20, self.maltura_lago3,7)  
         pyxel.blt(self.mx_lago3 - 40, self.my_lago3, 1, 56, 24, 20, self.maltura_lago3,7) 
-
+        
         self.formiga.draw()
-        self.balas()
+        self.balas.draw() 
+        
         pyxel.text(5+0.5, 5+0.5, "FASE 1", self.colortext)
         pyxel.text(5, 5, "FASE 1", 0)
         pyxel.blt(0, 212, 1, 0, 88, 250, 8,7) # chão
