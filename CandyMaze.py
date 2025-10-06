@@ -88,11 +88,11 @@ class InstructionsScreen:
         self.instructions = [
             "COMO JOGAR:",
             "",
-            "- Use A/D ou setas para mover",
+            "- Use setas para mover",
             "- Pressione ESPACO para pular",
             "- Colete balas (score)",
-            "- Evite ficar na agua dos lagos",
-            "- Chegue na porta final",
+            "- Fuja da agua dos lagos",
+            "- Chegue na porta, o tempo e seu inimigo!!",
             "- Pressione F para pausar",
             "",
             "Press SPACE to start!"
@@ -100,25 +100,46 @@ class InstructionsScreen:
         
         # Tipos de balas para decoração (baseados na classe Balas)
         self.candy_types = [
-            (96, 16, 9, 12),   # Bala especial - tamanho correto da classe Balas
-            (106, 8, 9, 9),    # Bala dourada (usada no score) - tamanho correto
-            (130, 9, 9, 9),    # Bala comum tipo 1 - tamanho correto
-            (121, 0, 9, 9),    # Bala comum tipo 2 - tamanho correto
-            (130, 0, 9, 9),    # Bala comum tipo 3 - tamanho correto
+            (96, 16, 9, 12),   # Bala especial
+            (106, 8, 9, 9),    # Bala dourada 
+            (130, 9, 9, 9),    # Bala comum 
+            (121, 0, 9, 9),    # Bala comum 
+            (130, 0, 9, 9),    # Bala comum 
         ]
+        # Estado dos brilhos (partículas) — para movimento aleatório
+        self.sparkle_count = 18
+        self.sparkles = []
+        for _ in range(self.sparkle_count):
+            sx = random.uniform(0, 250)
+            sy = random.uniform(0, 220)
+            # evita nascer dentro da caixa
+            if self.box_x <= sx <= self.box_x + self.box_width and self.box_y <= sy <= self.box_y + self.box_height:
+                # empurra para fora com margem
+                if random.random() < 0.5:
+                    sy = self.box_y - random.uniform(6, 28)
+                else:
+                    sx = self.box_x - random.uniform(6, 28)
+            svx = random.uniform(-0.6, 0.6)
+            svy = random.uniform(-0.6, 0.6)
+            ssize = random.choice([1, 1, 2])
+            scol = random.choice([7, 8, 9, 10, 11, 12, 14])
+            self.sparkles.append({"x": sx, "y": sy, "vx": svx, "vy": svy, "size": ssize, "col": scol})
     
     def update(self, color_timer):
         """Atualiza o timer de cores para animações"""
         self.color_timer = color_timer
+        # Atualiza partículas de brilho
+        if hasattr(self, 'sparkles'):
+            self._update_sparkles()
     
     def draw(self):
         """Desenha a tela de instruções completa"""
         # Desenha o background da fase 1
         pyxel.blt(0, 0, 2, 0, 0, 250, 220)
-        
-        # Desenha brilhos pequenos ao redor do quadrado
-        self.draw_sparkles_around_box()
-        
+        # Desenha brilhos por baixo do quadrado (para que NÃO fiquem na frente)
+        if hasattr(self, 'sparkles'):
+            self.draw_sparkles_around_box()
+
         # Desenha paredes de chocolate ao redor do quadrado
         self.draw_chocolate_walls()
         
@@ -205,30 +226,90 @@ class InstructionsScreen:
         pyxel.blt(self.box_x + self.box_width + 4, self.box_y + self.box_height + 4, 1, 121, 0, 9, 9, 7)  # Canto inferior direito - bala comum
 
     def draw_sparkles_around_box(self):
-        """Desenha brilhos pequenos animados ao redor do quadrado"""
-        # Número de brilhos
-        sparkle_count = 12
+        # Desenha brilhos com base em self.sparkles
         
-        for i in range(sparkle_count):
-            # Calcula posição orbital ao redor do quadrado
-            angle = (i * 360 / sparkle_count) + (self.color_timer * 2)  # Rotação
-            radius = 25  # Distância do quadrado
-            
-            center_x = self.box_x + self.box_width // 2
-            center_y = self.box_y + self.box_height // 2
-            
-            sparkle_x = center_x + math.cos(math.radians(angle)) * radius
-            sparkle_y = center_y + math.sin(math.radians(angle)) * radius
-            
-            # Varia o tamanho do brilho
-            size = 1 + int(math.sin(self.color_timer * 0.1 + i) * 0.5 + 0.5)
-            
-            # Cores brilhantes
-            sparkle_colors = [7, 8, 9, 10, 11, 12, 14]
-            color = sparkle_colors[(self.color_timer // 5 + i) % len(sparkle_colors)]
-            
-            # Desenha o brilho
-            pyxel.rect(int(sparkle_x), int(sparkle_y), size, size, color)
+        if not hasattr(self, 'sparkles'):
+            return
+
+        for s in self.sparkles:
+            x = int(s['x'])
+            y = int(s['y'])
+            size = s.get('size', 1)
+            col = s.get('col', 7)
+            # desenha apenas se estiver dentro da tela
+            if x < 0 or x >= 250 or y < 0 or y >= 220:
+                continue
+            if size <= 1:
+                pyxel.pset(x, y, col)
+            else:
+                # retângulo pequeno centrado
+                pyxel.rect(max(0, x - 1), max(0, y - 1), size, size, col)
+
+        # efeito de brilho extra ocasional
+        if (self.color_timer % 30) < 6:
+            for i in range(0, len(self.sparkles), 6):
+                s = self.sparkles[i]
+                bx = int(s['x'])
+                by = int(s['y'])
+                if 0 <= bx < 250 and 0 <= by < 220:
+                    pyxel.pset(bx, by, 15)
+
+    def _update_sparkles(self):
+        """Atualiza posições das partículas e garante que elas não entrem na área do box."""
+        for s in self.sparkles:
+            # pequena aleatoriedade na velocidade
+            if random.random() < 0.08:
+                s['vx'] += random.uniform(-0.12, 0.12)
+                s['vy'] += random.uniform(-0.12, 0.12)
+
+            # limita velocidade
+            s['vx'] = max(-1.2, min(1.2, s['vx']))
+            s['vy'] = max(-1.2, min(1.2, s['vy']))
+
+            # atualiza posição
+            s['x'] += s['vx']
+            s['y'] += s['vy']
+
+            # rebater nas bordas da tela
+            if s['x'] < 0:
+                s['x'] = 0
+                s['vx'] *= -1
+            if s['x'] > 249:
+                s['x'] = 249
+                s['vx'] *= -1
+            if s['y'] < 0:
+                s['y'] = 0
+                s['vy'] *= -1
+            if s['y'] > 219:
+                s['y'] = 219
+                s['vy'] *= -1
+
+            # se entrou na área do box, empurra para fora para a borda mais próxima
+            if (self.box_x <= s['x'] <= self.box_x + self.box_width and
+                    self.box_y <= s['y'] <= self.box_y + self.box_height):
+                left_dist = abs(s['x'] - self.box_x)
+                right_dist = abs(self.box_x + self.box_width - s['x'])
+                top_dist = abs(s['y'] - self.box_y)
+                bottom_dist = abs(self.box_y + self.box_height - s['y'])
+                m = min(left_dist, right_dist, top_dist, bottom_dist)
+                margin = 6 + random.uniform(0, 10)
+                if m == left_dist:
+                    s['x'] = self.box_x - margin
+                elif m == right_dist:
+                    s['x'] = self.box_x + self.box_width + margin
+                elif m == top_dist:
+                    s['y'] = self.box_y - margin
+                else:
+                    s['y'] = self.box_y + self.box_height + margin
+
+                # ajusta velocidade para apontar para fora
+                cx = self.box_x + self.box_width / 2
+                cy = self.box_y + self.box_height / 2
+                dx = s['x'] - cx
+                dy = s['y'] - cy
+                norm = max(0.1, math.hypot(dx, dy))
+                s['vx'] = (dx / norm) * (0.6 + random.random() * 0.8)
+                s['vy'] = (dy / norm) * (0.6 + random.random() * 0.8)
 
     def draw_chocolate_walls(self):
         """Desenha paredes de chocolate ao redor do quadrado formando bordas"""
@@ -238,7 +319,7 @@ class InstructionsScreen:
         parede_topo_y = self.box_y - 8  # Parede superior
         parede_base_y = self.box_y + self.box_height  # Parede inferior
         
-        # PRIMEIRO: PAREDES VERTICAIS (ficam atrás das horizontais)
+        # PRIMEIRO: PAREDES VERTICAIS 
         altura_necessaria = self.box_height + 16  # Altura total incluindo bordas
         segmentos_verticais = (altura_necessaria + 39) // 40  # Quantos segmentos de 40px precisamos
         
@@ -249,7 +330,7 @@ class InstructionsScreen:
             if altura_segmento > 0:
                 pyxel.blt(parede_esquerda_x, y_pos, 1, 191, 0, 6, altura_segmento, 7)
         
-        # Paredes verticais direitas
+        # Paredes verticais direitas 
         for i in range(segmentos_verticais):
             y_pos = parede_topo_y + (i * 40)
             altura_segmento = min(40, altura_necessaria - (i * 40))
@@ -260,12 +341,12 @@ class InstructionsScreen:
         # Parede superior - primeira camada
         pyxel.blt(self.box_x - 6, parede_topo_y, 1, 56, 40, self.box_width + 12, 8, 7)
         # Parede superior - segunda camada 
-        pyxel.blt(self.box_x + 100, parede_topo_y, 1, 56, 40, 80, 8, 7)
+        pyxel.blt(self.box_x + 100, parede_topo_y, 1, 56, 40, 86, 8, 7)
         
         # Parede inferior - primeira camada
         pyxel.blt(self.box_x - 6, parede_base_y, 1, 56, 40, self.box_width + 12, 8, 7)
         # Parede inferior - segunda camada
-        pyxel.blt(self.box_x + 100, parede_base_y, 1, 56, 40, 80, 8, 7)
+        pyxel.blt(self.box_x + 100, parede_base_y, 1, 56, 40, 86, 8, 7)
 
 class Start:
     def __init__(self):
@@ -377,12 +458,12 @@ class pause:
             text_x = (250 - len(pause_text) * 4) // 2
             inst_x = (250 - len(text2) * 4) // 2
 
-            # Desenha com sombra
-            pyxel.text(text_x + 1, 101, pause_text, 0)  # Sombra
-            pyxel.text(text_x, 100, pause_text, 7)      # Texto principal
+            
+            pyxel.text(text_x + 1, 101, pause_text, 0)  
+            pyxel.text(text_x, 100, pause_text, 7)      
 
-            pyxel.text(inst_x + 1, 121, text2, 0)  # Sombra
-            pyxel.text(inst_x, 120, text2, 6)      # Texto secundário
+            pyxel.text(inst_x + 1, 121, text2, 0)  
+            pyxel.text(inst_x, 120, text2, 6)      
 
 class Plataforma1:
     def __init__(self):
@@ -1494,13 +1575,23 @@ class VictoryScreen:
         pyxel.blt(160, 204, 1, 0, 88, 90, 8, 7) # chão final
         # Título principal
         title_text = "SWEET VICTORY!"
-        title_x = 75
-        title_y = 60
+        title_x = 65
+        title_y = 59
+        x_title_mem_sweet1 = 197
+        y_title_mem_sweet1 = 22
+        y_title_mem_sweet2 = 31
+
+        #sweet
+        pyxel.blt(title_x + 2, title_y + 2, 1, x_title_mem_sweet1, y_title_mem_sweet1, 50, 9, 7 )
+        pyxel.blt(title_x , title_y, 1, x_title_mem_sweet1, y_title_mem_sweet2, 50, 9, 7 )
+
+        #victory
+        pyxel.blt(title_x + 52, title_y + 2, 1, 70, 48, 62, 9, 7)
+        pyxel.blt(title_x + 50, title_y, 1, 70, 57, 62, 9, 7)
         
-        pyxel.text(title_x + 2, title_y + 2, title_text, 5)  # Sombra cinza
-        pyxel.text(title_x, title_y, title_text, 8)  # Vermelho 
+
         
-        # Coração grande central 
+        # Coração  
         heart_x = 120
         heart_y = 90
         pyxel.blt(heart_x, heart_y, 1, 139, 9, 10, 7, 7)
@@ -1563,7 +1654,7 @@ class VictoryScreen:
         # Instrução para jogar novamente (só mostra se animação não iniciou)
         if not self.animacao_ativa:
             instruction_text = "Press ENTER to play again!"
-            text_x = 65
+            text_x = 72
             text_y = 189
             
             # Efeito de piscar
@@ -1751,22 +1842,14 @@ class LoseScreen:
             pyxel.line(0, y, 250, y, color)
                
         
-        # Título principal melancólico mas elegante
-        title_text = "OH NO!"
-        subtitle_text = "You got lost in the maze..."
-        
-        title_x = 35
-        title_y = 30
-        subtitle_x = 15
-        subtitle_y = 50
-        
-        # Título principal
-        pyxel.text(title_x + 1, title_y + 1, title_text, 0)  # Sombra
-        pyxel.text(title_x, title_y, title_text, 8)  # Vermelho suave
-        
-        # Subtítulo explicativo
-        pyxel.text(subtitle_x + 1, subtitle_y + 1, subtitle_text, 0)  # Sombra
-        pyxel.text(subtitle_x, subtitle_y, subtitle_text, 6)  # Cinza claro
+        title_x = 75
+        title_y = 57
+        x_mem_title = 132
+        y_mem_title1 = 48
+        y_mem_title2 = 57
+
+        pyxel.blt(title_x + 2, title_y + 2, 1, x_mem_title, y_mem_title1, 90, 10, 7)
+        pyxel.blt(title_x , title_y, 1, x_mem_title, y_mem_title2, 90, 10, 7)
 
         # Desenha o personagem na frente do painel de score mas atrás dos lagos
         pyxel.blt(int(self.char_x), int(self.char_y), 1, 0, 0, 14, 18, 7)
@@ -2058,7 +2141,7 @@ class LoseScreen:
         pyxel.text(panel_x + 3, panel_y + 15, score_text, 11)  # Verde claro
         
         # Percentual
-        percent_text = f"Progresso: {int(self.percentual)}%"
+        percent_text = f"Progress: {int(self.percentual)}%"
         color_percent = 11 if self.percentual >= 80 else 10 if self.percentual >= 60 else 8
         pyxel.text(panel_x + 3, panel_y + 27, percent_text, color_percent)
         
@@ -2095,7 +2178,7 @@ class LoseScreen:
             pyxel.rect(bar_x + 1, bar_y + 1, fill_width, bar_h - 2, fill_color)
 
         instruction_text = "Don't give up! Press ENTER to try again"
-        text_x = 20
+        text_x = 45
         text_y = 180
         
         
@@ -2305,9 +2388,9 @@ class CandyMazeGame:
         self.state = "start"  # start, game, victory
         self.start_screen = Start()
         self.fase1 = Fase1()
-        self.victory_screen = None  # Será criado quando necessário
-        self.lose_screen = None     # Será criado quando necessário
-        self.transition_played = False  # Controla se a transição já foi tocada
+        self.victory_screen = None  
+        self.lose_screen = None      
+        self.transition_played = False
 
         #-------- carrega as imagens --------#
         pyxel.images[0].load(0, 0, "background.png")
@@ -2322,13 +2405,17 @@ class CandyMazeGame:
     def setup_audio(self):
         
         # caso o personagem for ter a função de atirar:
+
         """pyxel.sounds[0].set(
             notes="A4 G#4 G4 F#4 F4 E4 D#4 D4 C#4 C4 B3 A#3 A3 G3 F#3 F3",  
-            tones="TTTTTTTTTTTTTTTT",   # onda quadrada para todas
-            volumes="6666555544443333", # volume vai diminuindo levemente
-            effects="NNNNNNNNNNNNNNNN", # sem efeitos especiais
-            speed=3                     # mais rápido (nota curtinha cada)
+            tones="TTTTTTTTTTTTTTTT",   
+            volumes="6666555544443333", 
+            effects="NNNNNNNNNNNNNNNN", 
+            speed=3                 
         )""" 
+
+
+
         # Som de pulo
         pyxel.sounds[0].set(
             notes="A3 G#3 G3 F#3 F3 E3 D#3 D3 C#3 C3 B2 A#2 A2 G2 F#2 F2",  
@@ -2347,7 +2434,7 @@ class CandyMazeGame:
             speed=15
         )
         
-        # Som de morte/afogamento 
+        # Som de morte
         pyxel.sounds[2].set(
             notes="G3F3E3D3C3", 
             tones="TTTTT", 
@@ -2374,16 +2461,16 @@ class CandyMazeGame:
             speed=40
         )
         
-        # Som ambiente da fase 1 - MELODIA VARIADA (menos enjoativa)
+        # Som ambiente da fase 1 
         pyxel.sounds[5].set(
             notes="C3E3G3C3F3A2D3F3E3G3C3E3G2A2F2G2C3D3F3E3C3G2", 
             tones="TTTTTTSSTTTTSSSSTTSSTTTT", 
             volumes="2321232123212321232123", 
             effects="NNNNNNNNNNNNNNNNNNNNNN", 
-            speed=22  # Um pouco mais lento para ser menos cansativo
+            speed=22  
         )
         
-        # Som ambiente do menu 
+        # Som do menu 
         pyxel.sounds[6].set(
             notes="C2E2G2F2E2D2C2G2", 
             tones="SSSSSSSS", 
@@ -2434,9 +2521,8 @@ class CandyMazeGame:
 
     def update(self):
         if self.state == "start":
-            # Som ambiente do menu (toca em loop)
-            if not pyxel.play_pos(0):  # Se não há som tocando no canal 0
-                pyxel.play(0, 6, loop=True)  # Toca som ambiente do menu em loop
+            if not pyxel.play_pos(0):  
+                pyxel.play(0, 6, loop=True)  
             
             # Aguarda Enter ou Espaço para começar
             if not self.start_screen.update_conect():
@@ -2461,8 +2547,8 @@ class CandyMazeGame:
             # Aguarda a transição terminar antes de tocar a música da fase
             if not pyxel.play_pos(0) and not self.transition_played:
                 # Transição terminou, agora toca a música da fase
-                pyxel.play(0, 5, loop=True)  # Melodia principal variada
-                pyxel.play(1, 9, loop=True)  # Trilha rítmica suave
+                pyxel.play(0, 5, loop=True)  
+                pyxel.play(1, 9, loop=True)  
                 self.transition_played = True
             elif not pyxel.play_pos(0) and self.transition_played:
                 # Se a música parou, reinicia (só acontece se necessário)
