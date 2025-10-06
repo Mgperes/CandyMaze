@@ -1575,13 +1575,23 @@ class VictoryScreen:
         pyxel.blt(160, 204, 1, 0, 88, 90, 8, 7) # chão final
         # Título principal
         title_text = "SWEET VICTORY!"
-        title_x = 75
-        title_y = 60
+        title_x = 65
+        title_y = 59
+        x_title_mem_sweet1 = 197
+        y_title_mem_sweet1 = 22
+        y_title_mem_sweet2 = 31
+
+        #sweet
+        pyxel.blt(title_x + 2, title_y + 2, 1, x_title_mem_sweet1, y_title_mem_sweet1, 50, 9, 7 )
+        pyxel.blt(title_x , title_y, 1, x_title_mem_sweet1, y_title_mem_sweet2, 50, 9, 7 )
+
+        #victory
+        pyxel.blt(title_x + 52, title_y + 2, 1, 70, 48, 62, 9, 7)
+        pyxel.blt(title_x + 50, title_y, 1, 70, 57, 62, 9, 7)
         
-        pyxel.text(title_x + 2, title_y + 2, title_text, 5)  # Sombra cinza
-        pyxel.text(title_x, title_y, title_text, 8)  # Vermelho 
+
         
-        # Coração grande central 
+        # Coração  
         heart_x = 120
         heart_y = 90
         pyxel.blt(heart_x, heart_y, 1, 139, 9, 10, 7, 7)
@@ -1644,7 +1654,7 @@ class VictoryScreen:
         # Instrução para jogar novamente (só mostra se animação não iniciou)
         if not self.animacao_ativa:
             instruction_text = "Press ENTER to play again!"
-            text_x = 65
+            text_x = 72
             text_y = 189
             
             # Efeito de piscar
@@ -1832,22 +1842,14 @@ class LoseScreen:
             pyxel.line(0, y, 250, y, color)
                
         
-        # Título principal melancólico mas elegante
-        title_text = "OH NO!"
-        subtitle_text = "You got lost in the maze..."
-        
-        title_x = 35
-        title_y = 30
-        subtitle_x = 15
-        subtitle_y = 50
-        
-        # Título principal
-        pyxel.text(title_x + 1, title_y + 1, title_text, 0)  # Sombra
-        pyxel.text(title_x, title_y, title_text, 8)  # Vermelho suave
-        
-        # Subtítulo explicativo
-        pyxel.text(subtitle_x + 1, subtitle_y + 1, subtitle_text, 0)  # Sombra
-        pyxel.text(subtitle_x, subtitle_y, subtitle_text, 6)  # Cinza claro
+        title_x = 75
+        title_y = 57
+        x_mem_title = 132
+        y_mem_title1 = 48
+        y_mem_title2 = 57
+
+        pyxel.blt(title_x + 2, title_y + 2, 1, x_mem_title, y_mem_title1, 90, 10, 7)
+        pyxel.blt(title_x , title_y, 1, x_mem_title, y_mem_title2, 90, 10, 7)
 
         # Desenha o personagem na frente do painel de score mas atrás dos lagos
         pyxel.blt(int(self.char_x), int(self.char_y), 1, 0, 0, 14, 18, 7)
@@ -2139,7 +2141,7 @@ class LoseScreen:
         pyxel.text(panel_x + 3, panel_y + 15, score_text, 11)  # Verde claro
         
         # Percentual
-        percent_text = f"Progresso: {int(self.percentual)}%"
+        percent_text = f"Progress: {int(self.percentual)}%"
         color_percent = 11 if self.percentual >= 80 else 10 if self.percentual >= 60 else 8
         pyxel.text(panel_x + 3, panel_y + 27, percent_text, color_percent)
         
@@ -2176,7 +2178,7 @@ class LoseScreen:
             pyxel.rect(bar_x + 1, bar_y + 1, fill_width, bar_h - 2, fill_color)
 
         instruction_text = "Don't give up! Press ENTER to try again"
-        text_x = 20
+        text_x = 45
         text_y = 180
         
         
