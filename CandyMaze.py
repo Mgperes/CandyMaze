@@ -88,12 +88,13 @@ class InstructionsScreen:
         self.instructions = [
             "COMO JOGAR:",
             "",
-            "- Use setas para mover",
-            "- Pressione ESPACO para pular",
-            "- Colete balas (score)",
-            "- Fuja da agua dos lagos",
-            "- Chegue na porta, o tempo e seu inimigo!!",
+            "- Use as teclas A e D para mover;",
+            "- Pressione ESPACO para pular;",
             "- Pressione F para pausar",
+            "- Colete balas para ganhar pontos;",
+            "- Nao caia na agua dos lagos;",
+            "- A formiga faz perder vidas e score;",
+            "- Chegue na porta, o tempo e seu inimigo!!",
             "",
             "Press SPACE to start!"
         ]
@@ -507,7 +508,7 @@ class tempo:
     def __init__(self):
         self.tempo = 0 and True
         self.lose = False
-        self.tempo_limite = 1000 # dividir por 20 fps = 50 segundos
+        self.tempo_limite = 700 # dividir por 20 fps = 35 segundos
     def update(self):  
         self.tempo += 1
         if self.tempo > self.tempo_limite:
@@ -608,7 +609,7 @@ class Balas:
                 if self.colisao:
                         # 1. Faz a bala sumir (muda o estado na lista: índice 6)
                         self.balas[i][6] = True 
-                        if i == 11 or i == 12 or i == 13 or i == 14: 
+                        if i == 11 or i == 12 or i == 13 or i == 14:  
                             self.score += 75
                         else:
                             self.score += 50
@@ -636,6 +637,7 @@ class Fase1:
         altura_tela = 220
         altura_personagem = 18
         y_chao = altura_tela - altura_chao
+        self.chegou_aofim = False
 
         # Sistema de instruções
         self.showing_instructions = True
@@ -737,9 +739,9 @@ class Fase1:
         if (dx != 0 or dy != 0) and not self.afogando: 
             self.personagem.move(dx, dy)
         else:
-
+            if not self.chegou_aofim:   #se a personagem não estiver na porta final
             #-------------- Personagem parado -------------------#
-            self.personagem.parada()
+                self.personagem.parada()
 
 
         #----------------- Personagem pulando -------------------#
@@ -781,8 +783,11 @@ class Fase1:
             self.personagem.y + self.personagem.altura > self.porta_y
         ):
             self.win_counter += 1 
+            self.personagem.x_mem = 0
+            self.personagem.y_mem = 18
             if self.win_counter == 1:  
                 GameLogger.info_log("Personagem chegou na porta final!")
+                self.chegou_aofim = True
             elif self.win_counter == 10:  
                 GameLogger.warning_log("Aguardando confirmação de vitória...")
             elif self.win_counter > 20: 
@@ -1045,6 +1050,7 @@ class Fase1:
             
             if lado_tocado:
                 self.personagem.vidas -= 1
+                self.balas.score -= 100          #diminui o score
                 self.formiga_collision_cooldown = 30  
                 self.invencibilidade_timer = 30 
                 
@@ -1842,8 +1848,8 @@ class LoseScreen:
             pyxel.line(0, y, 250, y, color)
                
         
-        title_x = 75
-        title_y = 57
+        title_x = 80
+        title_y = 40
         x_mem_title = 132
         y_mem_title1 = 48
         y_mem_title2 = 57
