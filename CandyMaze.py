@@ -426,7 +426,7 @@ class Start:
         self.draw_gradient_text(" (Q)UIT", 118, 130)
         pyxel.mouse(True)
 
-class pause:
+class Pause:
     def __init__ (self):
         self.tempo_pause = 0
         self.pausado = False
@@ -504,7 +504,7 @@ class Plataforma2:
     def draw(self):
         pyxel.blt(self.x, self.y, 1, 56, 8, 50, 8, 7)
 
-class tempo:
+class Tempo:
     def __init__(self):
         self.tempo = 0 and True
         self.lose = False
@@ -521,7 +521,7 @@ class tempo:
         tempo_restante = max(0, (self.tempo_limite - self.tempo) // 20)
         pyxel.text(195+0.5, 5+0.5, f"TEMPO: {tempo_restante:02}s", 7)
         pyxel.text(195, 5, f"TEMPO: {tempo_restante:02}s", 0)
-class formiga:
+class Formiga:
     def __init__(self):
 
         
@@ -645,8 +645,8 @@ class Fase1:
         self.color_timer = 0  # Timer para animação do gradiente
         self.instructions_screen = InstructionsScreen(self.color_timer)  # Nova classe de instruções
 
-        self.tempo = tempo()
-        self.formiga = formiga()
+        self.tempo = Tempo()
+        self.formiga = Formiga()
         self.balas = Balas()
 
         self.personagem = Personagem(2, y_chao - altura_personagem)
@@ -705,7 +705,7 @@ class Fase1:
             return  # Não executa o resto do update enquanto mostra instruções
 
         if not hasattr(self, 'pause_system'):
-            self.pause_system = pause()
+            self.pause_system = Pause() 
 
         # Sempre atualiza o sistema de pause (para detectar F)
         self.pause_system.update_pause()
