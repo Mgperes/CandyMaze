@@ -158,7 +158,7 @@ class InstructionsScreen:
     
     def draw_instructions_text(self):
         """Desenha o texto das instruções"""
-        start_y = self.box_y + 12
+        start_y = self.box_y + 8
         for i, line in enumerate(self.instructions):
             text_x = self.box_x + 8
             text_y = start_y + i * 12
@@ -476,7 +476,7 @@ class Plataforma1:
             self.direita = True  #quando x for 87 (o inicial) ela se moverá para a direita
         if self.x == 153:
             self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
-        if self.direita == True:
+        if self.direita == True:   
             self.x += 2
             self.direita = True
         if self.direita == False:
@@ -508,7 +508,7 @@ class tempo:
     def __init__(self):
         self.tempo = 0 and True
         self.lose = False
-        self.tempo_limite = 700 # dividir por 20 fps = 35 segundos
+        self.tempo_limite = 600 # dividir por 20 fps = 30 segundos
     def update(self):  
         self.tempo += 1
         if self.tempo > self.tempo_limite:
@@ -537,9 +537,9 @@ class formiga:
 
     def update(self):
         if self.x == 35:
-            self.direita = True  #quando x for 87 (o inicial) ela se moverá para a direita
+            self.direita = True  #quando x for 835 (o inicial) ela se moverá para a direita
         if self.x == 197:
-            self.direita = False  #quando x chegar a 153 o movimento inverte para a esquerda
+            self.direita = False  #quando x chegar a 197 o movimento inverte para a esquerda
         if self.direita == True:
             self.v = 1.5
             self.x += self.v
@@ -659,7 +659,7 @@ class Fase1:
         self.win = False
         self.win_counter = 0  # Contador de frames na porta final
 
-        self.mx_lago1 = 204
+        self.mx_lago1 = 204   #x inicial do ultimo bloco de lago(cada lago é formado por tres blocos)
         self.my_lago1 = 212
         self.mlargura_lago1 = 20   #posicão inicial e tamanho do primeiro lago
         self.maltura_lago1 = 8
@@ -668,13 +668,13 @@ class Fase1:
         self.afogando = False
         self.lose = False
         self.afogar_timer = 0
-        self.mx_lago2 = 137
+        self.mx_lago2 = 137    #x inicial do ultimo bloco de lago(cada lago é formado por tres blocos)
         self.my_lago2 = 68
         self.mlargura_lago2 = 40   #posicão inicial e tamanho do segundo lago
         self.maltura_lago2 = 8
         self.mx_inicial_lago2 = 86
         self.mlargura_total_lago2 = 90 
-        self.mx_lago3 = 50
+        self.mx_lago3 = 509      #x inicial do ultimo bloco de lago(cada lago é formado por tres blocos)
         self.my_lago3 = 116
         self.mlargura_lago3 = 20   #posicão inicial e tamanho do terceiro lago
         self.maltura_lago3 = 8
@@ -810,7 +810,7 @@ class Fase1:
         self.balas.update(self.personagem.x,self.personagem.y)  
 
 
-    #-------------LAGO 1--------------
+    #-------------LAGO 1--------------(lago do primeiro andar)
 
         self.mx_lago1 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
         if self.mlargura_lago1 > 0 and self.mx_lago1 < 224:
@@ -819,7 +819,7 @@ class Fase1:
             self.mlargura_lago1 = 20
             self.mx_lago1 = 204
     
-    #----------LAGO2--------------
+    #----------LAGO2--------------(lago do ultimo andar)
         self.mx_lago2 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
         if self.mlargura_lago2 > 0 and self.mx_lago2 < 177:
             self.mlargura_lago2 -= 0.5
@@ -827,7 +827,7 @@ class Fase1:
             self.mlargura_lago2 = 40
             self.mx_lago2 = 137
 
-    #----------LAGO3--------------
+    #----------LAGO3--------------(lago do meio)
         self.mx_lago3 += 0.5 #movimento do lago para a direita, e corte na largura de acordo com o movimento
         if self.mlargura_lago3 > 0 and self.mx_lago3 < 70:
             self.mlargura_lago3 -= 0.5
@@ -1164,16 +1164,16 @@ class Fase1:
         else:
             self.personagem.desenhapersonagem()
 
-        #----LAGO1-------
+        #----LAGO1-------(lago do primeiro andar)
         pyxel.blt(self.mx_lago1, self.my_lago1, 1, 101, 0, self.mlargura_lago1, self.maltura_lago1,7) #primeira imagem do looping do lago
         pyxel.blt(self.mx_lago1 - 20, self.my_lago1, 1, 101, 0, 20, self.maltura_lago1,7)  #segunda imagem do looping do lago
         pyxel.blt(self.mx_lago1 - 40, self.my_lago1, 1, 101, 0, 20, self.maltura_lago1,7)   #terceira imagem do looping do lago
-       #-----LAGO2--------
+       #-----LAGO2--------(lago do ultimo andar)
         pyxel.blt(self.mx_lago2, self.my_lago2, 1, 56, 16, self.mlargura_lago2, self.maltura_lago2,7) 
         pyxel.blt(self.mx_lago2 - 40, self.my_lago2, 1, 56, 16, 40, self.maltura_lago2,7) 
         pyxel.blt(self.mx_lago2 - 80, self.my_lago2, 1, 56, 16, 40, self.maltura_lago2,7) 
         pyxel.blt(self.mx_lago2 - 95, self.my_lago2, 1, 56, 16, 15, self.maltura_lago2,7)   
-        #-----LAGO3--------
+        #-----LAGO3--------(lago do meio)
         pyxel.blt(self.mx_lago3, self.my_lago3, 1, 56, 24, self.mlargura_lago3, self.maltura_lago3,7) 
         pyxel.blt(self.mx_lago3 - 20, self.my_lago3, 1, 56, 24, 20, self.maltura_lago3,7)  
         pyxel.blt(self.mx_lago3 - 40, self.my_lago3, 1, 56, 24, 20, self.maltura_lago3,7) 
@@ -1871,16 +1871,16 @@ class LoseScreen:
         # Mensagem específica de perda, exibida abaixo do título
         message = None
         if self.lose_reason == 'formiga':
-            message = "A formiga te alcancou"
+            message = "Oh nao! A formiga esgotou suas vidas."
         elif self.lose_reason == 'tempo':
-            message = "Seu tempo acabou!"
+            message = "Seu tempo acabou! Tente ser mais veloz."
         elif self.lose_reason == 'afogado':
-            message = "Voce morreu afogado!"
+            message = "Oh nao! Voce morreu afogado no lago."
 
         if message:
             # centraliza mensagem em relação ao título
-            msg_x = title_x + 6
-            msg_y = title_y + 18
+            msg_x = 53
+            msg_y = 58
             # sombra
             pyxel.text(msg_x + 1, msg_y + 1, message, 0)
             pyxel.text(msg_x, msg_y, message, 7)
