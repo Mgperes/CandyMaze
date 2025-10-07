@@ -88,7 +88,7 @@ class InstructionsScreen:
         self.instructions = [
             "COMO JOGAR:",
             "",
-            "- Use as teclas A e D para mover;",
+            "- Use as teclas A e D ou setas para mover;",
             "- Pressione ESPACO para pular;",
             "- Pressione F para pausar",
             "- Colete balas para ganhar pontos;",
@@ -193,7 +193,7 @@ class InstructionsScreen:
         # Balas nas bordas superior e inferior - melhor espaçamento
         candy_spacing = 25
         start_x = self.box_x + 12
-        end_x = self.box_x + self.box_width - 12
+        end_x = self.box_x + self.box_width 
         
         for x in range(start_x, end_x, candy_spacing):
             if x + 12 <= end_x:  # Verifica se cabe (ajustado para maior bala 9x12)
@@ -208,7 +208,7 @@ class InstructionsScreen:
         # Balas nas bordas laterais - melhor espaçamento
         candy_spacing_v = 35
         start_y = self.box_y + 20
-        end_y = self.box_y + self.box_height - 20
+        end_y = self.box_y + self.box_height 
         
         for y in range(start_y, end_y, candy_spacing_v):
             if y + 12 <= end_y:  # Verifica se cabe (ajustado para maior bala 9x12)
