@@ -2,14 +2,14 @@
 
 CandyMaze é um jogo simples feito em Python usando a biblioteca Pyxel. O objetivo é controlar um personagem por um labirinto doce, superando obstáculos e desafios.
 
-![Tela do Menu](menucandymaze.png)
+![Tela do Menu](readme_img/menucandymaze.png)
 
-![Tela da fase 1](fase1candymaze2.png)
+![Tela da fase 1](readme_img/fase1candymaze2.png)
 
 
 ## Como jogar 🍫
 
-![Tela de Instruções](instructionscandymaze.png)
+![Tela de Instruções](readme_img/instructionscandymaze.png)
 
 - **Setas Esquerda/Direita:** Movimentam o personagem para os lados
 - **Espaço:** Pula 
@@ -19,9 +19,9 @@ CandyMaze é um jogo simples feito em Python usando a biblioteca Pyxel. O objeti
 - **Mouse:** Clique em "START" para começar
 - - **Tecla F:** Pause o jogo
 
-![Tela do Lose](losecandymaze.png)
+![Tela do Lose](readme_img/losecandymaze.png)
 
-![Tela do victory](victorycandymaze.png)
+![Tela do victory](readme_img/victorycandymaze.png)
 ## Requisitos
 - Python 3.7+
 - Pyxel (`pip install pyxel`)
