@@ -689,6 +689,8 @@ class Fase1:
         
         # Sistema de invencibilidade visual
         self.invencibilidade_timer = 0
+    # Motivo da derrota: 'formiga', 'tempo', 'afogado' ou None
+        self.lose_reason = None
         
     def update_fase1(self):
         # Atualiza timer para animação do gradiente nas instruções
@@ -772,6 +774,7 @@ class Fase1:
             GameLogger.death_log("💀 GAME OVER! Tempo esgotado! 💀")
             pyxel.play(3, 2)
             self.lose = True
+            self.lose_reason = 'tempo'
             return
 
 
@@ -919,6 +922,7 @@ class Fase1:
                 GameLogger.death_log("💀💀💀 O PERSONAGEM SE AFOGOU COMPLETAMENTE! 💀💀💀")
                 pyxel.play(3, 2)  # Som de morte/afogamento
                 self.lose = True
+                self.lose_reason = 'afogado'
 
 
 
@@ -1100,6 +1104,8 @@ class Fase1:
                     GameLogger.death_log("💀 GAME OVER! Todas as vidas foram perdidas! 💀")
                     pyxel.play(3, 2)  # Som de morte
                     self.lose = True
+                    # normalmente perda de vidas vem da formiga (colisão)
+                    self.lose_reason = 'formiga'
         
         # Decrementar cooldowns
         if self.formiga_collision_cooldown > 0:
@@ -1136,6 +1142,9 @@ class Fase1:
         # Verifica se perdeu todas as vidas
         if self.vidas.sistema_vidas():
             self.lose = True
+            # se as vidas acabaram, normalmente foi por ataques (formiga)
+            if not self.lose_reason:
+                self.lose_reason = 'formiga'
         self.tempo.draw()
         # Checa colisão do personagem com a porta final
         if (
@@ -1746,7 +1755,7 @@ class VictoryScreen:
         pyxel.mouse(False)
 #----------------- LoseScreen ---------------------------------------------------------------------------------------#
 class LoseScreen:
-    def __init__(self, score_atual=0):
+    def __init__(self, score_atual=0, lose_reason=None):
         self.colortext = 8 
         self.width = 250
         self.height = 220
@@ -1766,6 +1775,8 @@ class LoseScreen:
         self.score_animation_speed = 1.5
         self.score_animation_complete = False
         self.percentual = (self.score_atual / self.score_maximo * 100) if self.score_maximo > 0 else 0
+        # motivo da derrota: 'formiga', 'tempo', 'afogado' ou None
+        self.lose_reason = lose_reason
     
     def calcular_score_maximo(self):
         """Calcula o score máximo possível baseado nas balas disponíveis"""
@@ -1856,6 +1867,23 @@ class LoseScreen:
 
         pyxel.blt(title_x + 2, title_y + 2, 1, x_mem_title, y_mem_title1, 90, 10, 7)
         pyxel.blt(title_x , title_y, 1, x_mem_title, y_mem_title2, 90, 10, 7)
+
+        # Mensagem específica de perda, exibida abaixo do título
+        message = None
+        if self.lose_reason == 'formiga':
+            message = "A formiga te alcancou"
+        elif self.lose_reason == 'tempo':
+            message = "Seu tempo acabou!"
+        elif self.lose_reason == 'afogado':
+            message = "Voce morreu afogado!"
+
+        if message:
+            # centraliza mensagem em relação ao título
+            msg_x = title_x + 6
+            msg_y = title_y + 18
+            # sombra
+            pyxel.text(msg_x + 1, msg_y + 1, message, 0)
+            pyxel.text(msg_x, msg_y, message, 7)
 
         # Desenha o personagem na frente do painel de score mas atrás dos lagos
         pyxel.blt(int(self.char_x), int(self.char_y), 1, 0, 0, 14, 18, 7)
@@ -2573,8 +2601,8 @@ class CandyMazeGame:
                 # Para todas as trilhas da fase
                 pyxel.stop(0)
                 pyxel.stop(1)
-                # Cria nova tela de derrota a cada derrota com o score atual
-                self.lose_screen = LoseScreen(self.fase1.balas.score)
+                # Cria nova tela de derrota a cada derrota com o score atual e motivo
+                self.lose_screen = LoseScreen(self.fase1.balas.score, self.fase1.lose_reason)
                 self.state = "lose"
                 return
             # -------- se clicar em ESC volta pra tela inicial -------------------#
