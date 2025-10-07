@@ -131,6 +131,7 @@ class Fase1:
             self.personagem.move(dx, dy)
         else:
             if not self.chegou_aofim:   #se a personagem não estiver na porta final
+
             #-------------- Personagem parado -------------------#
                 self.personagem.parada()
 

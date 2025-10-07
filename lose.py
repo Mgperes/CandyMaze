@@ -52,41 +52,6 @@ class LoseScreen:
                 if self.score_animado >= self.score_atual:
                     self.score_animado = self.score_atual
                     self.score_animation_complete = True
-        
-        # A cada 120 frames (6 segundos a 20fps), escolhe nova direção
-        if self.direction_timer >= 120:
-            # Escolhe nova posição alvo aleatória dentro da área permitida
-            self.target_x = random.uniform(20, 140)  # Margem de 20px das bordas
-            self.target_y = random.uniform(129, 172)  # Entre Y=129 (15px acima dos lagos) e Y=172 (metade dos lagos)
-            self.direction_timer = 0
-        
-        lerp_speed = 0.02 
-        
-        # Calcula a diferença entre posição atual e alvo
-        diff_x = self.target_x - self.char_x
-        diff_y = self.target_y - self.char_y
-        
-        # Move gradualmente em direção ao alvo
-        self.char_x += diff_x * lerp_speed
-        self.char_y += diff_y * lerp_speed
-        
-        # Adiciona um leve movimento de flutuação (oscilação suave)
-        float_offset_x = math.sin(self.animation_timer * 0.05) * 2
-        float_offset_y = math.cos(self.animation_timer * 0.03) * 1.5
-        
-        # Aplica a flutuação à posição final
-        final_x = self.char_x + float_offset_x
-        final_y = self.char_y + float_offset_y
-        
-        # Limita o movimento para criar efeito de afogamento
-        # Os lagos começam em y=144 e terminam em y=200
-        # Limita o personagem entre y=129 (15px acima dos lagos) e y=172 (metade da altura dos lagos)
-        limite_superior = 129  # Y = 144 - 15px (15 pixels acima do início dos lagos)
-        limite_inferior = 172  # Metade da altura dos lagos (144 + 56/2 = 172)
-        
-        # Garante que não saia da tela e respeita os limites de afogamento
-        self.char_x = max(10, min(final_x, 230))
-        self.char_y = max(limite_superior, min(final_y, limite_inferior))
 
         if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
             pyxel.play(0, 4)  # Som de menu/click
@@ -95,7 +60,7 @@ class LoseScreen:
     
 
     def draw(self):
-        pyxel.cls(0)  # Fundo preto 
+        pyxel.cls(0)  # Fundo 
         for y in range(220):
             if y < 73:
                 color = pyxel.COLOR_DARK_BLUE  # Céu azul claro
@@ -105,7 +70,7 @@ class LoseScreen:
                 color = pyxel.COLOR_DARK_BLUE
             pyxel.line(0, y, 250, y, color)
                
-        
+#--------------- Título "Game Over"----------------------------------
         title_x = 80
         title_y = 40
         x_mem_title = 132
@@ -115,7 +80,7 @@ class LoseScreen:
         pyxel.blt(title_x + 2, title_y + 2, 1, x_mem_title, y_mem_title1, 90, 10, 7)
         pyxel.blt(title_x , title_y, 1, x_mem_title, y_mem_title2, 90, 10, 7)
 
-        # Mensagem específica de perda, exibida abaixo do título
+#------------------ Mensagem específica de perda, exibida abaixo do título ----------------
         message = None
         if self.lose_reason == 'formiga':
             message = "Oh nao! A formiga esgotou suas vidas."
@@ -132,8 +97,11 @@ class LoseScreen:
             pyxel.text(msg_x + 1, msg_y + 1, message, 0)
             pyxel.text(msg_x, msg_y, message, 7)
 
-        # Desenha o personagem na frente do painel de score mas atrás dos lagos
-        pyxel.blt(int(self.char_x), int(self.char_y), 1, 0, 0, 14, 18, 7)
+# --------------Personagem------------------------------------------------
+        pyxel.blt(120, 133, 1, 56, 48, 14, 18, 7)
+
+# -------------------Animação dos lagos----------------------------------------
+
 
         # Lago 1 - Lado esquerdo
         if not hasattr(self, 'mx_lago1'):
@@ -398,12 +366,14 @@ class LoseScreen:
         
 
         pyxel.blt(170, 130, 1, 150, 72, 100, 8)
-        # Uma formiga solitária no canto (menos poluído)
+
+
+# ---------------formiga-----------------------------------------
         formiga_x = 200 + math.sin(self.animation_timer * 0.05) * 5
         formiga_y = 120
         pyxel.blt(int(formiga_x), formiga_y, 1, 197, 0, 18, 11, 7)
-        
-        # Painel de Score da Derrota 
+# ----------------Painel de Score-----------------------------------------------
+         
         panel_x = 5
         panel_y = 75
         panel_w = 85
@@ -458,6 +428,7 @@ class LoseScreen:
             fill_color = 11 if self.percentual >= 80 else 10 if self.percentual >= 60 else 8
             pyxel.rect(bar_x + 1, bar_y + 1, fill_width, bar_h - 2, fill_color)
 
+# ----------------Instruções e Moldura-----------------------------------------------
         instruction_text = "Don't give up! Press ENTER to try again"
         text_x = 45
         text_y = 180

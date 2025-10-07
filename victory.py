@@ -27,11 +27,12 @@ class VictoryScreen:
         self.percentual = (self.score_atual / self.score_maximo * 100) if self.score_maximo > 0 else 0
     
     def calcular_score_maximo(self):
-        """Calcula o score máximo possível baseado nas balas disponíveis"""
+        """Calcula o score máximo possível baseado nas balas disponíveis, acredito que seja 1000"""
         score_max = 0
         # Balas especiais (índices 11, 12, 13, 14) valem 75 pontos
         balas_especiais = [11, 12, 13, 14]
         # Balas normais valem 50 pontos
+
         total_balas = 18  # Total de balas no jogo
         
         for i in range(total_balas):
@@ -84,11 +85,11 @@ class VictoryScreen:
 
     def draw(self):
         pyxel.cls(0)
-        # Fundo gradiente (mantém o original)
+        # Fundo 
         for y in range(220):
             if y < 73:
                 color = 12 # Azul claro
-                pyxel.blt(0, 0, 2, 0, 20, 250, y) # Desenha o fundo azul claro
+                pyxel.blt(0, 0, 2, 0, 20, 250, y) # Desenha o fundo que desenhamos
             elif y < 146:
                 color = 14  # Rosa
                 pyxel.line(0, y, 250, y, color)
@@ -100,6 +101,16 @@ class VictoryScreen:
                 pyxel.line(0, y, 250, y, color)
         
         
+        """-----------------------Animação de lagos-----------------
+        
+        Explicação:
+        Cada lago tem sua própria velocidade e ciclo de animação, os lagos 1,2 e 3 desenham 10 sprites cada um, os lagos 4,5 e 6 desenham 9 sprites cada um, e os lagos 7,8 e 9 desenham 8 sprites cada um.
+        
+        hasattr(object, name) -> bool
+        verifica se o objeto possui o atributo 'name', retornando True ou False.
+
+        """
+
         # Lago 1 - Lado esquerdo
         if not hasattr(self, 'mx_lago1'):
             self.mx_lago1 = -5  
@@ -345,6 +356,7 @@ class VictoryScreen:
             pyxel.blt(int(self.mx_lago10) - 264, 144 + offset_y, 1, 56, 16, 20, 8, 7)
 
 
+    #--------------------------------------------------------------------------------------------------------------
         # Animação de chão se formando (POR CIMA DOS LAGOS)
         x_chaoinicial1 = 115
         y_chaoinicial1 = 143
@@ -353,7 +365,7 @@ class VictoryScreen:
         y_chaoinicial2 = y_chaoinicial1
         W_chaolargura2 = 21
 
-        # Animação de chão se formando (ORIGINAL)
+        
         for i in range(1, 63):
             ch = pyxel.blt(x_chaoinicial1, y_chaoinicial1, 1, 56, 40, W_chaolargura1, 8, 7)
             if W_chaolargura1 >= 180:
@@ -369,8 +381,9 @@ class VictoryScreen:
         
         pyxel.blt(0, 204, 1, 0, 88, 160, 8, 7) # chão final
         pyxel.blt(160, 204, 1, 0, 88, 90, 8, 7) # chão final
-        # Título principal
-        title_text = "SWEET VICTORY!"
+#------------------------------------------------------------------------------------------------------------
+        
+        # Título "Sweet Victory"
         title_x = 65
         title_y = 59
         x_title_mem_sweet1 = 197
@@ -385,7 +398,7 @@ class VictoryScreen:
         pyxel.blt(title_x + 52, title_y + 2, 1, 70, 48, 62, 9, 7)
         pyxel.blt(title_x + 50, title_y, 1, 70, 57, 62, 9, 7)
         
-
+#------------------------------------------------------------------------------------------------------------
         
         # Coração  
         heart_x = 120
@@ -400,8 +413,10 @@ class VictoryScreen:
 
         
         
+# -------------------personagem comemorando na posição fixa----------------------------------------
+        
+        #brilhos ao redor do personagem parado ou em movimento
         if not self.animacao_ativa:
-            # Antes da animação - personagem comemorando na posição fixa
             char_x = 117
             char_y = 135
             
@@ -421,12 +436,15 @@ class VictoryScreen:
                         pyxel.pset(int(brilho_x + 1), int(brilho_y), 15)   # Pixel pêssego claro
                         pyxel.pset(int(brilho_x), int(brilho_y + 1), 10)   # Pixel amarelo
             
+            # Alterna entre pose de comemoração e pose padrão do personagem
+
             if self.animation_timer % 40 < 20:
                 pyxel.blt(char_x, char_y, 1, 14, 0, 14, 18, 7)  # Pose de comemoração
             else:
                 pyxel.blt(char_x, char_y, 1, 0, 0, 14, 18, 7)  # Pose padrão
         else:
             if self.personagem.y >= 73 and self.personagem.y <= 146:  # Só na zona rosa claro
+
                 # Brilhos pequenos ao redor do personagem em movimento
                 brilho_offsets = [
                     (-8, -6), (18, -4), (-5, 10), (20, 12),  
@@ -447,7 +465,7 @@ class VictoryScreen:
             
         
         
-        # Instrução para jogar novamente (só mostra se animação não iniciou)
+#-------------- Instrução para jogar novamente (só mostra se animação não iniciou)---------------------
         if not self.animacao_ativa:
             instruction_text = "Press ENTER to play again!"
             text_x = 72
@@ -457,15 +475,16 @@ class VictoryScreen:
             if self.animation_timer % 100 < 80:  # Visível na maior parte do tempo
                 pyxel.text(text_x + 1, text_y + 1, instruction_text, 0)  # Sombra
                 pyxel.text(text_x, text_y, instruction_text, 7)  # Texto branco
+#############################################################################################
         
-        # Moldura nas bordas (só se animação não iniciou)
+        # Moldura nas bordas da tela (só se animação não iniciou)
         if not self.animacao_ativa:
-            pyxel.line(0, 5, 250, 5, 15)  # Linha pêssego clara
+            pyxel.line(0, 5, 250, 5, 15)  
             pyxel.line(0, 215, 250, 215, 15)
             pyxel.rect(237, 10, 3, 3, 15)
             pyxel.rect(10, 10, 3, 3, 15)
 
-            # Painel de Score Melhorado 
+# -----------------------Painel de Score----------------------------------------------
             panel_x = 5
             panel_y = 75
             panel_w = 85
@@ -479,7 +498,7 @@ class VictoryScreen:
             # Título do painel
             pyxel.text(panel_x + 3, panel_y + 3, "SCORE", 15)
             
-            # Score atual formatado como "ganhos / total pts"
+            # Score atual
             score_text = f"{int(self.score_animado)} / 1000 pts"
             pyxel.text(panel_x + 3, panel_y + 15, score_text, 11)  # Verde claro
             
@@ -523,14 +542,12 @@ class VictoryScreen:
             if self.percentual == 100:
                 blink_frame = self.animation_timer % 60
                 if blink_frame < 30:
-                    # Brilho dourado ao redor do painel
-                    pyxel.rectb(panel_x - 1, panel_y - 1, panel_w + 2, panel_h + 2, 10)  # Borda dourada
+                    pyxel.rectb(panel_x - 1, panel_y - 1, panel_w + 2, panel_h + 2, 10)  # Borda 
 
             # Efeito de brilho se score completo
             if self.percentual == 100:
                 blink_frame = self.animation_timer % 60
                 if blink_frame < 30:
-                    # Brilho dourado ao redor do painel
-                    pyxel.rectb(panel_x - 1, panel_y - 1, panel_w + 2, panel_h + 2, 10)  # Borda dourada
+                    pyxel.rectb(panel_x - 1, panel_y - 1, panel_w + 2, panel_h + 2, 10)  # Borda 
 
         pyxel.mouse(False)
