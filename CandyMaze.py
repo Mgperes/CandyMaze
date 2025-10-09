@@ -1,3 +1,8 @@
+########################################
+#          Código Principal            #
+########################################
+
+
 import pyxel
 from Menu import Start
 from fase_1 import Fase1
