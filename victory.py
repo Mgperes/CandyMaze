@@ -57,7 +57,7 @@ class VictoryScreen:
         # Se a animação não foi iniciada e o jogador pressiona Enter/Espaço
         if not self.animacao_ativa and (pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE)):
             if not self.som_tocado:
-                pyxel.play(0, 4)  # Som de menu/click
+                pyxel.play(0, 4)  # Som de menu
                 self.som_tocado = True
             self.animacao_ativa = True
             self.dy = 2 
@@ -105,6 +105,8 @@ class VictoryScreen:
         
         Explicação:
         Cada lago tem sua própria velocidade e ciclo de animação, os lagos 1,2 e 3 desenham 10 sprites cada um, os lagos 4,5 e 6 desenham 9 sprites cada um, e os lagos 7,8 e 9 desenham 8 sprites cada um.
+        Cada lago possui uma variável de posição (mx_lagoX) e uma variável de largura (mlargura_lagoX) que são atualizadas a cada frame para criar o efeito de movimento.(ele se movimenta para a direita e diminui a largura, quando a largura chega a 0, ele reseta a posição e a largura para os valores iniciais)
+
         
         hasattr(object, name) -> bool
         verifica se o objeto possui o atributo 'name', retornando True ou False.
@@ -113,18 +115,18 @@ class VictoryScreen:
 
         # Lago 1 - Lado esquerdo
         if not hasattr(self, 'mx_lago1'):
-            self.mx_lago1 = -5  
+            self.mx_lago1 = -5  # Começa 5px fora da tela
             self.mlargura_lago1 = 20
         
-        self.mx_lago1 += 0.3 
-        if self.mlargura_lago1 > 0 and self.mx_lago1 < 25:  
-            self.mlargura_lago1 -= 0.3
-        else:
-            self.mlargura_lago1 = 20
+        self.mx_lago1 += 0.3 # Velocidade do lago 1
+        if self.mlargura_lago1 > 0 and self.mx_lago1 < 25:  # Limite final para o lago 1
+            self.mlargura_lago1 -= 0.3 # Diminui a largura para criar o efeito de movimento
+        else: # Reseta a posição e a largura quando o lago sai da tela
+            self.mlargura_lago1 = 20 
             self.mx_lago1 = -5  
-        for offset_y in range(0, 56, 6):  
+        for offset_y in range(0, 56, 6):  # Desenha 10 sprites verticalmente com espaçamento de 6px(8-2) começando em y=144, o 0 começa, 56 é o limite, 6 é o espaçamento
             pyxel.blt(int(self.mx_lago1), 144 + offset_y, 1, 56, 16, int(self.mlargura_lago1), 8, 7)
-            pyxel.blt(int(self.mx_lago1) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
+            pyxel.blt(int(self.mx_lago1) - 24, 144 + offset_y, 1, 56, 16, 20, 8, 7)  # o self.mx_lago1 é int para evitar erros de pixel
             pyxel.blt(int(self.mx_lago1) - 48, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago1) - 72, 144 + offset_y, 1, 56, 16, 20, 8, 7)  
             pyxel.blt(int(self.mx_lago1) - 96, 144 + offset_y, 1, 56, 16, 20, 8, 7)
