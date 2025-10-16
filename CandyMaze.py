@@ -13,7 +13,7 @@ class CandyMazeGame:
     def __init__(self):
         pyxel.init(250, 220, title="CandyMaze", fps=20, quit_key=pyxel.KEY_Q )
 
-        self.state = "start"  # start, game, victory
+        self.state = "start"  
         self.start_screen = Start()
         self.fase1 = Fase1()
         self.victory_screen = None  
