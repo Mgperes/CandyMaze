@@ -27,7 +27,7 @@ class Fase1:
         self.showing_instructions = True
         self.first_time_playing = True
         self.color_timer = 0  # Timer para animação do gradiente
-        self.instructions_screen = InstructionsScreen(self.color_timer)  # Nova classe de instruções
+        self.instructions_screen = InstructionsScreen(self.color_timer)  # classe de instruções
         #################################################################################################
 
         self.tempo = Tempo()
@@ -284,7 +284,6 @@ class Fase1:
         # Sistema de morte lenta e inevitável 
         if self.afogando:
             self.afogar_timer += 1
-            tempo_restante = (40 - self.afogar_timer) / 20  # Converte frames para segundos (fps=20)
             self.personagem.x_mem = 56   #muda a animacão
             self.personagem.y_mem = 48
             
