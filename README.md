@@ -43,7 +43,7 @@ CandyMaze é um jogo simples feito em Python usando a biblioteca Pyxel. O objeti
 - `*.pyxres` — Arquivo de recursos Pyxel (tiles, tilemap, etc)
 
 ## Créditos
-Desenvolvido por Mgperes e MaluMachado
+Desenvolvido por Mgperes e maluxmachado07
 
 ---
 Divirta-se no labirinto de doces!
